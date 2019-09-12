@@ -25,6 +25,16 @@ PinkTromboneAudioProcessor::PinkTromboneAudioProcessor()
                        )
 #endif
 {
+//	addParameter (tongueX = new AudioParameterFloat ("tonguex", // parameter ID
+//													 	"Tongue X", // parameter name
+//													 	0.0f,   // minimum value
+//													 	1.0f,   // maximum value
+//													 	0.5f)); // default value
+//	addParameter (tongueY = new AudioParameterFloat ("tonguey", // parameter ID
+//													 "Tongue Y", // parameter name
+//													 0.0f,   // minimum value
+//													 1.0f,   // maximum value
+//													 0.5f)); // default value
 }
 
 PinkTromboneAudioProcessor::~PinkTromboneAudioProcessor()
@@ -197,6 +207,12 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		}
 	}
 	
+	long tongueIndex = (long) floor(tongueX * (this->tract->tongueIndexUpperBound() - this->tract->tongueIndexLowerBound())) + this->tract->tongueIndexLowerBound();
+	double innerTongueControlRadius = 2.05;
+	double outerTongueControlRadius = 3.5;
+	double tongueDiameter = tongueY * (outerTongueControlRadius - innerTongueControlRadius) + innerTongueControlRadius;
+	
+	this->tract->setRestDiameter(tongueIndex, tongueDiameter);
 	this->glottis->finishBlock();
 	this->tract->finishBlock();
 }

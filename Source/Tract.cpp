@@ -1,5 +1,5 @@
 //
-//  Tract.cpp
+//  Tract
 //  PinkTrombone - VST3
 //
 //  Created by Samuel Tarakajian on 9/5/19.
@@ -91,6 +91,16 @@ void Tract::init() {
 	this->noseDiameter[0] = this->velumTarget;
 }
 
+long Tract::tongueIndexLowerBound()
+{
+	return this->bladeStart + 2;
+}
+
+long Tract::tongueIndexUpperBound()
+{
+	return this->tipStart - 3;
+}
+
 void Tract::addTransient(int position)
 {
 	if (this->transientCount < MAX_TRANSIENTS) {
@@ -160,6 +170,22 @@ void Tract::finishBlock()
 {
 	this->reshapeTract(this->blockTime);
 	this->calculateReflections();
+}
+
+void Tract::setRestDiameter(long tongueIndex, double tongueDiameter)
+{
+	for (long i = this->bladeStart; i < this->lipStart; i++)
+	{
+		double t = 1.1 * M_PI * (double) (tongueIndex - i) / (double) (this->tipStart - this->bladeStart);
+		double fixedTongueDiameter = 2 + (tongueDiameter - 2) / 1.5;
+		double curve = (1.5 - fixedTongueDiameter + 1.7) * cos(t);
+		if (i == this->bladeStart-2 || i == this->lipStart-1) curve *= 0.8;
+		if (i == this->bladeStart || i == this->lipStart-2) curve *= 0.94;
+		this->restDiameter[i] = 1.5 - curve;
+	}
+	for (long i = 0; i < this->n; i++) {
+		this->targetDiameter[i] = this->restDiameter[i];
+	}
 }
 
 void Tract::processTransients()

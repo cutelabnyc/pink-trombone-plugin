@@ -19,8 +19,12 @@ public:
 	~Tract();
 	void runStep(double glottalOutput, double turbulenceNoise, double lambda);
 	void finishBlock();
+	void setRestDiameter(long tongueIndex, double tongueDiameter);
 	double lipOutput;
 	double noseOutput;
+	
+	long tongueIndexLowerBound();
+	long tongueIndexUpperBound();
 	
 private:
 	void init();

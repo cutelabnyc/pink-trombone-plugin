@@ -58,6 +58,10 @@ public:
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+	
+	//=== Audio Parameters
+	float tongueX = 0.0;
+	float tongueY = 0.0;
 
 private:
     //==============================================================================
