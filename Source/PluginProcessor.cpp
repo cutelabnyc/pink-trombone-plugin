@@ -190,9 +190,9 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		
 		double glot = this->glottis->runStep(lambda1, asp);
 		double vocalOutput = 0.0;
-		this->tract->runStep(glot, fri, lambda1);
+		this->tract->runStep(glot, fri, lambda1, this->glottis);
 		vocalOutput += this->tract->lipOutput + this->tract->noseOutput;
-		this->tract->runStep(glot, fri, lambda2);
+		this->tract->runStep(glot, fri, lambda2, this->glottis);
 		vocalOutput += this->tract->lipOutput + this->tract->noseOutput;
 		
 		channelData[j] = vocalOutput * 0.125;
@@ -211,8 +211,13 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 	double innerTongueControlRadius = 2.05;
 	double outerTongueControlRadius = 3.5;
 	double tongueDiameter = tongueY * (outerTongueControlRadius - innerTongueControlRadius) + innerTongueControlRadius;
+	double constrictionMax = 5.0;
+	
+	double constrictionIndex = this->constrictionX * (double) this->tract->getTractIndexCount();
+	double constrictionDiameter = this->constrictionY * constrictionMax;
 	
 	this->tract->setRestDiameter(tongueIndex, tongueDiameter);
+	this->tract->setConstriction(constrictionIndex, constrictionDiameter);
 	this->glottis->finishBlock();
 	this->tract->finishBlock();
 }

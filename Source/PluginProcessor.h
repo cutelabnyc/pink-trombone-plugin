@@ -62,6 +62,8 @@ public:
 	//=== Audio Parameters
 	float tongueX = 0.0;
 	float tongueY = 0.0;
+	float constrictionX = 0.0;
+	float constrictionY = 0.0;
 
 private:
     //==============================================================================

@@ -35,6 +35,8 @@ private:
 	
 	Slider tongueX;
 	Slider tongueY;
+	Slider constrictionX;
+	Slider constrictionY;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PinkTromboneAudioProcessorEditor)
 };

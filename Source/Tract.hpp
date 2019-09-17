@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "Glottis.hpp"
 
 struct t_transient;
 
@@ -17,20 +18,22 @@ class Tract {
 public:
 	Tract(double sampleRate, double blockSize);
 	~Tract();
-	void runStep(double glottalOutput, double turbulenceNoise, double lambda);
+	void runStep(double glottalOutput, double turbulenceNoise, double lambda, Glottis *glottis);
 	void finishBlock();
 	void setRestDiameter(long tongueIndex, double tongueDiameter);
+	void setConstriction(double cindex, double cdiam);
 	double lipOutput;
 	double noseOutput;
 	
+	long getTractIndexCount();
 	long tongueIndexLowerBound();
 	long tongueIndexUpperBound();
 	
 private:
 	void init();
 	void addTransient(int position);
-	void addTurbulenceNoise(double turbulenceNoise);
-	void addTurbulenceNoiseAtIndex(double turbulenceNoise, int index, double diameter);
+	void addTurbulenceNoise(double turbulenceNoise, Glottis *glottis);
+	void addTurbulenceNoiseAtIndex(double turbulenceNoise, double index, double diameter, Glottis *glottis);
 	void calculateReflections();
 	void calculateNoseReflections();
 	void processTransients();
@@ -77,6 +80,9 @@ private:
 	
 	double reflectionLeft, reflectionRight, reflectionNose;
 	double newReflectionLeft, newReflectionRight, newReflectionNose;
+	
+	double constrictionIndex;
+	double constrictionDiameter;
 };
 
 #endif /* Tract_hpp */

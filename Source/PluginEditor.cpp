@@ -36,6 +36,24 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	tongueY.setValue(1.0);
 	addAndMakeVisible (&tongueY);
 	tongueY.addListener(this);
+	
+	constrictionX.setSliderStyle (Slider::LinearBarVertical);
+	constrictionX.setRange(0.0, 1.0, 0.01);
+	constrictionX.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
+	constrictionX.setPopupDisplayEnabled (true, false, this);
+	constrictionX.setTextValueSuffix (" Tongue X");
+	constrictionX.setValue(1.0);
+	addAndMakeVisible (&constrictionX);
+	constrictionX.addListener(this);
+	
+	constrictionY.setSliderStyle (Slider::LinearBarVertical);
+	constrictionY.setRange(0.0, 1.0, 0.01);
+	constrictionY.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
+	constrictionY.setPopupDisplayEnabled (true, false, this);
+	constrictionY.setTextValueSuffix (" Tongue Y");
+	constrictionY.setValue(1.0);
+	addAndMakeVisible (&constrictionY);
+	constrictionY.addListener(this);
 }
 
 PinkTromboneAudioProcessorEditor::~PinkTromboneAudioProcessorEditor()
@@ -53,10 +71,14 @@ void PinkTromboneAudioProcessorEditor::resized()
 {
 	tongueX.setBounds (40, 30, 20, getHeight() - 60);
 	tongueY.setBounds (70, 30, 20, getHeight() - 60);
+	constrictionX.setBounds (100, 30, 20, getHeight() - 60);
+	constrictionY.setBounds (130, 30, 20, getHeight() - 60);
 }
 
 void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
 {
 	processor.tongueX = tongueX.getValue();
 	processor.tongueY = tongueY.getValue();
+	processor.constrictionX = constrictionX.getValue();
+	processor.constrictionY = constrictionY.getValue();
 }

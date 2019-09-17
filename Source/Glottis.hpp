@@ -17,10 +17,11 @@ public:
 	~Glottis();
 	double runStep(double lambda, double noiseSource);
 	void finishBlock();
+	double getNoiseModulator();
+	
 private:
 	void setupWaveform(double lambda);
 	double normalizedLFWaveform(double t);
-	double getNoiseModulator();
 	
 	double sampleRate;
 	double timeInWaveform;
