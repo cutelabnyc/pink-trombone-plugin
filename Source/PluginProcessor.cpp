@@ -207,19 +207,35 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		}
 	}
 	
-	long tongueIndex = (long) floor(tongueX * (this->tract->tongueIndexUpperBound() - this->tract->tongueIndexLowerBound())) + this->tract->tongueIndexLowerBound();
+	double tongueIndex = tongueX * ((double) (this->tract->tongueIndexUpperBound() - this->tract->tongueIndexLowerBound())) + this->tract->tongueIndexLowerBound();
 	double innerTongueControlRadius = 2.05;
 	double outerTongueControlRadius = 3.5;
 	double tongueDiameter = tongueY * (outerTongueControlRadius - innerTongueControlRadius) + innerTongueControlRadius;
-	double constrictionMax = 5.0;
+	double constrictionMin = -2.0;
+	double constrictionMax = 2.0;
 	
 	double constrictionIndex = this->constrictionX * (double) this->tract->getTractIndexCount();
-	double constrictionDiameter = this->constrictionY * constrictionMax;
+	double constrictionDiameter = this->constrictionY * (constrictionMax - constrictionMin) + constrictionMin;
+	if (this->constrictionActive == false) {
+		constrictionDiameter = constrictionMax;
+	} else {
+		this->fricativeIntensity += 0.1; // TODO ex recto
+		this->fricativeIntensity = minf(1.0, this->fricativeIntensity);
+	}
 	
 	this->tract->setRestDiameter(tongueIndex, tongueDiameter);
-	this->tract->setConstriction(constrictionIndex, constrictionDiameter);
+	this->tract->setConstriction(constrictionIndex, constrictionDiameter, this->fricativeIntensity);
 	this->glottis->finishBlock();
 	this->tract->finishBlock();
+	
+	if (this->muteAudio) {
+		for (int channel = 0; channel < totalNumOutputChannels; ++channel) {
+			auto *writeChannel = buffer.getWritePointer(channel);
+			for (int j = 0; j < N; j++) {
+				writeChannel[j] = 0.0;
+			}
+		}
+	}
 }
 
 //==============================================================================

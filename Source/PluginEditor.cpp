@@ -41,7 +41,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	constrictionX.setRange(0.0, 1.0, 0.01);
 	constrictionX.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
 	constrictionX.setPopupDisplayEnabled (true, false, this);
-	constrictionX.setTextValueSuffix (" Tongue X");
+	constrictionX.setTextValueSuffix (" Constriction X");
 	constrictionX.setValue(1.0);
 	addAndMakeVisible (&constrictionX);
 	constrictionX.addListener(this);
@@ -50,10 +50,18 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	constrictionY.setRange(0.0, 1.0, 0.01);
 	constrictionY.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
 	constrictionY.setPopupDisplayEnabled (true, false, this);
-	constrictionY.setTextValueSuffix (" Tongue Y");
+	constrictionY.setTextValueSuffix (" Constriction Y");
 	constrictionY.setValue(1.0);
 	addAndMakeVisible (&constrictionY);
 	constrictionY.addListener(this);
+	
+	constrictionActive.setButtonText("Constriction Active");
+	addAndMakeVisible(&constrictionActive);
+	constrictionActive.addListener(this);
+	
+	muteAudio.setButtonText("Mute");
+	addAndMakeVisible(&muteAudio);
+	muteAudio.addListener(this);
 }
 
 PinkTromboneAudioProcessorEditor::~PinkTromboneAudioProcessorEditor()
@@ -73,6 +81,8 @@ void PinkTromboneAudioProcessorEditor::resized()
 	tongueY.setBounds (70, 30, 20, getHeight() - 60);
 	constrictionX.setBounds (100, 30, 20, getHeight() - 60);
 	constrictionY.setBounds (130, 30, 20, getHeight() - 60);
+	muteAudio.setBounds(170, 30, 100, 20);
+	constrictionActive.setBounds(170, 60, 100, 20);
 }
 
 void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
@@ -81,4 +91,12 @@ void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
 	processor.tongueY = tongueY.getValue();
 	processor.constrictionX = constrictionX.getValue();
 	processor.constrictionY = constrictionY.getValue();
+}
+
+void PinkTromboneAudioProcessorEditor::buttonClicked(Button *button) { }
+
+void PinkTromboneAudioProcessorEditor::buttonStateChanged(Button *button)
+{
+	processor.muteAudio = this->muteAudio.getToggleState();
+	processor.constrictionActive = this->constrictionActive.getToggleState();
 }

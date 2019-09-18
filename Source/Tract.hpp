@@ -21,7 +21,7 @@ public:
 	void runStep(double glottalOutput, double turbulenceNoise, double lambda, Glottis *glottis);
 	void finishBlock();
 	void setRestDiameter(long tongueIndex, double tongueDiameter);
-	void setConstriction(double cindex, double cdiam);
+	void setConstriction(double cindex, double cdiam, double fricativeIntensity);
 	double lipOutput;
 	double noseOutput;
 	
@@ -83,6 +83,10 @@ private:
 	
 	double constrictionIndex;
 	double constrictionDiameter;
+	double fricativeIntensity = 0.0;
+	
+	// UI Constants
+	double noseOffset = 0.8;
 };
 
 #endif /* Tract_hpp */

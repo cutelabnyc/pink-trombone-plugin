@@ -134,7 +134,7 @@ void Tract::addTurbulenceNoise(double turbulenceNoise, Glottis *glottis)
 		return;
 	}
 	if (this->constrictionDiameter <= 0.0) return;
-	double intensity = 1.0; // TODO figure out what to do about this and also climate change
+	double intensity = this->fricativeIntensity;
 	this->addTurbulenceNoiseAtIndex(0.66 * turbulenceNoise * intensity, this->constrictionIndex, this->constrictionDiameter, glottis);
 }
 
@@ -210,10 +210,46 @@ void Tract::setRestDiameter(long tongueIndex, double tongueDiameter)
 	}
 }
 
-void Tract::setConstriction(double cindex, double cdiam)
+void Tract::setConstriction(double cindex, double cdiam, double fricativeIntensity)
 {
 	this->constrictionIndex = cindex;
 	this->constrictionDiameter = cdiam;
+	this->fricativeIntensity = fricativeIntensity;
+	
+	// This is basically the Tract touch handling code
+	this->velumTarget = 0.01;
+	if (this->constrictionIndex > this->noseStart && this->constrictionDiameter < -this->noseOffset)
+	{
+		this->velumTarget = 0.4;
+	}
+	if (this->constrictionDiameter < -0.85 - this->noseOffset) {
+		return;
+	}
+	
+	double diameter = this->constrictionDiameter - 0.3;
+	if (diameter < 0) diameter = 0;
+	long width = 2;
+	if (this->constrictionIndex < 25) width = 10;
+	else if (this->constrictionIndex >= this->tipStart) width= 5;
+	else width = 10.0 - 5 * (this->constrictionIndex - 25) / ((double) this->tipStart - 25.0);
+	if (this->constrictionIndex >= 2 && this->constrictionIndex < this->n && diameter < 3)
+	{
+		long intIndex = round(this->constrictionIndex);
+		for (long i = -ceil(width) - 1; i < width + 1; i++)
+		{
+			if (intIndex + i < 0 || intIndex + i >= this->n) continue;
+			double relpos = (intIndex + i) - this->constrictionIndex;
+			relpos = abs(relpos) - 0.5;
+			double shrink;
+			if (relpos <= 0) shrink = 0;
+			else if (relpos > width) shrink = 1;
+			else shrink = 0.5 * (1 - cos(M_PI * relpos / (double) width));
+			if (diameter < this->targetDiameter[intIndex + i])
+			{
+				this->targetDiameter[intIndex + i] = diameter + (this->targetDiameter[intIndex + i] - diameter) * shrink;
+			}
+		}
+	}
 }
 
 void Tract::processTransients()
