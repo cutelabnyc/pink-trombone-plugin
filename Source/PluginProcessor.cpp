@@ -35,6 +35,7 @@ PinkTromboneAudioProcessor::PinkTromboneAudioProcessor()
 //													 0.0f,   // minimum value
 //													 1.0f,   // maximum value
 //													 0.5f)); // default value
+	initializeTractProps(&this->tractProps, 44);
 }
 
 PinkTromboneAudioProcessor::~PinkTromboneAudioProcessor()
@@ -110,7 +111,7 @@ void PinkTromboneAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
     // initialisation that you need..
 	
 	this->glottis = new Glottis(sampleRate);
-	this->tract = new Tract(sampleRate, samplesPerBlock);
+	this->tract = new Tract(sampleRate, samplesPerBlock, &this->tractProps);
 	this->whiteNoise = new WhiteNoise(sampleRate * 2.0);
 	this->aspirateFilter = new Biquad(sampleRate);
 	this->fricativeFilter = new Biquad(sampleRate);
@@ -247,6 +248,12 @@ bool PinkTromboneAudioProcessor::hasEditor() const
 AudioProcessorEditor* PinkTromboneAudioProcessor::createEditor()
 {
     return new PinkTromboneAudioProcessorEditor (*this);
+}
+
+//==============================================================================
+t_tractProps *PinkTromboneAudioProcessor::getTractProps()
+{
+	return &this->tractProps;
 }
 
 //==============================================================================

@@ -1,0 +1,39 @@
+//
+//  TractUI.hpp
+//  PinkTrombone - VST3
+//
+//  Created by Samuel Tarakajian on 9/30/19.
+//
+
+#ifndef TractUI_hpp
+#define TractUI_hpp
+
+#include <stdio.h>
+#include "../JuceLibraryCode/JuceHeader.h"
+#include "PluginProcessor.h"
+#include "Tract.hpp"
+
+class TractUI : public Component {
+public:
+	TractUI(PinkTromboneAudioProcessor &);
+	~TractUI();
+	void paint(Graphics &g) override;
+private:
+	void drawTongueControl(Graphics &g, t_tractProps *p);
+	void drawTract(Graphics &g, t_tractProps *p);
+	void moveTo(Graphics &g, t_tractProps *props, Path &p, double index, double diameter);
+	void lineTo(Graphics &g, t_tractProps *props, Path &p, double i, double d);
+	void drawCircle(Graphics &g, t_tractProps *props, double i, double d, double radius);
+	
+	PinkTromboneAudioProcessor &processor;
+	double angleOffset;
+	double angleScale;
+	double originX, originY;
+	double radius;
+	double scale;
+	double innerTongueControlRadius = 2.05;
+	double outerTongueControlRadius = 3.5;
+	double fillRatio = 1.0 / 6.0;
+};
+
+#endif /* TractUI_hpp */

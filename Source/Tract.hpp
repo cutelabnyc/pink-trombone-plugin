@@ -14,13 +14,29 @@
 
 struct t_transient;
 
+typedef struct t_tractProps {
+	int n;
+	int lipStart;
+	int bladeStart;
+	int tipStart;
+	int noseStart;
+	int noseLength;
+	double noseOffset;
+	double tongueIndex;
+	double tongueDiameter;
+	double *noseDiameter;
+	double *tractDiameter;
+} t_tractProps;
+
+void initializeTractProps(t_tractProps *props, int n);
+
 class Tract {
 public:
-	Tract(double sampleRate, double blockSize);
+	Tract(double sampleRate, double blockSize, t_tractProps *p);
 	~Tract();
 	void runStep(double glottalOutput, double turbulenceNoise, double lambda, Glottis *glottis);
 	void finishBlock();
-	void setRestDiameter(long tongueIndex, double tongueDiameter);
+	void setRestDiameter(double tongueIndex, double tongueDiameter);
 	void setConstriction(double cindex, double cdiam, double fricativeIntensity);
 	double lipOutput;
 	double noseOutput;
@@ -40,10 +56,7 @@ private:
 	void reshapeTract(double deltaTime);
 	
 	double sampleRate, blockTime;
-	int n;
-	int bladeStart;
-	int tipStart;
-	int lipStart;
+	t_tractProps *tractProps;
 	double glottalReflection;
 	double lipReflection;
 	int lastObstruction;
@@ -67,8 +80,6 @@ private:
 	double *A;
 	double *maxAmplitude;
 	
-	int noseLength;
-	int noseStart;
 	double *noseR;
 	double *noseL;
 	double *noseJunctionOutputR;
@@ -84,9 +95,6 @@ private:
 	double constrictionIndex;
 	double constrictionDiameter;
 	double fricativeIntensity = 0.0;
-	
-	// UI Constants
-	double noseOffset = 0.8;
 };
 
 #endif /* Tract_hpp */

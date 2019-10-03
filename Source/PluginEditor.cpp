@@ -13,17 +13,20 @@
 
 //==============================================================================
 PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTromboneAudioProcessor& p)
-    : AudioProcessorEditor (&p), processor (p)
+    : AudioProcessorEditor (&p), processor (p), tractUI(p)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setSize (400, 300);
 	
+	tractUI.setSize(400, 300);
+	addAndMakeVisible(&tractUI);
+	
 	tongueX.setSliderStyle (Slider::LinearBarVertical);
 	tongueX.setRange(0.0, 1.0, 0.01);
 	tongueX.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	tongueX.setPopupDisplayEnabled (true, false, this);
-	tongueX.setTextValueSuffix (" Tongue X");
+	tongueX.setPopupDisplayEnabled (false, false, this);
+	tongueX.setTextValueSuffix (" Tongue Index");
 	tongueX.setValue(1.0);
 	addAndMakeVisible (&tongueX);
 	tongueX.addListener(this);
@@ -31,8 +34,8 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	tongueY.setSliderStyle (Slider::LinearBarVertical);
 	tongueY.setRange(0.0, 1.0, 0.01);
 	tongueY.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	tongueY.setPopupDisplayEnabled (true, false, this);
-	tongueY.setTextValueSuffix (" Tongue Y");
+	tongueY.setPopupDisplayEnabled (false, false, this);
+	tongueY.setTextValueSuffix (" Tongue Diameter");
 	tongueY.setValue(1.0);
 	addAndMakeVisible (&tongueY);
 	tongueY.addListener(this);
@@ -43,7 +46,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	constrictionX.setPopupDisplayEnabled (true, false, this);
 	constrictionX.setTextValueSuffix (" Constriction X");
 	constrictionX.setValue(1.0);
-	addAndMakeVisible (&constrictionX);
+//	addAndMakeVisible (&constrictionX);
 	constrictionX.addListener(this);
 	
 	constrictionY.setSliderStyle (Slider::LinearBarVertical);
@@ -52,15 +55,15 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	constrictionY.setPopupDisplayEnabled (true, false, this);
 	constrictionY.setTextValueSuffix (" Constriction Y");
 	constrictionY.setValue(1.0);
-	addAndMakeVisible (&constrictionY);
+//	addAndMakeVisible (&constrictionY);
 	constrictionY.addListener(this);
 	
 	constrictionActive.setButtonText("Constriction Active");
-	addAndMakeVisible(&constrictionActive);
+//	addAndMakeVisible(&constrictionActive);
 	constrictionActive.addListener(this);
 	
 	muteAudio.setButtonText("Mute");
-	addAndMakeVisible(&muteAudio);
+//	addAndMakeVisible(&muteAudio);
 	muteAudio.addListener(this);
 }
 
@@ -73,16 +76,18 @@ void PinkTromboneAudioProcessorEditor::paint (Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
+//	this.moveTo(this.tongueLowerIndexBound, this.innerTongueControlRadius);
 }
 
 void PinkTromboneAudioProcessorEditor::resized()
 {
 	tongueX.setBounds (40, 30, 20, getHeight() - 60);
-	tongueY.setBounds (70, 30, 20, getHeight() - 60);
+	tongueY.setBounds (70, 30, 20, (getHeight() - 60) / 2);
 	constrictionX.setBounds (100, 30, 20, getHeight() - 60);
 	constrictionY.setBounds (130, 30, 20, getHeight() - 60);
 	muteAudio.setBounds(170, 30, 100, 20);
 	constrictionActive.setBounds(170, 60, 100, 20);
+	tractUI.setSize(getWidth(), getHeight());
 }
 
 void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
@@ -91,6 +96,7 @@ void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
 	processor.tongueY = tongueY.getValue();
 	processor.constrictionX = constrictionX.getValue();
 	processor.constrictionY = constrictionY.getValue();
+	tractUI.repaint();
 }
 
 void PinkTromboneAudioProcessorEditor::buttonClicked(Button *button) { }

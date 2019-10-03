@@ -12,6 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
+#include "TractUI.hpp"
 
 //==============================================================================
 /**
@@ -41,6 +42,7 @@ private:
 	Slider constrictionY;
 	ToggleButton constrictionActive;
 	ToggleButton muteAudio;
+	TractUI tractUI;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PinkTromboneAudioProcessorEditor)
 };

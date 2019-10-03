@@ -67,10 +67,13 @@ public:
 	float fricativeIntensity = 0.0;
 	bool muteAudio = false;
 	bool constrictionActive = false;
+	
+	t_tractProps *getTractProps();
 
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PinkTromboneAudioProcessor)
+	t_tractProps tractProps;
 	Glottis *glottis;
 	Tract *tract;
 	WhiteNoise *whiteNoise;

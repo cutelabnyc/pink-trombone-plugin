@@ -22,6 +22,8 @@
       <FILE id="neqGbM" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
       <FILE id="b3FRSX" name="Tract.cpp" compile="1" resource="0" file="Source/Tract.cpp"/>
       <FILE id="zvZGFp" name="Tract.hpp" compile="0" resource="0" file="Source/Tract.hpp"/>
+      <FILE id="d3XSZI" name="TractUI.hpp" compile="0" resource="0" file="Source/TractUI.hpp"/>
+      <FILE id="j2qlr8" name="TractUI.cpp" compile="1" resource="0" file="Source/TractUI.cpp"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
