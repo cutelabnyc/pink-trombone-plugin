@@ -37,6 +37,7 @@ void initializeTractProps(t_tractProps *props, int n)
 	props->noseStart = props->n - props->noseLength + 1;
 	props->noseOffset = 0.8;
     props->maxAmplitude = (double *) calloc(n, sizeof(double));
+    props->noseMaxAmplitude = (double *) calloc(props->noseLength, sizeof(double));
 }
 
 Tract::Tract(double sampleRate, double blockTime, t_tractProps *props):
@@ -88,7 +89,6 @@ void Tract::init() {
 	this->noseReflection = (double *) calloc(this->tractProps->noseLength + 1, sizeof(double));
 	this->noseDiameter = (double *) calloc(this->tractProps->noseLength, sizeof(double));
 	this->noseA = (double *) calloc(this->tractProps->noseLength, sizeof(double));
-	this->noseMaxAmplitude = (double *) calloc(this->tractProps->noseLength, sizeof(double));
 	for (int i = 0; i < this->tractProps->noseLength; i++)
 	{
 		double diameter;
@@ -386,8 +386,8 @@ void Tract::runStep(double glottalOutput, double turbulenceNoise, double lambda,
 		if (updateAmplitudes)
 		{
 			double amplitude = fabs(this->noseR[i] + this->noseL[i]);
-			if (amplitude > this->noseMaxAmplitude[i]) this->noseMaxAmplitude[i] = amplitude;
-			else this->noseMaxAmplitude[i] *= 0.999;
+			if (amplitude > this->tractProps->noseMaxAmplitude[i]) this->tractProps->noseMaxAmplitude[i] = amplitude;
+			else this->tractProps->noseMaxAmplitude[i] *= 0.999;
 		}
 	}
 	

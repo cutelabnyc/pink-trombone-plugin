@@ -244,4 +244,12 @@ void TractUI::drawAmplitudes(Graphics &g, t_tractProps *props)
         this->lineTo(g, props, p, i, props->tractDiameter[i]);
         g.strokePath(p, stroke);
     }
+    
+    for (int i = 1; i < props->noseLength; i++) {
+        stroke.setStrokeThickness(sqrt(props->noseMaxAmplitude[i]) *3);
+        
+        this->moveTo(g, props, p, props->noseStart + i, -props->noseOffset);
+        this->lineTo(g, props, p, props->noseStart + i, -props->noseOffset - props->noseDiameter[i]*0.9);
+        g.strokePath(p, stroke);
+    }
 }

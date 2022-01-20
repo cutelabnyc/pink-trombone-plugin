@@ -46,7 +46,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	constrictionX.setPopupDisplayEnabled (true, false, this);
 	constrictionX.setTextValueSuffix (" Constriction X");
 	constrictionX.setValue(1.0);
-//	addAndMakeVisible (&constrictionX);
+	addAndMakeVisible (&constrictionX);
 	constrictionX.addListener(this);
 	
 	constrictionY.setSliderStyle (Slider::LinearBarVertical);
@@ -55,11 +55,11 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	constrictionY.setPopupDisplayEnabled (true, false, this);
 	constrictionY.setTextValueSuffix (" Constriction Y");
 	constrictionY.setValue(1.0);
-//	addAndMakeVisible (&constrictionY);
+	addAndMakeVisible (&constrictionY);
 	constrictionY.addListener(this);
 	
 	constrictionActive.setButtonText("Constriction Active");
-//	addAndMakeVisible(&constrictionActive);
+	addAndMakeVisible(&constrictionActive);
 	constrictionActive.addListener(this);
 	
 	muteAudio.setButtonText("Mute");
