@@ -36,6 +36,7 @@ void initializeTractProps(t_tractProps *props, int n)
 	props->noseDiameter = (double *) calloc(props->noseLength, sizeof(double));
 	props->noseStart = props->n - props->noseLength + 1;
 	props->noseOffset = 0.8;
+    props->maxAmplitude = (double *) calloc(n, sizeof(double));
 }
 
 Tract::Tract(double sampleRate, double blockTime, t_tractProps *props):
@@ -78,7 +79,7 @@ void Tract::init() {
 	this->junctionOutputR = (double *) calloc(this->tractProps->n + 1, sizeof(double));
 	this->junctionOutputL = (double *) calloc(this->tractProps->n + 1, sizeof(double));
 	this->A = (double *) calloc(this->tractProps->n, sizeof(double));
-	this->maxAmplitude = (double *) calloc(this->tractProps->n, sizeof(double));
+//	this->maxAmplitude = (double *) calloc(this->tractProps->n, sizeof(double));
 	
 	this->noseR = (double *) calloc(this->tractProps->noseLength, sizeof(double));
 	this->noseL = (double *) calloc(this->tractProps->noseLength, sizeof(double));
@@ -142,10 +143,12 @@ void Tract::addTransient(int position)
 
 void Tract::addTurbulenceNoise(double turbulenceNoise, Glottis *glottis)
 {
+    // constriction index and diameter conditionals will produce no noise if met (ie. return w/o adding noise at index)
 	if (this->constrictionIndex < 2.0 || this->constrictionIndex > (double) this->tractProps->n) {
 		return;
 	}
 	if (this->constrictionDiameter <= 0.0) return;
+    
 	double intensity = this->fricativeIntensity;
 	this->addTurbulenceNoiseAtIndex(0.66 * turbulenceNoise * intensity, this->constrictionIndex, this->constrictionDiameter, glottis);
 }
@@ -355,8 +358,8 @@ void Tract::runStep(double glottalOutput, double turbulenceNoise, double lambda,
 		if (updateAmplitudes)
 		{
 			double amplitude = fabs(this->R[i] + this->L[i]);
-			if (amplitude > this->maxAmplitude[i]) this->maxAmplitude[i] = amplitude;
-			else this->maxAmplitude[i] *= 0.999;
+			if (amplitude > this->tractProps->maxAmplitude[i]) this->tractProps->maxAmplitude[i] = amplitude;
+			else this->tractProps->maxAmplitude[i] *= 0.999;
 		}
 	}
 	

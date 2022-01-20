@@ -26,6 +26,7 @@ typedef struct t_tractProps {
 	double tongueDiameter;
 	double *noseDiameter;
 	double *tractDiameter;
+    double *maxAmplitude;
 } t_tractProps;
 
 void initializeTractProps(t_tractProps *props, int n);
@@ -78,7 +79,7 @@ private:
 	double *junctionOutputR;
 	double *junctionOutputL;
 	double *A;
-	double *maxAmplitude;
+//	double *maxAmplitude;
 	
 	double *noseR;
 	double *noseL;

@@ -142,7 +142,7 @@ void TractUI::drawTract(Graphics &g, t_tractProps *props)
 
 
 	// TODO: Actually draw amplitudes, which would be cool
-//	this.drawAmplitudes();
+	this->drawAmplitudes(g, props);
 
 	//then draw lines
 	p.clear();
@@ -227,4 +227,21 @@ void TractUI::drawCircle(Graphics &g, t_tractProps *props, double i, double d, d
 	double r = this->radius - this->scale * d;
 	p.addEllipse(this->originX - r * cos(angle), this->originY - r * sin(angle), radius, radius);
 	g.fillPath(p);
+}
+
+void TractUI::drawAmplitudes(Graphics &g, t_tractProps *props)
+{
+    Path p;
+    g.setColour(Colours::orchid);
+    PathStrokeType stroke(this->scale * 0.75);
+    stroke.setEndStyle(PathStrokeType::EndCapStyle::butt);
+    g.setOpacity(0.3);
+    
+    for (int i = 2; i < props->n; i++) {
+        stroke.setStrokeThickness(sqrt(props->maxAmplitude[i]) *3);
+        
+        this->moveTo(g, props, p, i, 0);
+        this->lineTo(g, props, p, i, props->tractDiameter[i]);
+        g.strokePath(p, stroke);
+    }
 }

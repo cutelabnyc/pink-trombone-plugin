@@ -24,6 +24,7 @@ private:
 	void moveTo(Graphics &g, t_tractProps *props, Path &p, double index, double diameter);
 	void lineTo(Graphics &g, t_tractProps *props, Path &p, double i, double d);
 	void drawCircle(Graphics &g, t_tractProps *props, double i, double d, double radius);
+    void drawAmplitudes(Graphics &g, t_tractProps *props);
 	
 	PinkTromboneAudioProcessor &processor;
 	double angleOffset;
