@@ -13,11 +13,34 @@
 #include "PluginProcessor.h"
 #include "Tract.hpp"
 
-class TractUI : public Component {
+class DelayedOneShotLambda : public Timer
+{
 public:
-	TractUI(PinkTromboneAudioProcessor &);
+    DelayedOneShotLambda(int ms, std::function<void()> fn ) :
+        func(fn)
+    {
+        startTimer(ms);
+    }
+    ~DelayedOneShotLambda() { stopTimer (); }
+    
+    void timerCallback() override
+    {
+        auto f = func;
+        delete this;
+        f();
+    }
+private:
+    std::function<void()> func;
+};
+
+
+class TractUI : public Component, public Timer {
+public:
+    TractUI(PinkTromboneAudioProcessor &);
 	~TractUI();
 	void paint(Graphics &g) override;
+    
+    void timerCallback() override;
 private:
 	void drawTongueControl(Graphics &g, t_tractProps *p);
 	void drawTract(Graphics &g, t_tractProps *p);

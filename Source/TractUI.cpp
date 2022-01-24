@@ -16,21 +16,27 @@ originY(0),
 radius(100),
 scale(20)
 {
+    startTimerHz(60);
 }
 
 TractUI::~TractUI() { }
 
 void TractUI::paint(Graphics &g)
 {
-	t_tractProps *props = this->processor.getTractProps();
-	this->drawTongueControl(g, props);
-	this->drawTract(g, props);
+    t_tractProps *props = this->processor.getTractProps();
+    this->drawTongueControl(g, props);
+    this->drawTract(g, props);
+}
+
+void TractUI::timerCallback()
+{
+    repaint();
 }
 
 void TractUI::drawTongueControl(Graphics &g, t_tractProps *p)
 {
 	Path path;
-	this->originX = getWidth() / 2.0;
+	this->originX = 3.0 * getWidth() / 5.0;
 	this->originY = getHeight() / 2.0;
 	this->radius = getWidth() * this->fillRatio;
 	this->scale = this->radius / 5.0;
@@ -140,8 +146,6 @@ void TractUI::drawTract(Graphics &g, t_tractProps *props)
 //	this.drawText(Tract.n*0.6, 0.9, "oral");
 //	this.drawText(Tract.n*0.7, 0.9, "cavity");
 
-
-	// TODO: Actually draw amplitudes, which would be cool
 	this->drawAmplitudes(g, props);
 
 	//then draw lines
@@ -196,12 +200,12 @@ void TractUI::moveTo(Graphics &g, t_tractProps *props, Path &p, double i, double
 {
 	double angle = this->angleOffset + i * this->angleScale * M_PI / (props->lipStart - 1);
 	
-	// TODO: Figure out wobble
-//	double time = 0.0;
-//	double wobble = (Tract.maxAmplitude[Tract.n-1]+Tract.noseMaxAmplitude[Tract.noseLength-1]);
-//	wobble *= 0.03 sin(2 * i - 50 * time) * i / (double) props->n;
-//	angle += wobble;
-	double wobble = 0.0;
+    time_t t = time(NULL);
+    struct tm * tm = localtime(&t);
+	double wobble = props->maxAmplitude[props->n-1]+props->noseMaxAmplitude[props->noseLength-1];
+	wobble *= 0.03 * sin(2 * i - 50 * (mktime(tm)/1000)) * i / props->n;
+//    wobble *= sin(2 * i - 50 * (mktime(tm)/1000)) * i / props->n;
+	angle += wobble;
 	double r = this->radius - this->scale * d + 100 * wobble;
 	p.startNewSubPath(this->originX - r * cos(angle), this->originY - r * sin(angle));
 }
@@ -210,12 +214,12 @@ void TractUI::lineTo(Graphics &g, t_tractProps *props, Path &p, double i, double
 {
 	double angle = this->angleOffset + i * this->angleScale * M_PI / (props->lipStart - 1);
 	
-	// TODO: Figure out wobble
-//	double time = 0.0;
-//	var wobble = (Tract.maxAmplitude[Tract.n-1]+Tract.noseMaxAmplitude[Tract.noseLength-1]);
-//	wobble *= 0.03*Math.sin(2*i-50*time)*i/Tract.n;
-//	angle += wobble;
-	double wobble = 0.0;
+	time_t t = time(NULL);
+    struct tm * tm = localtime(&t);
+    double wobble = props->maxAmplitude[props->n-1]+props->noseMaxAmplitude[props->noseLength-1];
+    wobble *= 0.03 * sin(2 * i - 50 * (mktime(tm)/1000)) * i / props->n;
+//    wobble *= sin(2 * i - 50 * (mktime(tm)/1000)) * i / props->n;
+    angle += wobble;
 	double r = this->radius - this->scale * d + 100 * wobble;
 	p.lineTo(this->originX - r * cos(angle), this->originY - r * sin(angle));
 }

@@ -88,7 +88,6 @@ private:
 	double *noseReflection;
 	double *noseDiameter;
 	double *noseA;
-//	double *noseMaxAmplitude;
 	
 	double reflectionLeft, reflectionRight, reflectionNose;
 	double newReflectionLeft, newReflectionRight, newReflectionNose;
