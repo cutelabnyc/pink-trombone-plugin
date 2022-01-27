@@ -75,7 +75,7 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PinkTromboneAudioProcessor)
 	t_tractProps tractProps;
 	Glottis *glottis;
-    Tract *tract;
+	Tract *tract;
 	WhiteNoise *whiteNoise;
 	Biquad *fricativeFilter;
 	Biquad *aspirateFilter;

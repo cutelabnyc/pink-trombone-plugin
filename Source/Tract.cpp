@@ -36,8 +36,8 @@ void initializeTractProps(t_tractProps *props, int n)
 	props->noseDiameter = (double *) calloc(props->noseLength, sizeof(double));
 	props->noseStart = props->n - props->noseLength + 1;
 	props->noseOffset = 0.8;
-    props->maxAmplitude = (double *) calloc(n, sizeof(double));
-    props->noseMaxAmplitude = (double *) calloc(props->noseLength, sizeof(double));
+	props->maxAmplitude = (double *) calloc(n, sizeof(double));
+	props->noseMaxAmplitude = (double *) calloc(props->noseLength, sizeof(double));
 }
 
 Tract::Tract(double sampleRate, double blockTime, t_tractProps *props):

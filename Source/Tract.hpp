@@ -26,8 +26,8 @@ typedef struct t_tractProps {
 	double tongueDiameter;
 	double *noseDiameter;
 	double *tractDiameter;
-    double *maxAmplitude;
-    double *noseMaxAmplitude;
+	double *maxAmplitude;
+	double *noseMaxAmplitude;
 } t_tractProps;
 
 void initializeTractProps(t_tractProps *props, int n);
