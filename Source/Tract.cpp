@@ -80,7 +80,6 @@ void Tract::init() {
 	this->junctionOutputR = (double *) calloc(this->tractProps->n + 1, sizeof(double));
 	this->junctionOutputL = (double *) calloc(this->tractProps->n + 1, sizeof(double));
 	this->A = (double *) calloc(this->tractProps->n, sizeof(double));
-//	this->maxAmplitude = (double *) calloc(this->tractProps->n, sizeof(double));
 	
 	this->noseR = (double *) calloc(this->tractProps->noseLength, sizeof(double));
 	this->noseL = (double *) calloc(this->tractProps->noseLength, sizeof(double));
@@ -143,7 +142,6 @@ void Tract::addTransient(int position)
 
 void Tract::addTurbulenceNoise(double turbulenceNoise, Glottis *glottis)
 {
-    // constriction index and diameter conditionals will produce no noise if met (ie. return w/o adding noise at index)
 	if (this->constrictionIndex < 2.0 || this->constrictionIndex > (double) this->tractProps->n) {
 		return;
 	}
