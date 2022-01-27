@@ -25,7 +25,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	tongueX.setSliderStyle (Slider::LinearBarVertical);
 	tongueX.setRange(0.0, 1.0, 0.01);
 	tongueX.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	tongueX.setPopupDisplayEnabled (false, false, this);
+	tongueX.setPopupDisplayEnabled (true, false, this);
 	tongueX.setTextValueSuffix (" Tongue Index");
 	tongueX.setValue(1.0);
 	addAndMakeVisible (&tongueX);
@@ -34,7 +34,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	tongueY.setSliderStyle (Slider::LinearBarVertical);
 	tongueY.setRange(0.0, 1.0, 0.01);
 	tongueY.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	tongueY.setPopupDisplayEnabled (false, false, this);
+	tongueY.setPopupDisplayEnabled (true, false, this);
 	tongueY.setTextValueSuffix (" Tongue Diameter");
 	tongueY.setValue(1.0);
 	addAndMakeVisible (&tongueY);
@@ -46,7 +46,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	constrictionX.setPopupDisplayEnabled (true, false, this);
 	constrictionX.setTextValueSuffix (" Constriction X");
 	constrictionX.setValue(1.0);
-//	addAndMakeVisible (&constrictionX);
+	addAndMakeVisible (&constrictionX);
 	constrictionX.addListener(this);
 	
 	constrictionY.setSliderStyle (Slider::LinearBarVertical);
@@ -55,11 +55,11 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	constrictionY.setPopupDisplayEnabled (true, false, this);
 	constrictionY.setTextValueSuffix (" Constriction Y");
 	constrictionY.setValue(1.0);
-//	addAndMakeVisible (&constrictionY);
+	addAndMakeVisible (&constrictionY);
 	constrictionY.addListener(this);
 	
 	constrictionActive.setButtonText("Constriction Active");
-//	addAndMakeVisible(&constrictionActive);
+	addAndMakeVisible(&constrictionActive);
 	constrictionActive.addListener(this);
 	
 	muteAudio.setButtonText("Mute");

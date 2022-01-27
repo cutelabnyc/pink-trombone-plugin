@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="GG1ijY" name="PinkTrombone" projectType="audioplug" jucerVersion="5.4.4"
-              pluginManufacturer="CuteLab" pluginManufacturerCode="CUTE">
+<JUCERPROJECT id="GG1ijY" name="PinkTrombone" projectType="audioplug" pluginManufacturer="CuteLab"
+              pluginManufacturerCode="CUTE" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="oys8Iw" name="PinkTrombone">
     <GROUP id="{772D122A-418C-49CB-4236-573C8F2FB197}" name="Source">
       <FILE id="W1J7Du" name="Biquad.cpp" compile="1" resource="0" file="Source/Biquad.cpp"/>

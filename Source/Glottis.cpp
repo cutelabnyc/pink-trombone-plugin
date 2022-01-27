@@ -42,7 +42,6 @@ void Glottis::setupWaveform(double lambda)
 	double Rd = this->Rd;
 	if (Rd < 0.5) Rd = 0.5;
 	if (Rd > 2.7) Rd = 2.7;
-	double output;
 	// normalized to time = 1, Ee = 1
 	double Ra = -0.01 + 0.048 * Rd;
 	double Rk = 0.224 + 0.118 * Rd;
