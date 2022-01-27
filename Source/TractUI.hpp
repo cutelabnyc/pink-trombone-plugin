@@ -23,7 +23,9 @@ public:
     
     void mouseDown(const MouseEvent& e) override;
     void mouseDrag(const MouseEvent& e) override;
+    void mouseUp(const MouseEvent& e) override;
 private:
+    void setConstriction(t_tractProps *props, double index, double diameter);
     void setTongue(t_tractProps *props, double index, double diameter);
     double * getEventPosition(t_tractProps *p, double x, double y);
     bool isNearTongue(t_tractProps *p, double index, double diameter);
@@ -43,7 +45,7 @@ private:
 	double innerTongueControlRadius = 2.05;
 	double outerTongueControlRadius = 3.5;
 	double fillRatio = 1.0 / 6.0;
-    int constrictionIndex;
+    bool isTongue;
 };
 
 #endif /* TractUI_hpp */
