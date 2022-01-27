@@ -30,41 +30,44 @@ void TractUI::paint(Graphics &g)
 
 void TractUI::timerCallback()
 {
+	this->counter += 1000/60;
     repaint();
 }
 
 void TractUI::mouseDown(const juce::MouseEvent &e)
 {
-    double *pos;
+	double index;
+	double diameter;
     t_tractProps *props = this->processor.getTractProps();
     double x = e.getMouseDownX() - this->originX;
     double y = e.getMouseDownY()- this->originY;
     
-    pos = this->getEventPosition(props, x, y);
-    bool isNearTongue = this->isNearTongue(props, pos[0], pos[1]);
+    this->getEventPosition(props, x, y, index, diameter);
+    bool isNearTongue = this->isNearTongue(props, index, diameter);
     
     if(isNearTongue){
         this->isTongue = true;
-        this->setTongue(props, pos[0], pos[1]);
+        this->setTongue(props, index, diameter);
     } else {
         this->isTongue = false;
-        this->setConstriction(props, pos[0], pos[1]);
+        this->setConstriction(props, index, diameter);
     }
 }
 
 void TractUI::mouseDrag(const juce::MouseEvent &e)
 {
-    double *pos;
+	double index;
+	double diameter;
     t_tractProps *props = this->processor.getTractProps();
     double x = e.getMouseDownX() + e.getDistanceFromDragStartX() - this->originX;
     double y = e.getMouseDownY() + e.getDistanceFromDragStartY() - this->originY;
     
-    pos = this->getEventPosition(props, x, y);
+    this->getEventPosition(props, x, y, index, diameter);
     
     if(isTongue){
-        this->setTongue(props, pos[0], pos[1]);
+        this->setTongue(props, index, diameter);
     } else {
-        this->setConstriction(props, pos[0], pos[1]);
+        this->setConstriction(props, index, diameter);
     }
 }
 
@@ -81,8 +84,8 @@ void TractUI::setConstriction(t_tractProps *props, double index, double diameter
     double constrictionMin = -2.0;
     double constrictionMax = 2.0;
     
-    processor.constrictionX = index/props->n;
-    processor.constrictionY = (diameter - constrictionMin)/(constrictionMax - constrictionMin);
+    this->processor.constrictionX = index/props->n;
+    this->processor.constrictionY = (diameter - constrictionMin)/(constrictionMax - constrictionMin);
 }
 
 void TractUI::setTongue(t_tractProps *props, double index, double diameter)
@@ -102,20 +105,16 @@ void TractUI::setTongue(t_tractProps *props, double index, double diameter)
         diameter = this->outerTongueControlRadius;
     }
     
-    processor.tongueX = (index - tongueLowerIndexBound)/(tongueUpperIndexBound-tongueLowerIndexBound);
-    processor.tongueY = (diameter - this->innerTongueControlRadius)/(this->outerTongueControlRadius - this->innerTongueControlRadius);
+    this->processor.tongueX = (index - tongueLowerIndexBound)/(tongueUpperIndexBound-tongueLowerIndexBound);
+    this->processor.tongueY = (diameter - this->innerTongueControlRadius)/(this->outerTongueControlRadius - this->innerTongueControlRadius);
 }
 
-double * TractUI::getEventPosition(t_tractProps *props, double x, double y)
+void * TractUI::getEventPosition(t_tractProps *props, double x, double y, double &index, double &diameter)
 {
-    static double pos[2];
-    
     double angle = atan2(y, x);
     while(angle > 0) {angle -= 2*M_PI;};
-    pos[0] = (M_PI + angle - this->angleOffset) * (props->lipStart - 1)/(this->angleScale * M_PI);  //index
-    pos[1] = (this->radius - sqrt(pow(x, 2) + pow(y, 2)))/this->scale;  //diameter
-    return pos;
-    
+    index = (M_PI + angle - this->angleOffset) * (props->lipStart - 1)/(this->angleScale * M_PI);
+    diameter = (this->radius - sqrt(pow(x, 2) + pow(y, 2)))/this->scale;
 }
 
 bool TractUI::isNearTongue(t_tractProps *p, double index, double diameter)
@@ -168,7 +167,7 @@ void TractUI::drawTongueControl(Graphics &g, t_tractProps *p)
 	this->drawCircle(g, p, tongueIndexCentre - 6.1, b, r);
 	this->drawCircle(g, p, tongueIndexCentre + 6.1, b, r);
 	this->drawCircle(g, p, tongueIndexCentre, b, r);
-    this->drawCircle(g, p, tongueIndexCentre, c, r);
+	this->drawCircle(g, p, tongueIndexCentre, c, r);
 
 	g.setOpacity(1.0);
 	
@@ -293,28 +292,27 @@ void TractUI::drawTract(Graphics &g, t_tractProps *props)
 
 void TractUI::moveTo(Graphics &g, t_tractProps *props, Path &p, double i, double d)
 {
-	double angle = this->angleOffset + i * this->angleScale * M_PI / (props->lipStart - 1);
-	
-    time_t t = time(NULL);
-    struct tm * tm = localtime(&t);
-	double wobble = props->maxAmplitude[props->n-1]+props->noseMaxAmplitude[props->noseLength-1];
-	wobble *= 0.03 * sin(2 * i - 50 * (mktime(tm)/1000)) * i / props->n;
-	angle += wobble;
-	double r = this->radius - this->scale * d + 100 * wobble;
+	double r;
+	double angle;
+	this->getPolarCoordinates(props, i, d, r, angle);
 	p.startNewSubPath(this->originX - r * cos(angle), this->originY - r * sin(angle));
 }
 
 void TractUI::lineTo(Graphics &g, t_tractProps *props, Path &p, double i, double d)
 {
-	double angle = this->angleOffset + i * this->angleScale * M_PI / (props->lipStart - 1);
-	
-	time_t t = time(NULL);
-    struct tm * tm = localtime(&t);
-    double wobble = props->maxAmplitude[props->n-1]+props->noseMaxAmplitude[props->noseLength-1];
-    wobble *= 0.03 * sin(2 * i - 50 * (mktime(tm)/1000)) * i / props->n;
-    angle += wobble;
-	double r = this->radius - this->scale * d + 100 * wobble;
+	double r;
+	double angle;
+	this->getPolarCoordinates(props, i, d, r, angle);
 	p.lineTo(this->originX - r * cos(angle), this->originY - r * sin(angle));
+}
+
+void * TractUI::getPolarCoordinates(t_tractProps *props, double i, double d, double &r, double &angle)
+{
+	angle = this->angleOffset + i * this->angleScale * M_PI / (props->lipStart - 1);
+	double wobble = props->maxAmplitude[props->n-1]+props->noseMaxAmplitude[props->noseLength-1];
+	wobble *= 0.03 * sin(2 * i - 50 * (this->counter/1000)) * i / props->n;
+	angle += wobble;
+	r = this->radius - this->scale * d + 100 * wobble;
 }
 
 void TractUI::drawCircle(Graphics &g, t_tractProps *props, double i, double d, double radius)

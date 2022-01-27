@@ -15,7 +15,7 @@
 
 class TractUI : public Component, public Timer {
 public:
-    TractUI(PinkTromboneAudioProcessor &);
+	TractUI(PinkTromboneAudioProcessor &);
 	~TractUI();
 	void paint(Graphics &g) override;
     
@@ -27,12 +27,13 @@ public:
 private:
     void setConstriction(t_tractProps *props, double index, double diameter);
     void setTongue(t_tractProps *props, double index, double diameter);
-    double * getEventPosition(t_tractProps *p, double x, double y);
+    void * getEventPosition(t_tractProps *p, double x, double y, double &index, double &diameter);
     bool isNearTongue(t_tractProps *p, double index, double diameter);
 	void drawTongueControl(Graphics &g, t_tractProps *p);
 	void drawTract(Graphics &g, t_tractProps *p);
 	void moveTo(Graphics &g, t_tractProps *props, Path &p, double index, double diameter);
 	void lineTo(Graphics &g, t_tractProps *props, Path &p, double i, double d);
+	void * getPolarCoordinates(t_tractProps *props, double i, double d, double &r, double &angle);
 	void drawCircle(Graphics &g, t_tractProps *props, double i, double d, double radius);
     void drawAmplitudes(Graphics &g, t_tractProps *props);
 	
@@ -46,6 +47,7 @@ private:
 	double outerTongueControlRadius = 3.5;
 	double fillRatio = 1.0 / 6.0;
     bool isTongue;
+	double counter = 0;
 };
 
 #endif /* TractUI_hpp */
