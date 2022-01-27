@@ -25,7 +25,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	tongueX.setSliderStyle (Slider::LinearBarVertical);
 	tongueX.setRange(0.0, 1.0, 0.01);
 	tongueX.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	tongueX.setPopupDisplayEnabled (false, false, this);
+	tongueX.setPopupDisplayEnabled (true, false, this);
 	tongueX.setTextValueSuffix (" Tongue Index");
 	tongueX.setValue(1.0);
 	addAndMakeVisible (&tongueX);
@@ -34,7 +34,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	tongueY.setSliderStyle (Slider::LinearBarVertical);
 	tongueY.setRange(0.0, 1.0, 0.01);
 	tongueY.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	tongueY.setPopupDisplayEnabled (false, false, this);
+	tongueY.setPopupDisplayEnabled (true, false, this);
 	tongueY.setTextValueSuffix (" Tongue Diameter");
 	tongueY.setValue(1.0);
 	addAndMakeVisible (&tongueY);

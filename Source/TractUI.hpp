@@ -13,27 +13,6 @@
 #include "PluginProcessor.h"
 #include "Tract.hpp"
 
-class DelayedOneShotLambda : public Timer
-{
-public:
-    DelayedOneShotLambda(int ms, std::function<void()> fn ) :
-        func(fn)
-    {
-        startTimer(ms);
-    }
-    ~DelayedOneShotLambda() { stopTimer (); }
-    
-    void timerCallback() override
-    {
-        auto f = func;
-        delete this;
-        f();
-    }
-private:
-    std::function<void()> func;
-};
-
-
 class TractUI : public Component, public Timer {
 public:
     TractUI(PinkTromboneAudioProcessor &);
@@ -41,7 +20,13 @@ public:
 	void paint(Graphics &g) override;
     
     void timerCallback() override;
+    
+    void mouseDown(const MouseEvent& e) override;
+    void mouseDrag(const MouseEvent& e) override;
 private:
+    void setTongue(t_tractProps *props, double index, double diameter);
+    double * getEventPosition(t_tractProps *p, double x, double y);
+    bool isNearTongue(t_tractProps *p, double index, double diameter);
 	void drawTongueControl(Graphics &g, t_tractProps *p);
 	void drawTract(Graphics &g, t_tractProps *p);
 	void moveTo(Graphics &g, t_tractProps *props, Path &p, double index, double diameter);
@@ -58,6 +43,7 @@ private:
 	double innerTongueControlRadius = 2.05;
 	double outerTongueControlRadius = 3.5;
 	double fillRatio = 1.0 / 6.0;
+    int constrictionIndex;
 };
 
 #endif /* TractUI_hpp */
