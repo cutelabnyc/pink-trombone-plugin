@@ -16,115 +16,115 @@ originY(0),
 radius(100),
 scale(20)
 {
-    startTimerHz(60);
+	startTimerHz(60);
 }
 
 TractUI::~TractUI() { }
 
 void TractUI::paint(Graphics &g)
 {
-    t_tractProps *props = this->processor.getTractProps();
-    this->drawTongueControl(g, props);
-    this->drawTract(g, props);
+	t_tractProps *props = this->processor.getTractProps();
+	this->drawTongueControl(g, props);
+	this->drawTract(g, props);
 }
 
 void TractUI::timerCallback()
 {
 	this->counter += 1000/60;
-    repaint();
+	repaint();
 }
 
 void TractUI::mouseDown(const juce::MouseEvent &e)
 {
 	double index;
 	double diameter;
-    t_tractProps *props = this->processor.getTractProps();
-    double x = e.getMouseDownX() - this->originX;
-    double y = e.getMouseDownY()- this->originY;
-    
-    this->getEventPosition(props, x, y, index, diameter);
-    bool isNearTongue = this->isNearTongue(props, index, diameter);
-    
-    if(isNearTongue){
-        this->isTongue = true;
-        this->setTongue(props, index, diameter);
-    } else {
-        this->isTongue = false;
-        this->setConstriction(props, index, diameter);
-    }
+	t_tractProps *props = this->processor.getTractProps();
+	double x = e.getMouseDownX() - this->originX;
+	double y = e.getMouseDownY()- this->originY;
+	
+	this->getEventPosition(props, x, y, index, diameter);
+	bool isNearTongue = this->isNearTongue(props, index, diameter);
+	
+	if(isNearTongue){
+		this->isTongue = true;
+		this->setTongue(props, index, diameter);
+	} else {
+		this->isTongue = false;
+		this->setConstriction(props, index, diameter);
+	}
 }
 
 void TractUI::mouseDrag(const juce::MouseEvent &e)
 {
 	double index;
 	double diameter;
-    t_tractProps *props = this->processor.getTractProps();
-    double x = e.getMouseDownX() + e.getDistanceFromDragStartX() - this->originX;
-    double y = e.getMouseDownY() + e.getDistanceFromDragStartY() - this->originY;
-    
-    this->getEventPosition(props, x, y, index, diameter);
-    
-    if(isTongue){
-        this->setTongue(props, index, diameter);
-    } else {
-        this->setConstriction(props, index, diameter);
-    }
+	t_tractProps *props = this->processor.getTractProps();
+	double x = e.getMouseDownX() + e.getDistanceFromDragStartX() - this->originX;
+	double y = e.getMouseDownY() + e.getDistanceFromDragStartY() - this->originY;
+	
+	this->getEventPosition(props, x, y, index, diameter);
+	
+	if(isTongue){
+		this->setTongue(props, index, diameter);
+	} else {
+		this->setConstriction(props, index, diameter);
+	}
 }
 
 void TractUI::mouseUp(const juce::MouseEvent &e)
 {
-    t_tractProps *props = this->processor.getTractProps();
-    if(!isTongue){
-        this->setConstriction(props, 0, 0);  //remove constriction
-    }
+	t_tractProps *props = this->processor.getTractProps();
+	if(!isTongue){
+		this->setConstriction(props, 0, 0);  //remove constriction
+	}
 }
 
 void TractUI::setConstriction(t_tractProps *props, double index, double diameter)
 {
-    double constrictionMin = -2.0;
-    double constrictionMax = 2.0;
-    
-    this->processor.constrictionX = index/props->n;
-    this->processor.constrictionY = (diameter - constrictionMin)/(constrictionMax - constrictionMin);
+	double constrictionMin = -2.0;
+	double constrictionMax = 2.0;
+	
+	this->processor.constrictionX = index/props->n;
+	this->processor.constrictionY = (diameter - constrictionMin)/(constrictionMax - constrictionMin);
 }
 
 void TractUI::setTongue(t_tractProps *props, double index, double diameter)
 {
-    double tongueLowerIndexBound = props->bladeStart + 2;
-    double tongueUpperIndexBound = props->tipStart - 3;
-    
-    // this block can be made conditional on a flag if a 'disregard constraints' checkbox is added
-    if (index < tongueLowerIndexBound){
-        index = tongueLowerIndexBound;
-    } else if (index > tongueUpperIndexBound){
-        index = tongueUpperIndexBound;
-    }
-    if (diameter < this->innerTongueControlRadius){
-        diameter = this->innerTongueControlRadius;
-    } else if (diameter > this->outerTongueControlRadius){
-        diameter = this->outerTongueControlRadius;
-    }
-    
-    this->processor.tongueX = (index - tongueLowerIndexBound)/(tongueUpperIndexBound-tongueLowerIndexBound);
-    this->processor.tongueY = (diameter - this->innerTongueControlRadius)/(this->outerTongueControlRadius - this->innerTongueControlRadius);
+	double tongueLowerIndexBound = props->bladeStart + 2;
+	double tongueUpperIndexBound = props->tipStart - 3;
+	
+	// this block can be made conditional on a flag if a 'disregard constraints' checkbox is added
+	if (index < tongueLowerIndexBound){
+		index = tongueLowerIndexBound;
+	} else if (index > tongueUpperIndexBound){
+		index = tongueUpperIndexBound;
+	}
+	if (diameter < this->innerTongueControlRadius){
+		diameter = this->innerTongueControlRadius;
+	} else if (diameter > this->outerTongueControlRadius){
+		diameter = this->outerTongueControlRadius;
+	}
+	
+	this->processor.tongueX = (index - tongueLowerIndexBound)/(tongueUpperIndexBound-tongueLowerIndexBound);
+	this->processor.tongueY = (diameter - this->innerTongueControlRadius)/(this->outerTongueControlRadius - this->innerTongueControlRadius);
 }
 
 void * TractUI::getEventPosition(t_tractProps *props, double x, double y, double &index, double &diameter)
 {
-    double angle = atan2(y, x);
-    while(angle > 0) {angle -= 2*M_PI;};
-    index = (M_PI + angle - this->angleOffset) * (props->lipStart - 1)/(this->angleScale * M_PI);
-    diameter = (this->radius - sqrt(pow(x, 2) + pow(y, 2)))/this->scale;
+	double angle = atan2(y, x);
+	while(angle > 0) {angle -= 2*M_PI;};
+	index = (M_PI + angle - this->angleOffset) * (props->lipStart - 1)/(this->angleScale * M_PI);
+	diameter = (this->radius - sqrt(pow(x, 2) + pow(y, 2)))/this->scale;
 }
 
 bool TractUI::isNearTongue(t_tractProps *p, double index, double diameter)
 {
-    double tongueLowerIndexBound = p->bladeStart + 2;
-    double tongueUpperIndexBound = p->tipStart - 3;
-    bool isTongue = true;
-    isTongue = isTongue && (tongueLowerIndexBound-4 <= index) && (index <= tongueUpperIndexBound+4);
-    isTongue = isTongue && (this->innerTongueControlRadius-0.5 <= diameter) && (diameter <= this->outerTongueControlRadius+0.5);
-    return isTongue;
+	double tongueLowerIndexBound = p->bladeStart + 2;
+	double tongueUpperIndexBound = p->tipStart - 3;
+	bool isTongue = true;
+	isTongue = isTongue && (tongueLowerIndexBound-4 <= index) && (index <= tongueUpperIndexBound+4);
+	isTongue = isTongue && (this->innerTongueControlRadius-0.5 <= diameter) && (diameter <= this->outerTongueControlRadius+0.5);
+	return isTongue;
 }
 
 void TractUI::drawTongueControl(Graphics &g, t_tractProps *p)
@@ -326,25 +326,26 @@ void TractUI::drawCircle(Graphics &g, t_tractProps *props, double i, double d, d
 
 void TractUI::drawAmplitudes(Graphics &g, t_tractProps *props)
 {
-    Path p;
-    g.setColour(Colours::orchid);
-    PathStrokeType stroke(this->scale * 0.75);
-    stroke.setEndStyle(PathStrokeType::EndCapStyle::butt);
-    g.setOpacity(0.3);
-    
-    for (int i = 2; i < props->n; i++) {
-        stroke.setStrokeThickness(sqrt(props->maxAmplitude[i]) *3);
-        
-        this->moveTo(g, props, p, i, 0);
-        this->lineTo(g, props, p, i, props->tractDiameter[i]);
-        g.strokePath(p, stroke);
-    }
-    
-    for (int i = 1; i < props->noseLength; i++) {
-        stroke.setStrokeThickness(sqrt(props->noseMaxAmplitude[i]) *3);
-        
-        this->moveTo(g, props, p, props->noseStart + i, -props->noseOffset);
-        this->lineTo(g, props, p, props->noseStart + i, -props->noseOffset - props->noseDiameter[i]*0.9);
-        g.strokePath(p, stroke);
-    }
+	Path p;
+	g.setColour(Colours::orchid);
+	PathStrokeType stroke(this->scale * 0.75);
+	stroke.setEndStyle(PathStrokeType::EndCapStyle::butt);
+	g.setOpacity(0.3);
+	
+	for (int i = 2; i < props->n; i++) {
+		stroke.setStrokeThickness(sqrt(props->maxAmplitude[i]) *3);
+		
+		this->moveTo(g, props, p, i, 0);
+		this->lineTo(g, props, p, i, props->tractDiameter[i]);
+		g.strokePath(p, stroke);
+	}
+	
+	for (int i = 1; i < props->noseLength; i++) {
+		stroke.setStrokeThickness(sqrt(props->noseMaxAmplitude[i]) *3);
+		
+		this->moveTo(g, props, p, props->noseStart + i, -props->noseOffset);
+		this->lineTo(g, props, p, props->noseStart + i, -props->noseOffset - props->noseDiameter[i]*0.9);
+		g.strokePath(p, stroke);
+	}
 }
+

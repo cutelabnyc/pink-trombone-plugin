@@ -18,24 +18,24 @@ public:
 	TractUI(PinkTromboneAudioProcessor &);
 	~TractUI();
 	void paint(Graphics &g) override;
-    
-    void timerCallback() override;
-    
-    void mouseDown(const MouseEvent& e) override;
-    void mouseDrag(const MouseEvent& e) override;
-    void mouseUp(const MouseEvent& e) override;
+	
+	void timerCallback() override;
+	
+	void mouseDown(const MouseEvent& e) override;
+	void mouseDrag(const MouseEvent& e) override;
+	void mouseUp(const MouseEvent& e) override;
 private:
-    void setConstriction(t_tractProps *props, double index, double diameter);
-    void setTongue(t_tractProps *props, double index, double diameter);
-    void * getEventPosition(t_tractProps *p, double x, double y, double &index, double &diameter);
-    bool isNearTongue(t_tractProps *p, double index, double diameter);
+	void setConstriction(t_tractProps *props, double index, double diameter);
+	void setTongue(t_tractProps *props, double index, double diameter);
+	void * getEventPosition(t_tractProps *p, double x, double y, double &index, double &diameter);
+	bool isNearTongue(t_tractProps *p, double index, double diameter);
 	void drawTongueControl(Graphics &g, t_tractProps *p);
 	void drawTract(Graphics &g, t_tractProps *p);
 	void moveTo(Graphics &g, t_tractProps *props, Path &p, double index, double diameter);
 	void lineTo(Graphics &g, t_tractProps *props, Path &p, double i, double d);
 	void * getPolarCoordinates(t_tractProps *props, double i, double d, double &r, double &angle);
 	void drawCircle(Graphics &g, t_tractProps *props, double i, double d, double radius);
-    void drawAmplitudes(Graphics &g, t_tractProps *props);
+	void drawAmplitudes(Graphics &g, t_tractProps *props);
 	
 	PinkTromboneAudioProcessor &processor;
 	double angleOffset;
@@ -46,8 +46,9 @@ private:
 	double innerTongueControlRadius = 2.05;
 	double outerTongueControlRadius = 3.5;
 	double fillRatio = 1.0 / 6.0;
-    bool isTongue;
+	bool isTongue;
 	double counter = 0;
 };
 
 #endif /* TractUI_hpp */
+
