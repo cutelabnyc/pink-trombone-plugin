@@ -24,7 +24,7 @@ Glottis::Glottis(double sampleRate) :
 	loudness(1),
 	vibratoAmount(0.005),
 	vibratoFrequency(6),
-	autoWobble(true),
+	autoWobble(false),
 	isTouched(false),
 	alwaysVoice(true)
 {

@@ -5,7 +5,6 @@
               pluginCharacteristicsValue="pluginProducesMidiOut,pluginWantsMidiIn">
   <MAINGROUP id="oys8Iw" name="PinkTrombone">
     <GROUP id="{772D122A-418C-49CB-4236-573C8F2FB197}" name="Source">
-      <FILE id="euH3uM" name="MidiProcessor.h" compile="0" resource="0" file="Source/MidiProcessor.h"/>
       <FILE id="W1J7Du" name="Biquad.cpp" compile="1" resource="0" file="Source/Biquad.cpp"/>
       <FILE id="M17Ntq" name="Biquad.hpp" compile="0" resource="0" file="Source/Biquad.hpp"/>
       <FILE id="iqeoG3" name="PluginProcessor.cpp" compile="1" resource="0"
