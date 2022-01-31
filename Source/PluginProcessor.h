@@ -67,6 +67,7 @@ public:
 	float fricativeIntensity = 0.0;
 	bool muteAudio = false;
 	bool constrictionActive = false;
+	float noteOnVel = 64;
 	
 	t_tractProps *getTractProps();
 

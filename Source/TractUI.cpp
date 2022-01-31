@@ -41,10 +41,10 @@ void TractUI::mouseDown(const juce::MouseEvent &e)
 	t_tractProps *props = this->processor.getTractProps();
 	double x = e.getMouseDownX() - this->originX;
 	double y = e.getMouseDownY()- this->originY;
-	
+
 	this->getEventPosition(props, x, y, index, diameter);
 	bool isNearTongue = this->isNearTongue(props, index, diameter);
-	
+
 	if(isNearTongue){
 		this->isTongue = true;
 		this->setTongue(props, index, diameter);

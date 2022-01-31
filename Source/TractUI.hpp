@@ -17,6 +17,7 @@ class TractUI : public Component, public Timer {
 public:
 	TractUI(PinkTromboneAudioProcessor &);
 	~TractUI();
+
 	void paint(Graphics &g) override;
 	
 	void timerCallback() override;
@@ -24,6 +25,7 @@ public:
 	void mouseDown(const MouseEvent& e) override;
 	void mouseDrag(const MouseEvent& e) override;
 	void mouseUp(const MouseEvent& e) override;
+
 private:
 	void setConstriction(t_tractProps *props, double index, double diameter);
 	void setTongue(t_tractProps *props, double index, double diameter);

@@ -12,10 +12,10 @@
 
 Glottis::Glottis(double sampleRate) :
 	timeInWaveform(0),
-	oldFrequency(140),
-	newFrequency(140),
-	smoothFrequency(140),
-	UIFrequency(140),
+//	oldFrequency(140),
+//	newFrequency(140),
+//	smoothFrequency(140),
+//	UIFrequency(140),
 	oldTenseness(0.6),
 	newTenseness(0.6),
 	UITenseness(0.6),
@@ -129,8 +129,8 @@ double Glottis::normalizedLFWaveform(double t)
 
 double Glottis::runStep(double lambda, double noiseSource)
 {
-	
 	double timeStep = 1.0 / this->sampleRate;
+	this->waveformLength = 1.0 / this->frequency;
 	this->timeInWaveform += timeStep;
 	this->totalTime += timeStep;
 	if (this->timeInWaveform > this->waveformLength)

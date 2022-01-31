@@ -18,6 +18,7 @@ public:
 	double runStep(double lambda, double noiseSource);
 	void finishBlock();
 	double getNoiseModulator();
+	double frequency, oldFrequency, newFrequency, UIFrequency, smoothFrequency;
 	
 private:
 	void setupWaveform(double lambda);
@@ -25,7 +26,6 @@ private:
 	
 	double sampleRate;
 	double timeInWaveform;
-	double frequency, oldFrequency, newFrequency, smoothFrequency,UIFrequency;
 	double oldTenseness, newTenseness, UITenseness;
 	double waveformLength;
 	double Rd;

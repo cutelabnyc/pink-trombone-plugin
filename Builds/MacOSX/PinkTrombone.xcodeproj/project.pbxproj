@@ -95,6 +95,7 @@
 		472BFEA4DADAE87E07BADC97 /* PluginProcessor.cpp */ /* PluginProcessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PluginProcessor.cpp; path = ../../Source/PluginProcessor.cpp; sourceTree = SOURCE_ROOT; };
 		49A67C59227FF9B781BBBEB8 /* include_juce_audio_basics.mm */ /* include_juce_audio_basics.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_basics.mm; path = ../../JuceLibraryCode/include_juce_audio_basics.mm; sourceTree = SOURCE_ROOT; };
 		4B14F7EA9AE09D86DBE82B17 /* Glottis.hpp */ /* Glottis.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Glottis.hpp; path = ../../Source/Glottis.hpp; sourceTree = SOURCE_ROOT; };
+		4DD4E81702108F4EBC1B2D7C /* MidiProcessor.h */ /* MidiProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MidiProcessor.h; path = ../../Source/MidiProcessor.h; sourceTree = SOURCE_ROOT; };
 		504B52896876896D45E5D30A /* juce_graphics */ /* juce_graphics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_graphics; path = "~/JUCE/modules/juce_graphics"; sourceTree = "<absolute>"; };
 		59C2AE91C0FD59395750E0C6 /* PluginEditor.cpp */ /* PluginEditor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PluginEditor.cpp; path = ../../Source/PluginEditor.cpp; sourceTree = SOURCE_ROOT; };
 		5AE3E7102BD6E6698F3D589E /* WebKit.framework */ /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
@@ -316,6 +317,7 @@
 		BCB2FBBC7BC5F2E1276CFC10 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				4DD4E81702108F4EBC1B2D7C,
 				947EF417492CF8007AC54C3E,
 				7CBD68352C374F269A4A954C,
 				472BFEA4DADAE87E07BADC97,

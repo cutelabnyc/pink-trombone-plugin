@@ -28,6 +28,7 @@ typedef struct t_tractProps {
 	double *tractDiameter;
 	double *maxAmplitude;
 	double *noseMaxAmplitude;
+	bool midiInput;
 } t_tractProps;
 
 void initializeTractProps(t_tractProps *props, int n);
