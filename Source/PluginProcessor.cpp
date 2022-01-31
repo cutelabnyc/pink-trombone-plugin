@@ -175,11 +175,12 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 
 		if (currentMessage.isNoteOn()){
 			auto currentNote = currentMessage.getNoteNumber();
-			this->glottis->frequency = juce::MidiMessage::getMidiNoteInHertz(currentNote);
-			this->glottis->oldFrequency = juce::MidiMessage::getMidiNoteInHertz(currentNote);
-			this->glottis->newFrequency = juce::MidiMessage::getMidiNoteInHertz(currentNote);
-			this->glottis->UIFrequency = juce::MidiMessage::getMidiNoteInHertz(currentNote);
-			this->glottis->smoothFrequency = juce::MidiMessage::getMidiNoteInHertz(currentNote);
+			double midiNoteInHz = juce::MidiMessage::getMidiNoteInHertz(currentNote);
+			this->glottis->frequency = midiNoteInHz;
+			this->glottis->oldFrequency = midiNoteInHz;
+			this->glottis->newFrequency = midiNoteInHz;
+			this->glottis->UIFrequency = midiNoteInHz;
+			this->glottis->smoothFrequency = midiNoteInHz;
 		}
 	}
 
