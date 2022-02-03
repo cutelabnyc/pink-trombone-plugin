@@ -26,11 +26,15 @@ public:
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
+	void mouseDown(const MouseEvent& e) override;
+	void mouseDrag(const MouseEvent& e) override;
+	void mouseUp(const MouseEvent& e) override;
 
 private:
 	void sliderValueChanged (Slider* slider) override;
 	void buttonClicked (Button* button) override;
 	void buttonStateChanged (Button* button) override;
+	void updateSliders();
 	
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
@@ -40,6 +44,7 @@ private:
 	Slider tongueY;
 	Slider constrictionX;
 	Slider constrictionY;
+	Slider constrictionMax;
 	ToggleButton constrictionActive;
 	ToggleButton muteAudio;
 	TractUI tractUI;

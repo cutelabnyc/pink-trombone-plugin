@@ -67,6 +67,8 @@ public:
 	float fricativeIntensity = 0.0;
 	bool muteAudio = false;
 	bool constrictionActive = false;
+	double constrictionMin = -2.0;
+	double constrictionMax = 2.0;
 	
 	t_tractProps *getTractProps();
 

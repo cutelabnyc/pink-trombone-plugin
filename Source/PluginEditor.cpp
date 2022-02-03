@@ -22,41 +22,55 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	tractUI.setSize(400, 300);
 	addAndMakeVisible(&tractUI);
 	
-	tongueX.setSliderStyle (Slider::LinearBarVertical);
+	tongueX.setSliderStyle (Slider::Rotary);
+	tongueX.setRotaryParameters(2*M_PI, 0.1, true);
 	tongueX.setRange(0.0, 1.0, 0.01);
 	tongueX.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	tongueX.setPopupDisplayEnabled (true, false, this);
+	tongueX.setPopupDisplayEnabled (true, true, this);
 	tongueX.setTextValueSuffix (" Tongue Index");
 	tongueX.setValue(1.0);
 	addAndMakeVisible (&tongueX);
 	tongueX.addListener(this);
 	
-	tongueY.setSliderStyle (Slider::LinearBarVertical);
+	tongueY.setSliderStyle (Slider::Rotary);
+	tongueY.setRotaryParameters(2*M_PI, 0.1, true);
 	tongueY.setRange(0.0, 1.0, 0.01);
 	tongueY.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	tongueY.setPopupDisplayEnabled (true, false, this);
+	tongueY.setPopupDisplayEnabled (true, true, this);
 	tongueY.setTextValueSuffix (" Tongue Diameter");
 	tongueY.setValue(1.0);
 	addAndMakeVisible (&tongueY);
 	tongueY.addListener(this);
 	
-	constrictionX.setSliderStyle (Slider::LinearBarVertical);
+	constrictionX.setSliderStyle (Slider::Rotary);
+	constrictionX.setRotaryParameters(2*M_PI, 0.1, true);
 	constrictionX.setRange(0.0, 1.0, 0.01);
 	constrictionX.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	constrictionX.setPopupDisplayEnabled (true, false, this);
+	constrictionX.setPopupDisplayEnabled (true, true, this);
 	constrictionX.setTextValueSuffix (" Constriction X");
 	constrictionX.setValue(1.0);
 	addAndMakeVisible (&constrictionX);
 	constrictionX.addListener(this);
 	
-	constrictionY.setSliderStyle (Slider::LinearBarVertical);
+	constrictionY.setSliderStyle (Slider::Rotary);
+	constrictionY.setRotaryParameters(2*M_PI, 0.1, true);
 	constrictionY.setRange(0.0, 1.0, 0.01);
 	constrictionY.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	constrictionY.setPopupDisplayEnabled (true, false, this);
+	constrictionY.setPopupDisplayEnabled (true, true, this);
 	constrictionY.setTextValueSuffix (" Constriction Y");
 	constrictionY.setValue(1.0);
 	addAndMakeVisible (&constrictionY);
 	constrictionY.addListener(this);
+	
+	constrictionMax.setSliderStyle (Slider::Rotary);
+	constrictionMax.setRotaryParameters(2*M_PI, 0.1, true);
+	constrictionMax.setRange(-2.0, 2.0, 0.1);
+	constrictionMax.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
+	constrictionMax.setPopupDisplayEnabled (true, true, this);
+	constrictionMax.setTextValueSuffix (" Constriction Max");
+	constrictionMax.setValue(2.0);
+	addAndMakeVisible (&constrictionMax);
+	constrictionMax.addListener(this);
 	
 	constrictionActive.setButtonText("Constriction Active");
 	addAndMakeVisible(&constrictionActive);
@@ -65,6 +79,8 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	muteAudio.setButtonText("Mute");
 //	addAndMakeVisible(&muteAudio);
 	muteAudio.addListener(this);
+	
+	addMouseListener(this, true);
 
 }
 
@@ -82,12 +98,14 @@ void PinkTromboneAudioProcessorEditor::paint (Graphics& g)
 
 void PinkTromboneAudioProcessorEditor::resized()
 {
-	tongueX.setBounds (40, 30, 20, getHeight() - 60);
-	tongueY.setBounds (70, 30, 20, (getHeight() - 60) / 2);
-	constrictionX.setBounds (100, 30, 20, getHeight() - 60);
-	constrictionY.setBounds (130, 30, 20, getHeight() - 60);
+	// Local bounds are 0,0,400,300
+	tongueX.setBounds (0, 20, 70, 50);
+	tongueY.setBounds (70, 20, 70, 50);
+	constrictionX.setBounds (0, 100, 70, 50);
+	constrictionY.setBounds (70, 100, 70, 50);
+	constrictionMax.setBounds (0, 180, 70, 50);
 	muteAudio.setBounds(170, 30, 100, 20);
-	constrictionActive.setBounds(170, 60, 100, 20);
+	constrictionActive.setBounds(150, 30, 100, 20);
 	tractUI.setSize(getWidth(), getHeight());
 }
 
@@ -97,7 +115,7 @@ void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
 	processor.tongueY = tongueY.getValue();
 	processor.constrictionX = constrictionX.getValue();
 	processor.constrictionY = constrictionY.getValue();
-	tractUI.repaint();
+	processor.constrictionMax = constrictionMax.getValue();
 }
 
 void PinkTromboneAudioProcessorEditor::buttonClicked(Button *button) { }
@@ -106,4 +124,27 @@ void PinkTromboneAudioProcessorEditor::buttonStateChanged(Button *button)
 {
 	processor.muteAudio = this->muteAudio.getToggleState();
 	processor.constrictionActive = this->constrictionActive.getToggleState();
+}
+
+void PinkTromboneAudioProcessorEditor::updateSliders()
+{
+	tongueX.setValue(processor.tongueX);
+	tongueY.setValue(processor.tongueY);
+	constrictionX.setValue(processor.constrictionX);
+	constrictionY.setValue(processor.constrictionY);
+}
+
+void PinkTromboneAudioProcessorEditor::mouseDown(const juce::MouseEvent& e)
+{
+	this->updateSliders();
+}
+
+void PinkTromboneAudioProcessorEditor::mouseDrag(const juce::MouseEvent& e)
+{
+	this->updateSliders();
+}
+
+void PinkTromboneAudioProcessorEditor::mouseUp(const juce::MouseEvent& e)
+{
+	this->updateSliders();
 }

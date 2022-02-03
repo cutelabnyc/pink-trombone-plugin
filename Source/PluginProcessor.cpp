@@ -226,13 +226,11 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 	double innerTongueControlRadius = 2.05;
 	double outerTongueControlRadius = 3.5;
 	double tongueDiameter = tongueY * (outerTongueControlRadius - innerTongueControlRadius) + innerTongueControlRadius;
-	double constrictionMin = -2.0;
-	double constrictionMax = 2.0;
 	
 	double constrictionIndex = this->constrictionX * (double) this->tract->getTractIndexCount();
-	double constrictionDiameter = this->constrictionY * (constrictionMax - constrictionMin) + constrictionMin;
+	double constrictionDiameter = this->constrictionY * (this->constrictionMax - this->constrictionMin) + this->constrictionMin;
 	if (this->constrictionActive == false) {
-		constrictionDiameter = constrictionMax;
+		constrictionDiameter = this->constrictionMax;
 	} else {
 		this->fricativeIntensity += 0.1; // TODO ex recto
 		this->fricativeIntensity = minf(1.0, this->fricativeIntensity);
