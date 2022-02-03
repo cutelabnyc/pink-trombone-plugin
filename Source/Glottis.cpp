@@ -145,14 +145,12 @@ double Glottis::runStep(double lambda, double noiseSource)
 	return out;
 }
 
-void Glottis::onNoteDown(double midiNoteInHz)
+void Glottis::setFrequency(double midiNoteInHz)
 {
 	this->frequency = midiNoteInHz;
-	if(!alwaysVoice)
-		alwaysVoice = true;
 }
 
-void Glottis::onNoteUp()
+void Glottis::setVoicing(bool voice)
 {
-	this->alwaysVoice = false;
+	this->alwaysVoice = voice;
 }

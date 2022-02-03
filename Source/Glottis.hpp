@@ -18,8 +18,8 @@ public:
 	double runStep(double lambda, double noiseSource);
 	void finishBlock();
 	double getNoiseModulator();
-	void onNoteDown(double midiNoteInHz);
-	void onNoteUp();
+	void setFrequency(double midiNoteInHz);
+	void setVoicing(bool voice);
 	
 private:
 	void setupWaveform(double lambda);
