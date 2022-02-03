@@ -176,12 +176,10 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		if (currentMessage.isNoteOn()){
 			auto currentNote = currentMessage.getNoteNumber();
 			double midiNoteInHz = juce::MidiMessage::getMidiNoteInHertz(currentNote);
-			this->glottis->frequency = midiNoteInHz;
-			this->glottis->oldFrequency = midiNoteInHz;
-			this->glottis->newFrequency = midiNoteInHz;
-			this->glottis->UIFrequency = midiNoteInHz;
-			this->glottis->smoothFrequency = midiNoteInHz;
+			this->glottis->onNoteDown(midiNoteInHz);
 		}
+		else if (currentMessage.isNoteOff())
+			this->glottis->onNoteUp();
 	}
 
     // This is the place where you'd normally do the guts of your plugin's
