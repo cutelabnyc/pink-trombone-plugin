@@ -34,7 +34,7 @@ Glottis::Glottis(double sampleRate) :
 
 void Glottis::setupWaveform(double lambda)
 {
-//	this->frequency = this->oldFrequency * (1 - lambda) + this->newFrequency * lambda;
+	//this->frequency = this->oldFrequency * (1 - lambda) + this->newFrequency * lambda;
 	double tenseness = this->oldTenseness * (1 - lambda) + this->newTenseness * lambda;
 	this->Rd = 3 * (1 - tenseness);
 	this->waveformLength = 1.0 / this->frequency;
@@ -143,4 +143,14 @@ double Glottis::runStep(double lambda, double noiseSource)
 	aspiration *= 0.2 + 0.02 * simplex1(this->totalTime * 1.99);
 	out += aspiration;
 	return out;
+}
+
+void Glottis::setFrequency(double midiNoteInHz)
+{
+	this->frequency = midiNoteInHz;
+}
+
+void Glottis::setVoicing(bool voice)
+{
+	this->alwaysVoice = voice;
 }
