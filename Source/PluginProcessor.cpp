@@ -160,7 +160,7 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 	auto N = buffer.getNumSamples();
-
+	
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data, (because these aren't
     // guaranteed to be empty - they may contain garbage).
@@ -169,6 +169,19 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
+	
+	for (auto meta : midiMessages) {
+		auto currentMessage = meta.getMessage();
+
+		if (currentMessage.isNoteOn()){
+			auto currentNote = currentMessage.getNoteNumber();
+			double midiNoteInHz = juce::MidiMessage::getMidiNoteInHertz(currentNote);
+			this->glottis->setFrequency(midiNoteInHz);
+			this->glottis->setVoicing(true);
+		}
+		else if (currentMessage.isNoteOff())
+			this->glottis->setVoicing(false);
+	}
 
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...

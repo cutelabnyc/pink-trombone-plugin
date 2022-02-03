@@ -18,14 +18,15 @@ public:
 	double runStep(double lambda, double noiseSource);
 	void finishBlock();
 	double getNoiseModulator();
+	void setFrequency(double midiNoteInHz);
+	void setVoicing(bool voice);
 	
 private:
 	void setupWaveform(double lambda);
 	double normalizedLFWaveform(double t);
-	
+	double frequency, oldFrequency, newFrequency, UIFrequency, smoothFrequency;
 	double sampleRate;
 	double timeInWaveform;
-	double frequency, oldFrequency, newFrequency, smoothFrequency,UIFrequency;
 	double oldTenseness, newTenseness, UITenseness;
 	double waveformLength;
 	double Rd;

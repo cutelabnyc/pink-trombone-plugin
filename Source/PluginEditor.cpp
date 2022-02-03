@@ -10,6 +10,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include <math.h>
 
 //==============================================================================
 PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTromboneAudioProcessor& p)
@@ -22,7 +23,8 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	tractUI.setSize(400, 300);
 	addAndMakeVisible(&tractUI);
 	
-	tongueX.setSliderStyle (Slider::LinearBarVertical);
+	tongueX.setSliderStyle (Slider::Rotary);
+	tongueX.setRotaryParameters(2*M_PI, 0.1, true);
 	tongueX.setRange(0.0, 1.0, 0.01);
 	tongueX.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
 	tongueX.setPopupDisplayEnabled (true, false, this);
@@ -65,6 +67,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	muteAudio.setButtonText("Mute");
 //	addAndMakeVisible(&muteAudio);
 	muteAudio.addListener(this);
+
 }
 
 PinkTromboneAudioProcessorEditor::~PinkTromboneAudioProcessorEditor()
@@ -81,7 +84,10 @@ void PinkTromboneAudioProcessorEditor::paint (Graphics& g)
 
 void PinkTromboneAudioProcessorEditor::resized()
 {
-	tongueX.setBounds (40, 30, 20, getHeight() - 60);
+	// Local bounds are 0,0,400,300
+	//tongueX.setBounds (getLocalBounds()*0.25);
+	tongueX.setBounds (0, 20, 70, 50);
+	//tongueX.setBounds (0, 0, 20, 100);
 	tongueY.setBounds (70, 30, 20, (getHeight() - 60) / 2);
 	constrictionX.setBounds (100, 30, 20, getHeight() - 60);
 	constrictionY.setBounds (130, 30, 20, getHeight() - 60);

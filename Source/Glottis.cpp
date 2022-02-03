@@ -12,10 +12,10 @@
 
 Glottis::Glottis(double sampleRate) :
 	timeInWaveform(0),
-	oldFrequency(140),
-	newFrequency(140),
-	smoothFrequency(140),
-	UIFrequency(140),
+//	oldFrequency(140),
+//	newFrequency(140),
+//	smoothFrequency(140),
+//	UIFrequency(140),
 	oldTenseness(0.6),
 	newTenseness(0.6),
 	UITenseness(0.6),
@@ -24,9 +24,9 @@ Glottis::Glottis(double sampleRate) :
 	loudness(1),
 	vibratoAmount(0.005),
 	vibratoFrequency(6),
-	autoWobble(true),
+	autoWobble(false),
 	isTouched(false),
-	alwaysVoice(true)
+	alwaysVoice(false)
 {
 	this->sampleRate = sampleRate;
 	this->setupWaveform(0);
@@ -34,7 +34,7 @@ Glottis::Glottis(double sampleRate) :
 
 void Glottis::setupWaveform(double lambda)
 {
-	this->frequency = this->oldFrequency * (1 - lambda) + this->newFrequency * lambda;
+	//this->frequency = this->oldFrequency * (1 - lambda) + this->newFrequency * lambda;
 	double tenseness = this->oldTenseness * (1 - lambda) + this->newTenseness * lambda;
 	this->Rd = 3 * (1 - tenseness);
 	this->waveformLength = 1.0 / this->frequency;
@@ -129,8 +129,8 @@ double Glottis::normalizedLFWaveform(double t)
 
 double Glottis::runStep(double lambda, double noiseSource)
 {
-	
 	double timeStep = 1.0 / this->sampleRate;
+	this->waveformLength = 1.0 / this->frequency;
 	this->timeInWaveform += timeStep;
 	this->totalTime += timeStep;
 	if (this->timeInWaveform > this->waveformLength)
@@ -143,4 +143,14 @@ double Glottis::runStep(double lambda, double noiseSource)
 	aspiration *= 0.2 + 0.02 * simplex1(this->totalTime * 1.99);
 	out += aspiration;
 	return out;
+}
+
+void Glottis::setFrequency(double midiNoteInHz)
+{
+	this->frequency = midiNoteInHz;
+}
+
+void Glottis::setVoicing(bool voice)
+{
+	this->alwaysVoice = voice;
 }
