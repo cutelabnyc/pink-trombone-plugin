@@ -36,6 +36,7 @@ class Tract {
 public:
 	Tract(double sampleRate, double blockSize, t_tractProps *p);
 	~Tract();
+
 	void runStep(double glottalOutput, double turbulenceNoise, double lambda, Glottis *glottis);
 	void finishBlock();
 	void setRestDiameter(double tongueIndex, double tongueDiameter);
@@ -56,6 +57,7 @@ private:
 	void calculateNoseReflections();
 	void processTransients();
 	void reshapeTract(double deltaTime);
+	void incrementConstriction();
 	
 	double sampleRate, blockTime;
 	t_tractProps *tractProps;
@@ -67,6 +69,10 @@ private:
 	double velumTarget;
 	t_transient *transients;
 	int transientCount;
+	
+	int counter;
+	double diameterStep;
+	double targetDiam;
 	
 	double *diameter;
 	double *restDiameter;

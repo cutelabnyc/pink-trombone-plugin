@@ -178,6 +178,7 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 			double midiNoteInHz = juce::MidiMessage::getMidiNoteInHertz(currentNote);
 			this->glottis->setFrequency(midiNoteInHz);
 			this->glottis->setVoicing(true);
+			this->envelope();
 		}
 		else if (currentMessage.isNoteOff())
 			this->glottis->setVoicing(false);
@@ -221,13 +222,13 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		}
 	}
 	
+	double constrictionIndex = this->constrictionX * (double) this->tract->getTractIndexCount();
+	double constrictionDiameter = this->constrictionY * (this->constrictionMax - this->constrictionMin) + this->constrictionMin;
 	double tongueIndex = tongueX * ((double) (this->tract->tongueIndexUpperBound() - this->tract->tongueIndexLowerBound())) + this->tract->tongueIndexLowerBound();
 	double innerTongueControlRadius = 2.05;
 	double outerTongueControlRadius = 3.5;
 	double tongueDiameter = tongueY * (outerTongueControlRadius - innerTongueControlRadius) + innerTongueControlRadius;
 	
-	double constrictionIndex = this->constrictionX * (double) this->tract->getTractIndexCount();
-	double constrictionDiameter = this->constrictionY * (this->constrictionMax - this->constrictionMin) + this->constrictionMin;
 	if (this->constrictionActive == false) {
 		constrictionDiameter = this->constrictionMax;
 	} else {
@@ -248,6 +249,34 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 			}
 		}
 	}
+}
+
+void PinkTromboneAudioProcessor::timerCallback()
+{
+	if (this->attackCounter < this->attackLength)
+	{
+		this->constrictionY -= this->attackStep;
+		this->attackCounter += 10;
+	} else {
+		if (this->decayCounter < this->decayLength)
+		{
+			this->constrictionY += this->decayStep;
+			this->decayCounter += 10;
+		}
+		else {
+			stopTimer();
+		}
+	}
+}
+
+void PinkTromboneAudioProcessor::envelope()
+{
+	this->attackCounter = 0;
+	this->decayCounter = 0;
+	this->constrictionY = this->UIConstrictionY;
+	this->attackStep = abs((this->UIConstrictionY - this->constrictionEnvelopeMax)*10/this->attackLength);
+	this->decayStep = abs((this->constrictionEnvelopeMax - this->UIConstrictionY)*10/this->decayLength);
+	startTimer(10);
 }
 
 //==============================================================================

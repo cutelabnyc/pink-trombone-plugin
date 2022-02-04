@@ -48,7 +48,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	constrictionX.setRange(0.0, 1.0, 0.01);
 	constrictionX.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
 	constrictionX.setPopupDisplayEnabled (true, true, this);
-	constrictionX.setTextValueSuffix (" Constriction X");
+	constrictionX.setTextValueSuffix (" Constriction Index");
 	constrictionX.setValue(1.0);
 	addAndMakeVisible (&constrictionX);
 	constrictionX.addListener(this);
@@ -58,20 +58,38 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	constrictionY.setRange(0.0, 1.0, 0.01);
 	constrictionY.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
 	constrictionY.setPopupDisplayEnabled (true, true, this);
-	constrictionY.setTextValueSuffix (" Constriction Y");
+	constrictionY.setTextValueSuffix (" Constriction Diameter");
 	constrictionY.setValue(1.0);
 	addAndMakeVisible (&constrictionY);
 	constrictionY.addListener(this);
 	
-	constrictionMax.setSliderStyle (Slider::Rotary);
-	constrictionMax.setRotaryParameters(2*M_PI, 0.1, true);
-	constrictionMax.setRange(-2.0, 2.0, 0.1);
-	constrictionMax.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	constrictionMax.setPopupDisplayEnabled (true, true, this);
-	constrictionMax.setTextValueSuffix (" Constriction Max");
-	constrictionMax.setValue(2.0);
-	addAndMakeVisible (&constrictionMax);
-	constrictionMax.addListener(this);
+	constrictionEnvelopeMax.setSliderStyle (Slider::Rotary);
+	constrictionEnvelopeMax.setRotaryParameters(2*M_PI, 0.1, true);
+	constrictionEnvelopeMax.setRange(0.0, 1.0, 0.1);
+	constrictionEnvelopeMax.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
+	constrictionEnvelopeMax.setPopupDisplayEnabled (true, true, this);
+	constrictionEnvelopeMax.setTextValueSuffix (" Constriction Max");
+	constrictionEnvelopeMax.setValue(0.0);
+	addAndMakeVisible (&constrictionEnvelopeMax);
+	constrictionEnvelopeMax.addListener(this);
+	
+	attackLength.setSliderStyle (Slider::LinearHorizontal);
+	attackLength.setRange(100, 2000, 10);
+	attackLength.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
+	attackLength.setPopupDisplayEnabled (true, true, this);
+	attackLength.setTextValueSuffix (" Attack length (ms)");
+	attackLength.setValue(100);
+	addAndMakeVisible (&attackLength);
+	attackLength.addListener(this);
+	
+	decayLength.setSliderStyle (Slider::LinearHorizontal);
+	decayLength.setRange(100, 2000, 10);
+	decayLength.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
+	decayLength.setPopupDisplayEnabled (true, true, this);
+	decayLength.setTextValueSuffix (" Decay length (ms)");
+	decayLength.setValue(100);
+	addAndMakeVisible (&decayLength);
+	decayLength.addListener(this);
 	
 	constrictionActive.setButtonText("Constriction Active");
 	addAndMakeVisible(&constrictionActive);
@@ -102,9 +120,11 @@ void PinkTromboneAudioProcessorEditor::resized()
 	// Local bounds are 0,0,400,300
 	tongueX.setBounds (0, 20, 70, 50);
 	tongueY.setBounds (70, 20, 70, 50);
-	constrictionX.setBounds (0, 100, 70, 50);
-	constrictionY.setBounds (70, 100, 70, 50);
-	constrictionMax.setBounds (0, 180, 70, 50);
+	constrictionX.setBounds (0, 80, 70, 50);
+	constrictionY.setBounds (70, 80, 70, 50);
+	constrictionEnvelopeMax.setBounds (0, 140, 70, 50);
+	attackLength.setBounds (15, 190, 110, 50);
+	decayLength.setBounds (15, 220, 110, 50);
 	muteAudio.setBounds(170, 30, 100, 20);
 	constrictionActive.setBounds(150, 30, 100, 20);
 	tractUI.setSize(getWidth(), getHeight());
@@ -116,7 +136,10 @@ void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
 	processor.tongueY = tongueY.getValue();
 	processor.constrictionX = constrictionX.getValue();
 	processor.constrictionY = constrictionY.getValue();
-	processor.constrictionMax = constrictionMax.getValue();
+	processor.constrictionEnvelopeMax = constrictionEnvelopeMax.getValue();
+	processor.attackLength = attackLength.getValue();
+	processor.decayLength = decayLength.getValue();
+	processor.UIConstrictionY = constrictionY.getValue();
 }
 
 void PinkTromboneAudioProcessorEditor::buttonClicked(Button *button) { }
