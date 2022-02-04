@@ -57,7 +57,6 @@ private:
 	void calculateNoseReflections();
 	void processTransients();
 	void reshapeTract(double deltaTime);
-	void incrementConstriction();
 	
 	double sampleRate, blockTime;
 	t_tractProps *tractProps;
@@ -69,10 +68,6 @@ private:
 	double velumTarget;
 	t_transient *transients;
 	int transientCount;
-	
-	int counter;
-	double diameterStep;
-	double targetDiam;
 	
 	double *diameter;
 	double *restDiameter;

@@ -60,8 +60,6 @@ Tract::Tract(double sampleRate, double blockTime, t_tractProps *props):
 	this->init();
 }
 
-Tract::~Tract() { }
-
 void Tract::init() {
 	this->diameter = (double *) calloc(this->tractProps->n, sizeof(double));
 	this->restDiameter = (double *) calloc(this->tractProps->n, sizeof(double));
