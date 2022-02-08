@@ -19,7 +19,7 @@
 //==============================================================================
 /**
 */
-class PinkTromboneAudioProcessor  : public AudioProcessor, public Timer
+class PinkTromboneAudioProcessor  : public AudioProcessor, public ADSR
 {
 public:
     //==============================================================================
@@ -58,9 +58,7 @@ public:
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
-	void timerCallback() override;
-	
-	void setTractEnvelope(double constrictionEnvelopeMax, int attackLength, int decayLength);
+
 	
 	//=== Audio Parameters
 	float tongueX = 0.0;
@@ -75,18 +73,18 @@ public:
 	double constrictionEnvelopeMax = 0.0;
 	float attackLength = 100;
 	float decayLength = 100;
-	int attackCounter;
-	int decayCounter;
-	double attackStep;
-	double decayStep;
 	float UIConstrictionY;
+	double VOT;
+	
+	ADSR adsr;
+	ADSR::Parameters adsrParams;
 	
 	t_tractProps *getTractProps();
 
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PinkTromboneAudioProcessor)
-	void envelope();
+	void envelope(float sampleVal);
 	t_tractProps tractProps;
 	Glottis *glottis;
 	Tract *tract;

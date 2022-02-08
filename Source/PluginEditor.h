@@ -47,6 +47,7 @@ private:
 	Slider constrictionEnvelopeMax;
 	Slider attackLength;
 	Slider decayLength;
+	Slider VOT;
 	ToggleButton constrictionActive;
 	ToggleButton muteAudio;
 	TractUI tractUI;

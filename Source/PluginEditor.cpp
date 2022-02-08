@@ -65,13 +65,24 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	
 	constrictionEnvelopeMax.setSliderStyle (Slider::Rotary);
 	constrictionEnvelopeMax.setRotaryParameters(2*M_PI, 0.1, true);
-	constrictionEnvelopeMax.setRange(0.0, 1.0, 0.1);
+	constrictionEnvelopeMax.setRange(0.0, 1.0, 0.01);
+	constrictionEnvelopeMax.setSkewFactor(0.7);
 	constrictionEnvelopeMax.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
 	constrictionEnvelopeMax.setPopupDisplayEnabled (true, true, this);
 	constrictionEnvelopeMax.setTextValueSuffix (" Constriction Max");
 	constrictionEnvelopeMax.setValue(0.0);
 	addAndMakeVisible (&constrictionEnvelopeMax);
 	constrictionEnvelopeMax.addListener(this);
+	
+	VOT.setSliderStyle (Slider::Rotary);
+	VOT.setRotaryParameters(2*M_PI, 0.1, true);
+	VOT.setRange(0, 0.3, 0.01);
+	VOT.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
+	VOT.setPopupDisplayEnabled (true, true, this);
+	VOT.setTextValueSuffix (" Voice Onset Time (s)");
+	VOT.setValue(0.0);
+	addAndMakeVisible (&VOT);
+	VOT.addListener(this);
 	
 	attackLength.setSliderStyle (Slider::LinearHorizontal);
 	attackLength.setRange(100, 2000, 10);
@@ -123,6 +134,7 @@ void PinkTromboneAudioProcessorEditor::resized()
 	constrictionX.setBounds (0, 80, 70, 50);
 	constrictionY.setBounds (70, 80, 70, 50);
 	constrictionEnvelopeMax.setBounds (0, 140, 70, 50);
+	VOT.setBounds (70, 140, 70, 50);
 	attackLength.setBounds (15, 190, 110, 50);
 	decayLength.setBounds (15, 220, 110, 50);
 	muteAudio.setBounds(170, 30, 100, 20);
@@ -136,10 +148,13 @@ void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
 	processor.tongueY = tongueY.getValue();
 	processor.constrictionX = constrictionX.getValue();
 	processor.constrictionY = constrictionY.getValue();
-	processor.constrictionEnvelopeMax = constrictionEnvelopeMax.getValue();
-	processor.attackLength = attackLength.getValue();
-	processor.decayLength = decayLength.getValue();
+	processor.constrictionEnvelopeMax = constrictionEnvelopeMax.getValue()/2 + 0.5;
+	processor.attackLength = attackLength.getValue()/1000;
+	processor.decayLength = decayLength.getValue()/1000;
 	processor.UIConstrictionY = constrictionY.getValue();
+	processor.VOT = VOT.getValue();
+	processor.adsrParams.attack = attackLength.getValue()/1000;
+	processor.adsrParams.decay = decayLength.getValue()/1000;
 }
 
 void PinkTromboneAudioProcessorEditor::buttonClicked(Button *button) { }

@@ -44,6 +44,7 @@ private:
 	bool autoWobble;
 	bool isTouched;
 	bool alwaysVoice;
+	int counter;
 };
 
 #endif /* Glottis_hpp */
