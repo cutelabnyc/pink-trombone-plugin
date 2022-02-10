@@ -32,8 +32,6 @@ Glottis::Glottis(double sampleRate) :
 	this->setupWaveform(0);
 }
 
-Glottis::~Glottis() { }
-
 void Glottis::setupWaveform(double lambda)
 {
 	//this->frequency = this->oldFrequency * (1 - lambda) + this->newFrequency * lambda;

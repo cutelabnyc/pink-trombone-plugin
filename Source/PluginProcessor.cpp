@@ -212,7 +212,7 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		vocalOutput += this->tract->lipOutput + this->tract->noseOutput;
 		this->tract->runStep(glot, fri, lambda2, this->glottis);
 		vocalOutput += this->tract->lipOutput + this->tract->noseOutput;
-		this->envelope(adsr.getNextSample());
+		this->applyConstrictionEnvelope(adsr.getNextSample());
 		
 		channelData[j] = vocalOutput * 0.125;
 	}
@@ -255,7 +255,7 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 	}
 }
 
-void PinkTromboneAudioProcessor::envelope(float sampleVal)
+void PinkTromboneAudioProcessor::applyConstrictionEnvelope(float sampleVal)
 {
 	this->constrictionY = this->UIConstrictionY - abs(this->UIConstrictionY - this->constrictionEnvelopeMax)*sampleVal;
 }

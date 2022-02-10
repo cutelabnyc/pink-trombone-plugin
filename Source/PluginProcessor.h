@@ -19,7 +19,7 @@
 //==============================================================================
 /**
 */
-class PinkTromboneAudioProcessor  : public AudioProcessor, public ADSR
+class PinkTromboneAudioProcessor  : public AudioProcessor
 {
 public:
     //==============================================================================
@@ -84,7 +84,7 @@ public:
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PinkTromboneAudioProcessor)
-	void envelope(float sampleVal);
+	void applyConstrictionEnvelope(float sampleVal);
 	t_tractProps tractProps;
 	Glottis *glottis;
 	Tract *tract;
