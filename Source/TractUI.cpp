@@ -14,7 +14,7 @@ angleScale(0.64),
 originX(0),
 originY(0),
 radius(100),
-scale(20)
+scale(30)
 {
 	startTimerHz(60);
 }
@@ -50,7 +50,8 @@ void TractUI::mouseDown(const juce::MouseEvent &e)
 		this->setTongue(props, index, diameter);
 	} else {
 		this->isTongue = false;
-		this->setConstriction(props, index, diameter);
+		if(this->processor.constrictionActive)
+			this->setConstriction(props, index, diameter);
 	}
 }
 
@@ -67,25 +68,31 @@ void TractUI::mouseDrag(const juce::MouseEvent &e)
 	if(isTongue){
 		this->setTongue(props, index, diameter);
 	} else {
-		this->setConstriction(props, index, diameter);
+		if(this->processor.constrictionActive)
+			this->setConstriction(props, index, diameter);
 	}
 }
 
 void TractUI::mouseUp(const juce::MouseEvent &e)
 {
+	double index;
+	double diameter;
 	t_tractProps *props = this->processor.getTractProps();
+	double x = e.getMouseDownX() + e.getDistanceFromDragStartX() - this->originX;
+	double y = e.getMouseDownY() + e.getDistanceFromDragStartY() - this->originY;
+	
+	this->getEventPosition(props, x, y, index, diameter);
+	
 	if(!isTongue){
-		this->setConstriction(props, 0, 0);  //remove constriction
+		if(this->processor.constrictionActive)
+			this->setConstriction(props, index, this->processor.constrictionMin);  //remove constriction
 	}
 }
 
 void TractUI::setConstriction(t_tractProps *props, double index, double diameter)
 {
-	double constrictionMin = -2.0;
-	double constrictionMax = 2.0;
-	
 	this->processor.constrictionX = index/props->n;
-	this->processor.constrictionY = (diameter - constrictionMin)/(constrictionMax - constrictionMin);
+	this->processor.constrictionY = (diameter - this->processor.constrictionMin)/(this->processor.constrictionMax - this->processor.constrictionMin);
 }
 
 void TractUI::setTongue(t_tractProps *props, double index, double diameter)
@@ -130,8 +137,8 @@ bool TractUI::isNearTongue(t_tractProps *p, double index, double diameter)
 void TractUI::drawTongueControl(Graphics &g, t_tractProps *p)
 {
 	Path path;
-	this->originX = 3.0 * getWidth() / 5.0;
-	this->originY = 3.2 * getHeight() / 5.0;
+	this->originX = 3.3 * getWidth() / 5.0;
+	this->originY = 3.9 * getHeight() / 5.0;
 	this->radius = getWidth() * this->fillRatio;
 	this->scale = this->radius / 5.0;
 	PathStrokeType strokeType(this->scale * 0.75);

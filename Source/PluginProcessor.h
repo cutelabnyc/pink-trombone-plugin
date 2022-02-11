@@ -58,6 +58,7 @@ public:
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+
 	
 	//=== Audio Parameters
 	float tongueX = 0.0;
@@ -67,12 +68,23 @@ public:
 	float fricativeIntensity = 0.0;
 	bool muteAudio = false;
 	bool constrictionActive = false;
+	double constrictionMin = -2.0;
+	double constrictionMax = 2.0;
+	double constrictionEnvelopeMax = 0.0;
+	float attackLength = 100;
+	float decayLength = 100;
+	float UIConstrictionY;
+	double VOT;
+	
+	ADSR adsr;
+	ADSR::Parameters adsrParams;
 	
 	t_tractProps *getTractProps();
 
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PinkTromboneAudioProcessor)
+	void applyConstrictionEnvelope(float sampleVal);
 	t_tractProps tractProps;
 	Glottis *glottis;
 	Tract *tract;

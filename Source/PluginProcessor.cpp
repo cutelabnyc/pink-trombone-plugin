@@ -109,7 +109,8 @@ void PinkTromboneAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-	
+	this->adsr.setSampleRate(sampleRate);
+	adsrParams.sustain = 0.0;
 	this->glottis = new Glottis(sampleRate);
 	this->tract = new Tract(sampleRate, samplesPerBlock, &this->tractProps);
 	this->whiteNoise = new WhiteNoise(sampleRate * 2.0);
@@ -170,6 +171,8 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 	
+	adsr.setParameters(adsrParams);
+	
 	for (auto meta : midiMessages) {
 		auto currentMessage = meta.getMessage();
 
@@ -178,6 +181,7 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 			double midiNoteInHz = juce::MidiMessage::getMidiNoteInHertz(currentNote);
 			this->glottis->setFrequency(midiNoteInHz);
 			this->glottis->setVoicing(true);
+			adsr.noteOn();
 		}
 		else if (currentMessage.isNoteOff())
 			this->glottis->setVoicing(false);
@@ -208,6 +212,7 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		vocalOutput += this->tract->lipOutput + this->tract->noseOutput;
 		this->tract->runStep(glot, fri, lambda2, this->glottis);
 		vocalOutput += this->tract->lipOutput + this->tract->noseOutput;
+		this->applyConstrictionEnvelope(adsr.getNextSample());
 		
 		channelData[j] = vocalOutput * 0.125;
 	}
@@ -221,17 +226,15 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		}
 	}
 	
+	double constrictionIndex = this->constrictionX * (double) this->tract->getTractIndexCount();
+	double constrictionDiameter = this->constrictionY * (this->constrictionMax - this->constrictionMin) + this->constrictionMin;
 	double tongueIndex = tongueX * ((double) (this->tract->tongueIndexUpperBound() - this->tract->tongueIndexLowerBound())) + this->tract->tongueIndexLowerBound();
 	double innerTongueControlRadius = 2.05;
 	double outerTongueControlRadius = 3.5;
 	double tongueDiameter = tongueY * (outerTongueControlRadius - innerTongueControlRadius) + innerTongueControlRadius;
-	double constrictionMin = -2.0;
-	double constrictionMax = 2.0;
 	
-	double constrictionIndex = this->constrictionX * (double) this->tract->getTractIndexCount();
-	double constrictionDiameter = this->constrictionY * (constrictionMax - constrictionMin) + constrictionMin;
 	if (this->constrictionActive == false) {
-		constrictionDiameter = constrictionMax;
+		constrictionDiameter = this->constrictionMax;
 	} else {
 		this->fricativeIntensity += 0.1; // TODO ex recto
 		this->fricativeIntensity = minf(1.0, this->fricativeIntensity);
@@ -250,6 +253,11 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 			}
 		}
 	}
+}
+
+void PinkTromboneAudioProcessor::applyConstrictionEnvelope(float sampleVal)
+{
+	this->constrictionY = this->UIConstrictionY - abs(this->UIConstrictionY - this->constrictionEnvelopeMax)*sampleVal;
 }
 
 //==============================================================================

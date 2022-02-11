@@ -36,6 +36,7 @@ class Tract {
 public:
 	Tract(double sampleRate, double blockSize, t_tractProps *p);
 	~Tract();
+
 	void runStep(double glottalOutput, double turbulenceNoise, double lambda, Glottis *glottis);
 	void finishBlock();
 	void setRestDiameter(double tongueIndex, double tongueDiameter);

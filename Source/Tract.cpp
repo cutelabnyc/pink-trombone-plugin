@@ -239,7 +239,7 @@ void Tract::setConstriction(double cindex, double cdiam, double fricativeIntensi
 	{
 		this->velumTarget = 0.4;
 	}
-	if (this->constrictionDiameter < -0.85 - this->tractProps->noseOffset) {
+	if (this->constrictionDiameter < -1.5 - this->tractProps->noseOffset) {  //-1.5 ex recto per Sam's terminology (needed to fix bug) // -0.85 originally
 		return;
 	}
 	
