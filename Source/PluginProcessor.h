@@ -126,7 +126,7 @@ public:
 				scaledEnvelopeVal = powf(envelopeVal, parameters.decayExp);
 			else
 				scaledEnvelopeVal = powf(envelopeVal, (-1/parameters.decayExp));
-			scaledEnvelopeVal *= (1-parameters.sustain);
+			scaledEnvelopeVal = parameters.sustain + scaledEnvelopeVal*(1-parameters.sustain);
 			return scaledEnvelopeVal;
 		}
 		else if (state == State::sustain)
