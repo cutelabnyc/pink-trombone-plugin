@@ -49,9 +49,11 @@ private:
 	Slider VOT;
 	Slider attackExp;
 	Slider decayExp;
+	Slider tongueXModVal;
 	ToggleButton muteAudio;
 	ToggleButton envelope;
 	ToggleButton partialConstriction;
+	ToggleButton tongueXMod;
 	TractUI tractUI;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PinkTromboneAudioProcessorEditor)

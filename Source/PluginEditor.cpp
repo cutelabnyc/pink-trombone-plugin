@@ -33,6 +33,16 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	addAndMakeVisible (&tongueX);
 	tongueX.addListener(this);
 	
+	tongueXModVal.setSliderStyle (Slider::RotaryVerticalDrag);
+	tongueXModVal.setRotaryParameters(M_PI, 3*M_PI + 0.1, true);
+	tongueXModVal.setRange(-100.0, 100.0, 1.0);
+	tongueXModVal.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
+	tongueXModVal.setPopupDisplayEnabled (true, true, this);
+	tongueXModVal.setTextValueSuffix ("% Tongue Index Modulation");
+	tongueXModVal.setValue(0.0);
+	addAndMakeVisible (&tongueXModVal);
+	tongueXModVal.addListener(this);
+	
 	tongueY.setSliderStyle (Slider::RotaryVerticalDrag);
 	tongueY.setRotaryParameters(M_PI, 3*M_PI + 0.1, true);
 	tongueY.setRange(0.0, 1.0, 0.01);
@@ -58,7 +68,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	constrictionY.setRange(0.0, 1.0, 0.01);
 	constrictionY.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
 	constrictionY.setPopupDisplayEnabled (true, true, this);
-	constrictionY.setTextValueSuffix (" Rest Diameter");
+	constrictionY.setTextValueSuffix (" Constriction Diameter");
 	constrictionY.setValue(1.0);
 	addAndMakeVisible (&constrictionY);
 	constrictionY.addListener(this);
@@ -103,6 +113,10 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	addAndMakeVisible(&partialConstriction);
 	partialConstriction.addListener(this);
 	
+	tongueXMod.setButtonText("Modulate tongue index");
+	addAndMakeVisible(&tongueXMod);
+	tongueXMod.addListener(this);
+	
 	addMouseListener(this, true);
 
 }
@@ -122,15 +136,17 @@ void PinkTromboneAudioProcessorEditor::paint (Graphics& g)
 void PinkTromboneAudioProcessorEditor::resized()
 {
 	// Local bounds are 0,0,400,300
-	tongueX.setBounds (0, 20, 70, 50);
-	tongueY.setBounds (70, 20, 70, 50);
-	constrictionX.setBounds (0, 80, 70, 50);
-	constrictionY.setBounds (70, 80, 70, 50);
-	VOT.setBounds (140, 20, 70, 50);
-	decayLength.setBounds (15, 130, 110, 50);
-	decayExp.setBounds (15, 160, 110, 50);
-	envelope.setBounds(20, 200, 80, 20);
-	partialConstriction.setBounds(20, 230, 100, 20);
+	tongueX.setBounds (0, 20, 65, 45);
+	tongueXMod.setBounds (50, 32.5, 80, 20);
+	tongueXModVal.setBounds (110, 20, 65, 45);
+	tongueY.setBounds (0, 60, 65, 45);
+	constrictionX.setBounds (0, 100, 65, 45);
+	constrictionY.setBounds (0, 140, 65, 45);
+	VOT.setBounds (0, 180, 65, 45);
+	envelope.setBounds(15, 225, 80, 20);
+	partialConstriction.setBounds(90, 225, 100, 20);
+	decayLength.setBounds (15, 235, 110, 50);
+	decayExp.setBounds (15, 260, 110, 50);
 	muteAudio.setBounds(170, 30, 100, 20);
 	tractUI.setSize(getWidth(), getHeight());
 }
@@ -138,14 +154,24 @@ void PinkTromboneAudioProcessorEditor::resized()
 void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
 {
 	processor.tongueX = tongueX.getValue();
+	processor.restTongueX = tongueX.getValue();
 	processor.tongueY = tongueY.getValue();
 	processor.constrictionX = constrictionX.getValue();
 	processor.constrictionY = constrictionY.getValue();
-	processor.decayLength = decayLength.getValue()/1000;
 	processor.restConstrictionY = constrictionY.getValue();
 	processor.VOT = VOT.getValue();
 	processor.adsrParams.decay = decayLength.getValue()/1000;
 	processor.adsrParams.decayExp = decayExp.getValue();
+	
+	if(tongueXModVal.getValue() < 0){
+		processor.tongueXModVal = processor.restTongueX + (tongueXModVal.getValue()/100)*processor.restTongueX;
+		DBG(processor.tongueXModVal);
+	}
+	else if (tongueXModVal.getValue() > 0){
+		processor.tongueXModVal = processor.restTongueX + (tongueXModVal.getValue()/100)*(1 - processor.restTongueX);
+	}
+	else
+		processor.tongueXModVal = 0;
 }
 
 void PinkTromboneAudioProcessorEditor::buttonClicked(Button *button) { }
@@ -154,18 +180,23 @@ void PinkTromboneAudioProcessorEditor::buttonStateChanged(Button *button)
 {
 	processor.muteAudio = this->muteAudio.getToggleState();
 	processor.envelope = this->envelope.getToggleState();
+	
 	if (partialConstriction.getToggleState())
 		processor.constrictionEnvelopeMax = 0.17;
 	else if (!partialConstriction.getToggleState())
 		processor.constrictionEnvelopeMax = 0.14;
+	
+	processor.tongueXMod = this->tongueXMod.getToggleState();
 }
 
 void PinkTromboneAudioProcessorEditor::updateSliders()
 {
-	tongueX.setValue(processor.tongueX);
-	tongueY.setValue(processor.tongueY);
-	constrictionX.setValue(processor.constrictionX);
-	constrictionY.setValue(processor.constrictionY);
+//	tongueX.setValue(processor.restTongueX);
+//	tongueY.setValue(processor.tongueY);
+//	constrictionX.setValue(processor.constrictionX);
+//	constrictionY.setValue(processor.restConstrictionY);
+	
+	// this needs to be refactored
 }
 
 void PinkTromboneAudioProcessorEditor::mouseDown(const juce::MouseEvent& e)

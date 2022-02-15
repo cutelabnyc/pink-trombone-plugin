@@ -19,6 +19,7 @@
 
 
 class PinkTromboneADSR
+// This class is called ADSR but does not have release implemented as it is not relevant to the pink trombone model
 {
 public:
 	//==============================================================================
@@ -43,7 +44,7 @@ public:
 		{
 		}
 
-		float attack = 0.1f, decay = 0.1f, sustain = 1.0f, attackExp=1.0f, decayExp=1.0f;
+		float attack = 0.1f, decay = 0.1f, sustain = 1.0f, decayExp=1.0f;
 	};
 
 	void setParameters (const Parameters& newParameters)
@@ -226,14 +227,17 @@ public:
 	bool muteAudio = false;
 	double constrictionMin = -2.0;
 	double constrictionMax = 2.0;
-	double constrictionEnvelopeMax = 0.57;
-	float decayLength = 100;
+	double constrictionEnvelopeMax = 0.14;
 	float restConstrictionY;
 	double VOT;
 	int voicingCounter = 0;
 	bool envelope = false;
 	bool voicing;
 	double sampleRate;
+	bool tongueXMod;
+	float tongueXModVal;
+	float restTongueX;
+	
 	
 	
 	PinkTromboneADSR adsr;
@@ -244,7 +248,7 @@ public:
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PinkTromboneAudioProcessor)
-	void applyConstrictionEnvelope(float sampleVal);
+	void applyEnvelope(float sampleVal);
 	void setVoicingOn();
 	void applyVoicing();
 	t_tractProps tractProps;

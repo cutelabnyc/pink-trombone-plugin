@@ -74,6 +74,7 @@ void TractUI::setConstriction(t_tractProps *props, double index, double diameter
 {
 	this->processor.constrictionX = index/props->n;
 	this->processor.constrictionY = (diameter - this->processor.constrictionMin)/(this->processor.constrictionMax - this->processor.constrictionMin);
+	this->processor.restConstrictionY = this->processor.constrictionY;
 }
 
 void TractUI::setTongue(t_tractProps *props, double index, double diameter)
@@ -94,6 +95,7 @@ void TractUI::setTongue(t_tractProps *props, double index, double diameter)
 	}
 	
 	this->processor.tongueX = (index - tongueLowerIndexBound)/(tongueUpperIndexBound-tongueLowerIndexBound);
+	this->processor.restTongueX = this->processor.tongueX;
 	this->processor.tongueY = (diameter - this->innerTongueControlRadius)/(this->outerTongueControlRadius - this->innerTongueControlRadius);
 }
 
