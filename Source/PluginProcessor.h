@@ -19,6 +19,7 @@
 
 
 class PinkTromboneADSR
+// This class is called ADSR but does not implement release as it is not relevant to the pink trombone model
 {
 public:
 	//==============================================================================
@@ -43,7 +44,7 @@ public:
 		{
 		}
 
-		float attack = 0.1f, decay = 0.1f, sustain = 1.0f, attackExp=1.0f, decayExp=1.0f;
+		float attack = 0.1f, decay = 0.1f, sustain = 1.0f, decayExp=1.0f;
 	};
 
 	void setParameters (const Parameters& newParameters)
@@ -125,6 +126,7 @@ public:
 				scaledEnvelopeVal = powf(envelopeVal, parameters.decayExp);
 			else
 				scaledEnvelopeVal = powf(envelopeVal, (-1/parameters.decayExp));
+			scaledEnvelopeVal *= (1-parameters.sustain);
 			return scaledEnvelopeVal;
 		}
 		else if (state == State::sustain)
@@ -145,7 +147,7 @@ private:
 		};
 
 		attackRate  = getRate (1.0f, parameters.attack, sampleRate);
-		decayRate   = getRate (1.0f - parameters.sustain, parameters.decay, sampleRate);
+		decayRate   = getRate (1.0f, parameters.decay, sampleRate);
 
 		if ((state == State::attack && attackRate <= 0.0f)
 			|| (state == State::decay && (decayRate <= 0.0f || envelopeVal <= parameters.sustain)))
