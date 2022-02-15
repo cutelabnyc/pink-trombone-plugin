@@ -24,7 +24,6 @@ public:
 	
 	void mouseDown(const MouseEvent& e) override;
 	void mouseDrag(const MouseEvent& e) override;
-	void mouseUp(const MouseEvent& e) override;
 
 private:
 	void setConstriction(t_tractProps *props, double index, double diameter);

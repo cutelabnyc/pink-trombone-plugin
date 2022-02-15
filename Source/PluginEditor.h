@@ -28,7 +28,6 @@ public:
     void resized() override;
 	void mouseDown(const MouseEvent& e) override;
 	void mouseDrag(const MouseEvent& e) override;
-	void mouseUp(const MouseEvent& e) override;
 
 private:
 	void sliderValueChanged (Slider* slider) override;
@@ -48,8 +47,11 @@ private:
 	Slider attackLength;
 	Slider decayLength;
 	Slider VOT;
-	ToggleButton constrictionActive;
+	Slider attackExp;
+	Slider decayExp;
 	ToggleButton muteAudio;
+	ToggleButton envelope;
+	ToggleButton partialConstriction;
 	TractUI tractUI;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PinkTromboneAudioProcessorEditor)
