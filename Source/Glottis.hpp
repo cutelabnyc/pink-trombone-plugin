@@ -24,7 +24,7 @@ public:
 private:
 	void setupWaveform(double lambda);
 	double normalizedLFWaveform(double t);
-	double frequency, oldFrequency, newFrequency, UIFrequency, smoothFrequency;
+	double frequency;
 	double sampleRate;
 	double timeInWaveform;
 	double oldTenseness, newTenseness, UITenseness;

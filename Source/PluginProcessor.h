@@ -19,7 +19,6 @@
 
 
 class PinkTromboneADSR
-// This class is called ADSR but does not have release implemented as it is not relevant to the pink trombone model
 {
 public:
 	//==============================================================================
@@ -36,15 +35,21 @@ public:
 		Parameters (float attackTimeSeconds,
 					float decayTimeSeconds,
 					float sustainLevel,
-					float decayExponent)
+					float releaseTimeSeconds,
+					float attackExponent,
+					float decayExponent,
+					float releaseExponent)
 			: attack (attackTimeSeconds),
 			  decay (decayTimeSeconds),
 			  sustain (sustainLevel),
-			  decayExp(decayExponent)
+		      release (releaseTimeSeconds),
+			  attackExp(attackExponent),
+			  decayExp(decayExponent),
+			  releaseExp(releaseExponent)
 		{
 		}
 
-		float attack = 0.1f, decay = 0.1f, sustain = 1.0f, decayExp=1.0f;
+		float attack = 0.1f, decay = 0.1f, sustain = 1.0f, release = 0.1f, attackExp=1.0f, decayExp=1.0f, releaseExp=1.0f;
 	};
 
 	void setParameters (const Parameters& newParameters)
@@ -55,6 +60,8 @@ public:
 		parameters = newParameters;
 		recalculateRates();
 	}
+	
+	bool isActive() const noexcept  { return state != State::idle; }
 
 	//==============================================================================
 	void setSampleRate (double newSampleRate) noexcept
@@ -68,6 +75,7 @@ public:
 	void reset() noexcept
 	{
 		envelopeVal = 0.0f;
+		scaledEnvelopeVal = 0.0f;
 		state = State::idle;
 	}
 	
@@ -80,25 +88,35 @@ public:
 		else if (decayRate > 0.0f)
 		{
 			envelopeVal = 1.0f;
+			scaledEnvelopeVal = 1.0f;
 			state = State::decay;
 		}
 		else
 		{
 			envelopeVal = parameters.sustain;
+			scaledEnvelopeVal = parameters.sustain;
 			state = State::sustain;
 		}
 	}
 	
 	void noteOff() noexcept
 	{
-		if (state != State::idle)
-			reset();
+		{
+			if (parameters.release > 0.0f)
+			{
+				releaseRate = (float) (scaledEnvelopeVal / (parameters.release * sampleRate));
+				state = State::release;
+			}
+			else
+			{
+				reset();
+			}
+		}
 	}
 
 	//==============================================================================
 	float getNextSample() noexcept
 	{
-		float scaledEnvelopeVal;
 		
 		if (state == State::idle)
 			return 0.0f;
@@ -112,28 +130,54 @@ public:
 				envelopeVal = 1.0f;
 				goToNextState();
 			}
+			
+			if (parameters.attackExp >= 0) scaledEnvelopeVal = powf(envelopeVal, parameters.attackExp);
+			else scaledEnvelopeVal = powf(envelopeVal, (-1/parameters.attackExp));
 		}
+		
 		else if (state == State::decay)
 		{
 			envelopeVal -= decayRate;
+			
+			if (parameters.decayExp >= 0) scaledEnvelopeVal = powf(envelopeVal, parameters.decayExp);
+			else {
+				if (envelopeVal >= 0) scaledEnvelopeVal = powf(envelopeVal, (-1/parameters.decayExp));
+				else scaledEnvelopeVal = 0;
+			}
+			
+			scaledEnvelopeVal = parameters.sustain + (1 - parameters.sustain)*scaledEnvelopeVal;
 
-			if (envelopeVal <= parameters.sustain)
+			if (scaledEnvelopeVal <= parameters.sustain)
 			{
 				envelopeVal = parameters.sustain;
+				scaledEnvelopeVal = parameters.sustain;
 				goToNextState();
 			}
-			if (parameters.decayExp >= 0)
-				scaledEnvelopeVal = powf(envelopeVal, parameters.decayExp);
-			else
-				scaledEnvelopeVal = powf(envelopeVal, (-1/parameters.decayExp));
-			return scaledEnvelopeVal;
 		}
+		
 		else if (state == State::sustain)
 		{
 			envelopeVal = parameters.sustain;
+			scaledEnvelopeVal = parameters.sustain;
+		}
+		
+		else if (state == State::release)
+		{
+			envelopeVal -= releaseRate;
+			
+			if (parameters.releaseExp >= 0) scaledEnvelopeVal = powf(envelopeVal, parameters.releaseExp);
+			else {
+				if (envelopeVal >= 0) scaledEnvelopeVal = powf(envelopeVal, (-1/parameters.releaseExp));
+				else scaledEnvelopeVal = 0;
+			}
+			
+			scaledEnvelopeVal = parameters.sustain * scaledEnvelopeVal;
+
+			if (envelopeVal <= 0.0f)
+				goToNextState();
 		}
 
-		return envelopeVal;
+		return scaledEnvelopeVal;
 	}
 
 private:
@@ -146,10 +190,12 @@ private:
 		};
 
 		attackRate  = getRate (1.0f, parameters.attack, sampleRate);
-		decayRate   = getRate (1.0f - parameters.sustain, parameters.decay, sampleRate);
+		decayRate   = getRate (1.0f, parameters.decay, sampleRate);
+		releaseRate = getRate (1.0f, parameters.release, sampleRate);
 
 		if ((state == State::attack && attackRate <= 0.0f)
-			|| (state == State::decay && (decayRate <= 0.0f || envelopeVal <= parameters.sustain)))
+			|| (state == State::decay && (decayRate <= 0.0f || envelopeVal <= 0.0))
+			|| (state == State::release && releaseRate <= 0.0f))
 		{
 			goToNextState();
 		}
@@ -161,16 +207,18 @@ private:
 			state = (decayRate > 0.0f ? State::decay : State::sustain);
 		else if (state == State::decay)
 			state = State::sustain;
+		else if (state == State::release)
+			reset();
 	}
 
 	//==============================================================================
-	enum class State { idle, attack, decay, sustain };
+	enum class State { idle, attack, decay, sustain, release };
 
 	State state = State::idle;
 	Parameters parameters;
 
 	double sampleRate = 44100.0;
-	float envelopeVal = 0.0f, attackRate = 0.0f, decayRate = 0.0f;
+	float envelopeVal = 0.0f, scaledEnvelopeVal = 0.0f, attackRate = 0.0f, decayRate = 0.0f, releaseRate = 0.0f;
 };
 
 
@@ -219,26 +267,42 @@ public:
 
 	
 	//=== Audio Parameters
-	float tongueX = 0.0;
-	float tongueY = 0.0;
-	float constrictionX = 0.0;
-	float constrictionY = 0.0;
 	float fricativeIntensity = 0.0;
 	bool muteAudio = false;
 	double constrictionMin = -2.0;
 	double constrictionMax = 2.0;
-	double constrictionEnvelopeMax = 0.14;
-	float restConstrictionY;
 	double VOT;
+	double sampleRate;
+	bool noteOn;
 	int voicingCounter = 0;
 	bool envelope = false;
 	bool voicing;
-	double sampleRate;
+	bool breath = false;
+	
 	bool tongueXMod;
+	bool tongueYMod;
+	bool constrictionXMod;
+	bool constrictionYMod;
+	
 	float tongueXModVal;
+	float tongueYModVal;
+	float constrictionXModVal;
+	float constrictionYModVal;
+	
 	float restTongueX;
+	float restTongueY;
+	float restConstrictionX;
+	float restConstrictionY;
 	
+	float envelopeTongueX = 0.0;
+	float envelopeTongueY = 0.0;
+	float envelopeConstrictionX = 0.0;
+	float envelopeConstrictionY = 0.0;
 	
+	AudioParameterFloat* tongueX;
+	AudioParameterFloat* tongueY;
+	AudioParameterFloat* constrictionX;
+	AudioParameterFloat* constrictionY;
 	
 	PinkTromboneADSR adsr;
 	PinkTromboneADSR::Parameters adsrParams;
@@ -249,7 +313,6 @@ private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PinkTromboneAudioProcessor)
 	void applyEnvelope(float sampleVal);
-	void setVoicingOn();
 	void applyVoicing();
 	t_tractProps tractProps;
 	Glottis *glottis;

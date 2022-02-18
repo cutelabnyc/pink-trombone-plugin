@@ -25,16 +25,26 @@ PinkTromboneAudioProcessor::PinkTromboneAudioProcessor()
                        )
 #endif
 {
-//	addParameter (tongueX = new AudioParameterFloat ("tonguex", // parameter ID
-//													 	"Tongue X", // parameter name
-//													 	0.0f,   // minimum value
-//													 	1.0f,   // maximum value
-//													 	0.5f)); // default value
-//	addParameter (tongueY = new AudioParameterFloat ("tonguey", // parameter ID
-//													 "Tongue Y", // parameter name
-//													 0.0f,   // minimum value
-//													 1.0f,   // maximum value
-//													 0.5f)); // default value
+	addParameter (tongueX = new AudioParameterFloat ("tonguex", // parameter ID
+													 	"Tongue X", // parameter name
+													 	0.0f,   // minimum value
+													 	1.0f,   // maximum value
+													 	1.0f)); // default value
+	addParameter (tongueY = new AudioParameterFloat ("tonguey", // parameter ID
+													 "Tongue Y", // parameter name
+													 0.0f,   // minimum value
+													 1.0f,   // maximum value
+													 1.0f)); // default value
+	addParameter (constrictionX = new AudioParameterFloat ("constrictionx", // parameter ID
+													 "Constriction X", // parameter name
+													 0.0f,   // minimum value
+													 1.0f,   // maximum value
+													 1.0f)); // default value
+	addParameter (constrictionY = new AudioParameterFloat ("constrictiony", // parameter ID
+													 "Constriction Y", // parameter name
+													 0.0f,   // minimum value
+													 1.0f,   // maximum value
+													 1.0f)); // default value
 	initializeTractProps(&this->tractProps, 44);
 }
 
@@ -111,8 +121,6 @@ void PinkTromboneAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
     // initialisation that you need..
 	this->sampleRate = sampleRate;
 	this->adsr.setSampleRate(sampleRate);
-	adsrParams.sustain = 0.0;
-	adsrParams.attack = 0.0;
 	this->glottis = new Glottis(sampleRate);
 	this->tract = new Tract(sampleRate, samplesPerBlock, &this->tractProps);
 	this->whiteNoise = new WhiteNoise(sampleRate * 2.0);
@@ -183,21 +191,35 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 			double midiNoteInHz = juce::MidiMessage::getMidiNoteInHertz(currentNote);
 			this->glottis->setFrequency(midiNoteInHz);
 			this->voicing = true;
+			this->noteOn = true;
 			if(this->envelope)
 				adsr.noteOn();
 		}
 		else if (currentMessage.isNoteOff())
 		{
-			this->voicing = false;
-			this->voicingCounter = 0;
-			this->glottis->setVoicing(this->voicing);
+			this->noteOn = false;
 			if(this->envelope)
 			{
 				adsr.noteOff();
-				this->constrictionY = this->restConstrictionY;
-				this->tongueX = this->restTongueX;
+				*tongueX = this->restTongueX;
+				*tongueY = this->restTongueY;
+				*constrictionX = this->restConstrictionX;
+				*constrictionY = this->restConstrictionY;
+			}
+			else if (!this->envelope)
+			{
+				this->voicing = false;
+				this->glottis->setVoicing(this->voicing);
+				this->voicingCounter = 0;
 			}
 		}
+	}
+	
+	if(this->envelope && !adsr.isActive())
+	{
+		this->voicing = false;
+		this->glottis->setVoicing(this->voicing);
+		this->voicingCounter = 0;
 	}
 
     // This is the place where you'd normally do the guts of your plugin's
@@ -211,7 +233,12 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 	for (int j = 0; j < N; j++) {
 		
 		// Noise
-		double purenoise = this->whiteNoise->runStep();
+		double purenoise;
+		if (this->breath) purenoise = this->whiteNoise->runStep();
+		else {
+			if (this->noteOn) purenoise = this->whiteNoise->runStep();
+			else purenoise = 0.0;
+		}
 		double asp = this->aspirateFilter->runStep(purenoise);
 		double fri = this->fricativeFilter->runStep(purenoise);
 		
@@ -240,12 +267,27 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		}
 	}
 	
-	double constrictionIndex = this->constrictionX * (double) this->tract->getTractIndexCount();
-	double constrictionDiameter = (this->constrictionY/2 + 0.5) * (this->constrictionMax - this->constrictionMin) + this->constrictionMin; //(constrictionY/2 + 0.5) is workaround until AudioParameters are implemented to fix rest diameter range
-	double tongueIndex = tongueX * ((double) (this->tract->tongueIndexUpperBound() - this->tract->tongueIndexLowerBound())) + this->tract->tongueIndexLowerBound();
+	double constrictionIndex;
+	double constrictionDiameter;
+	double tongueIndex;
+	double tongueDiameter;
 	double innerTongueControlRadius = 2.05;
 	double outerTongueControlRadius = 3.5;
-	double tongueDiameter = tongueY * (outerTongueControlRadius - innerTongueControlRadius) + innerTongueControlRadius;
+	
+	if (adsr.isActive()) {
+		constrictionIndex = this->envelopeConstrictionX * (double) this->tract->getTractIndexCount();
+		constrictionDiameter = (this->envelopeConstrictionY/2 + 0.5) * (this->constrictionMax - this->constrictionMin) + this->constrictionMin;
+		tongueIndex = this->envelopeTongueX * ((double) (this->tract->tongueIndexUpperBound() - this->tract->tongueIndexLowerBound())) + this->tract->tongueIndexLowerBound();
+		tongueDiameter = this->envelopeTongueY * (outerTongueControlRadius - innerTongueControlRadius) + innerTongueControlRadius;
+		
+	}
+	else {
+		constrictionIndex = *constrictionX * (double) this->tract->getTractIndexCount();
+		constrictionDiameter = (*constrictionY/2 + 0.5) * (this->constrictionMax - this->constrictionMin) + this->constrictionMin;
+		//(constrictionY/2 + 0.5) is to adjust for diameter range since we are not implementing nasal cavity atm i.e. 0->1 UI range is really 0.5->1
+		tongueIndex = *tongueX * ((double) (this->tract->tongueIndexUpperBound() - this->tract->tongueIndexLowerBound())) + this->tract->tongueIndexLowerBound();
+		tongueDiameter = *tongueY * (outerTongueControlRadius - innerTongueControlRadius) + innerTongueControlRadius;
+	}
 	
 	this->fricativeIntensity += 0.1; // TODO ex recto
 	this->fricativeIntensity = minf(1.0, this->fricativeIntensity);
@@ -267,9 +309,25 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 
 void PinkTromboneAudioProcessor::applyEnvelope(float sampleVal)
 {
-	this->constrictionY = this->restConstrictionY - abs(this->restConstrictionY - this->constrictionEnvelopeMax)*sampleVal;
 	if(this->tongueXMod)
-		this->tongueX = this->tongueXModVal + (this->restTongueX - this->tongueXModVal)*sampleVal;
+		this->envelopeTongueX = this->restTongueX - abs(this->restTongueX - this->tongueXModVal)*sampleVal;
+	else
+		this->envelopeTongueX = *tongueX;
+	
+	if(this->tongueYMod)
+		this->envelopeTongueY = this->restTongueY - abs(this->restTongueY - this->tongueYModVal)*sampleVal;
+	else
+		this->envelopeTongueY = *tongueY;
+	
+	if(this->constrictionXMod)
+		this->envelopeConstrictionX = this->restConstrictionX - abs(this->restConstrictionX - this->constrictionXModVal)*sampleVal;
+	else
+		this->envelopeConstrictionX = *constrictionX;
+	
+	if(this->constrictionYMod)
+		this->envelopeConstrictionY = this->restConstrictionY - abs(this->restConstrictionY - this->constrictionYModVal)*sampleVal;
+	else
+		this->envelopeConstrictionY = *constrictionY;
 }
 
 void PinkTromboneAudioProcessor::applyVoicing()

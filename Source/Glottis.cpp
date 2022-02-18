@@ -12,10 +12,6 @@
 
 Glottis::Glottis(double sampleRate) :
 	timeInWaveform(0),
-//	oldFrequency(140),
-//	newFrequency(140),
-//	smoothFrequency(140),
-//	UIFrequency(140),
 	oldTenseness(0.6),
 	newTenseness(0.6),
 	UITenseness(0.6),
@@ -34,7 +30,6 @@ Glottis::Glottis(double sampleRate) :
 
 void Glottis::setupWaveform(double lambda)
 {
-	//this->frequency = this->oldFrequency * (1 - lambda) + this->newFrequency * lambda;
 	double tenseness = this->oldTenseness * (1 - lambda) + this->newTenseness * lambda;
 	this->Rd = 3 * (1 - tenseness);
 	this->waveformLength = 1.0 / this->frequency;
@@ -102,17 +97,10 @@ void Glottis::finishBlock()
 		vibrato += 0.2 * simplex1(this->totalTime * 0.98);
 		vibrato += 0.4 * simplex1(this->totalTime * 0.5);
 	}
-	if (this->UIFrequency > this->smoothFrequency)
-		this->smoothFrequency = fmin(this->smoothFrequency * 1.1, this->UIFrequency);
-	if (this->UIFrequency < this->smoothFrequency)
-		this->smoothFrequency = fmax(this->smoothFrequency / 1.1, this->UIFrequency);
-	this->oldFrequency = this->newFrequency;
-	this->newFrequency = this->smoothFrequency * (1 + vibrato);
 	this->oldTenseness = this->newTenseness;
 	this->newTenseness = this->UITenseness +
 		0.1 * simplex1(this->totalTime * 0.46) + 0.05 * simplex1(this->totalTime * 0.36);
 	if (!this->isTouched && alwaysVoice) this->newTenseness += (3-this->UITenseness)*(1-this->intensity);
-	
 	if (this->isTouched || alwaysVoice) this->intensity += 0.13;
 	else this->intensity -= 0.05;
 	this->intensity = clamp(this->intensity, 0.0, 1.0);
