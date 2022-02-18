@@ -72,8 +72,9 @@ void TractUI::mouseDrag(const juce::MouseEvent &e)
 
 void TractUI::setConstriction(t_tractProps *props, double index, double diameter)
 {
-	this->processor.constrictionX = index/props->n;
-	this->processor.constrictionY = (diameter - this->processor.constrictionMin)/(this->processor.constrictionMax - this->processor.constrictionMin);
+	*(this->processor.constrictionX) = index/props->n;
+	*(this->processor.constrictionY) = (diameter - this->processor.constrictionMin)/(this->processor.constrictionMax - this->processor.constrictionMin);
+	this->processor.restConstrictionY = *(this->processor.constrictionY);
 }
 
 void TractUI::setTongue(t_tractProps *props, double index, double diameter)
@@ -93,8 +94,9 @@ void TractUI::setTongue(t_tractProps *props, double index, double diameter)
 		diameter = this->outerTongueControlRadius;
 	}
 	
-	this->processor.tongueX = (index - tongueLowerIndexBound)/(tongueUpperIndexBound-tongueLowerIndexBound);
-	this->processor.tongueY = (diameter - this->innerTongueControlRadius)/(this->outerTongueControlRadius - this->innerTongueControlRadius);
+	*(this->processor.tongueX) = (index - tongueLowerIndexBound)/(tongueUpperIndexBound-tongueLowerIndexBound);
+	this->processor.restTongueX = *(this->processor.tongueX);
+	*(this->processor.tongueY) = (diameter - this->innerTongueControlRadius)/(this->outerTongueControlRadius - this->innerTongueControlRadius);
 }
 
 void * TractUI::getEventPosition(t_tractProps *props, double x, double y, double &index, double &diameter)
@@ -118,8 +120,8 @@ bool TractUI::isNearTongue(t_tractProps *p, double index, double diameter)
 void TractUI::drawTongueControl(Graphics &g, t_tractProps *p)
 {
 	Path path;
-	this->originX = 3.3 * getWidth() / 5.0;
-	this->originY = 3.9 * getHeight() / 5.0;
+	this->originX = 3.7 * getWidth() / 5.0;
+	this->originY = 3.5 * getHeight() / 5.0;
 	this->radius = getWidth() * this->fillRatio;
 	this->scale = this->radius / 5.0;
 	PathStrokeType strokeType(this->scale * 0.75);

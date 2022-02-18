@@ -26,33 +26,49 @@ public:
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
-	void mouseDown(const MouseEvent& e) override;
-	void mouseDrag(const MouseEvent& e) override;
 
 private:
 	void sliderValueChanged (Slider* slider) override;
 	void buttonClicked (Button* button) override;
 	void buttonStateChanged (Button* button) override;
-	void updateSliders();
 	
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     PinkTromboneAudioProcessor& processor;
 	
 	Slider tongueX;
+	Slider tongueXModVal;
 	Slider tongueY;
+	Slider tongueYModVal;
 	Slider constrictionX;
+	Slider constrictionXModVal;
 	Slider constrictionY;
-	Slider constrictionEnvelopeMax;
-	Slider attackLength;
-	Slider decayLength;
+	Slider constrictionYModVal;
+	
 	Slider VOT;
-	Slider attackExp;
+	
+	Slider decayLength;
 	Slider decayExp;
+	Slider attackLength;
+	Slider attackExp;
+	Slider sustain;
+	Slider releaseLength;
+	Slider releaseExp;
+	
 	ToggleButton muteAudio;
 	ToggleButton envelope;
-	ToggleButton partialConstriction;
+	ToggleButton tongueXMod;
+	ToggleButton tongueYMod;
+	ToggleButton constrictionXMod;
+	ToggleButton constrictionYMod;
+	ToggleButton breath;
+	
 	TractUI tractUI;
+	
+	SliderParameterAttachment* tongueXAttachment;
+	SliderParameterAttachment* tongueYAttachment;
+	SliderParameterAttachment* constrictionXAttachment;
+	SliderParameterAttachment* constrictionYAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PinkTromboneAudioProcessorEditor)
 };
