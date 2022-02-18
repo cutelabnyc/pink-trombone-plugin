@@ -19,6 +19,7 @@
 
 
 class PinkTromboneADSR
+// This class is called ADSR but does not implement release as it is not relevant to the pink trombone model
 {
 public:
 	//==============================================================================
