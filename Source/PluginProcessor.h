@@ -157,7 +157,7 @@ public:
 		
 		else if (state == State::sustain)
 		{
-			envelopeVal = parameters.sustain;
+			envelopeVal = 1.0;
 			scaledEnvelopeVal = parameters.sustain;
 		}
 		
@@ -284,6 +284,11 @@ public:
 	bool constrictionXMod;
 	bool constrictionYMod;
 	
+	float tongueXModulation;
+	float tongueYModulation;
+	float constrictionXModulation;
+	float constrictionYModulation;
+	
 	float tongueXModVal;
 	float tongueYModVal;
 	float constrictionXModVal;
@@ -293,11 +298,6 @@ public:
 	float restTongueY;
 	float restConstrictionX;
 	float restConstrictionY;
-	
-	float envelopeTongueX = 0.0;
-	float envelopeTongueY = 0.0;
-	float envelopeConstrictionX = 0.0;
-	float envelopeConstrictionY = 0.0;
 	
 	AudioParameterFloat* tongueX;
 	AudioParameterFloat* tongueY;

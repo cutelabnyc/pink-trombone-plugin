@@ -267,27 +267,14 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		}
 	}
 	
-	double constrictionIndex;
-	double constrictionDiameter;
-	double tongueIndex;
-	double tongueDiameter;
 	double innerTongueControlRadius = 2.05;
 	double outerTongueControlRadius = 3.5;
 	
-	if (adsr.isActive()) {
-		constrictionIndex = this->envelopeConstrictionX * (double) this->tract->getTractIndexCount();
-		constrictionDiameter = (this->envelopeConstrictionY/2 + 0.5) * (this->constrictionMax - this->constrictionMin) + this->constrictionMin;
-		tongueIndex = this->envelopeTongueX * ((double) (this->tract->tongueIndexUpperBound() - this->tract->tongueIndexLowerBound())) + this->tract->tongueIndexLowerBound();
-		tongueDiameter = this->envelopeTongueY * (outerTongueControlRadius - innerTongueControlRadius) + innerTongueControlRadius;
-		
-	}
-	else {
-		constrictionIndex = *constrictionX * (double) this->tract->getTractIndexCount();
-		constrictionDiameter = (*constrictionY/2 + 0.5) * (this->constrictionMax - this->constrictionMin) + this->constrictionMin;
-		//(constrictionY/2 + 0.5) is to adjust for diameter range since we are not implementing nasal cavity atm i.e. 0->1 UI range is really 0.5->1
-		tongueIndex = *tongueX * ((double) (this->tract->tongueIndexUpperBound() - this->tract->tongueIndexLowerBound())) + this->tract->tongueIndexLowerBound();
-		tongueDiameter = *tongueY * (outerTongueControlRadius - innerTongueControlRadius) + innerTongueControlRadius;
-	}
+	double tongueIndex = (*tongueX + this->tongueXModulation) * ((double) (this->tract->tongueIndexUpperBound() - this->tract->tongueIndexLowerBound())) + this->tract->tongueIndexLowerBound();
+	double tongueDiameter = (*tongueY + this->tongueYModulation) * (outerTongueControlRadius - innerTongueControlRadius) + innerTongueControlRadius;
+	double constrictionIndex = (*constrictionX + this->constrictionXModulation) * (double) this->tract->getTractIndexCount();
+	double constrictionDiameter = ((*constrictionY + this->constrictionYModulation)/2 + 0.5) * (this->constrictionMax - this->constrictionMin) + this->constrictionMin;
+	//(constrictionY/2 + 0.5) is to adjust for diameter range since we are not implementing nasal cavity atm i.e. 0->1 UI range is really 0.5->1
 	
 	this->fricativeIntensity += 0.1; // TODO ex recto
 	this->fricativeIntensity = minf(1.0, this->fricativeIntensity);
@@ -309,25 +296,17 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 
 void PinkTromboneAudioProcessor::applyEnvelope(float sampleVal)
 {
-	if(this->tongueXMod)
-		this->envelopeTongueX = this->restTongueX - abs(this->restTongueX - this->tongueXModVal)*sampleVal;
-	else
-		this->envelopeTongueX = *tongueX;
-	
-	if(this->tongueYMod)
-		this->envelopeTongueY = this->restTongueY - abs(this->restTongueY - this->tongueYModVal)*sampleVal;
-	else
-		this->envelopeTongueY = *tongueY;
-	
-	if(this->constrictionXMod)
-		this->envelopeConstrictionX = this->restConstrictionX - abs(this->restConstrictionX - this->constrictionXModVal)*sampleVal;
-	else
-		this->envelopeConstrictionX = *constrictionX;
-	
-	if(this->constrictionYMod)
-		this->envelopeConstrictionY = this->restConstrictionY - abs(this->restConstrictionY - this->constrictionYModVal)*sampleVal;
-	else
-		this->envelopeConstrictionY = *constrictionY;
+	if(this->tongueXMod) this->tongueXModulation = (this->tongueXModVal - this->restTongueX)*sampleVal;
+	else this->tongueXModulation = 0.0;
+
+	if(this->tongueYMod) this->tongueYModulation = (this->tongueYModVal - this->restTongueY)*sampleVal;
+	else this->tongueYModulation = 0.0;
+
+	if(this->constrictionXMod) this->constrictionXModulation = (this->constrictionXModVal - this->restConstrictionX)*sampleVal;
+	else this->constrictionXModulation = 0.0;
+
+	if(this->constrictionYMod) this->constrictionYModulation = (this->constrictionYModVal - this->restConstrictionY)*sampleVal;
+	else this->constrictionYModulation = 0.0;
 }
 
 void PinkTromboneAudioProcessor::applyVoicing()

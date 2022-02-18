@@ -12,6 +12,10 @@
 
 Glottis::Glottis(double sampleRate) :
 	timeInWaveform(0),
+//	oldFrequency(140),
+//	newFrequency(140),
+//	smoothFrequency(140),
+//	UIFrequency(140),
 	oldTenseness(0.6),
 	newTenseness(0.6),
 	UITenseness(0.6),
@@ -30,6 +34,7 @@ Glottis::Glottis(double sampleRate) :
 
 void Glottis::setupWaveform(double lambda)
 {
+	//this->frequency = this->oldFrequency * (1 - lambda) + this->newFrequency * lambda;
 	double tenseness = this->oldTenseness * (1 - lambda) + this->newTenseness * lambda;
 	this->Rd = 3 * (1 - tenseness);
 	this->waveformLength = 1.0 / this->frequency;
@@ -88,15 +93,7 @@ double Glottis::getNoiseModulator()
 
 void Glottis::finishBlock()
 {
-	double vibrato = 0;
-	vibrato += this->vibratoAmount * sin(2 * M_PI * this->totalTime * this->vibratoFrequency);
-	vibrato += 0.02 * simplex1(this->totalTime * 4.07);
-	vibrato += 0.04 * simplex1(this->totalTime * 2.15);
-	if (this->autoWobble)
-	{
-		vibrato += 0.2 * simplex1(this->totalTime * 0.98);
-		vibrato += 0.4 * simplex1(this->totalTime * 0.5);
-	}
+	//  calculateFrequencyFluctuations() can be called here
 	this->oldTenseness = this->newTenseness;
 	this->newTenseness = this->UITenseness +
 		0.1 * simplex1(this->totalTime * 0.46) + 0.05 * simplex1(this->totalTime * 0.36);
@@ -131,6 +128,25 @@ double Glottis::runStep(double lambda, double noiseSource)
 	aspiration *= 0.2 + 0.02 * simplex1(this->totalTime * 1.99);
 	out += aspiration;
 	return out;
+}
+
+void Glottis::calculateFrequencyFluctuations()
+{
+	double vibrato = 0;
+	vibrato += this->vibratoAmount * sin(2 * M_PI * this->totalTime * this->vibratoFrequency);
+	vibrato += 0.02 * simplex1(this->totalTime * 4.07);
+	vibrato += 0.04 * simplex1(this->totalTime * 2.15);
+	if (this->autoWobble)
+	{
+		vibrato += 0.2 * simplex1(this->totalTime * 0.98);
+		vibrato += 0.4 * simplex1(this->totalTime * 0.5);
+	}
+	if (this->UIFrequency > this->smoothFrequency)
+		this->smoothFrequency = fmin(this->smoothFrequency * 1.1, this->UIFrequency);
+	if (this->UIFrequency < this->smoothFrequency)
+		this->smoothFrequency = fmax(this->smoothFrequency / 1.1, this->UIFrequency);
+	this->oldFrequency = this->newFrequency;
+	this->newFrequency = this->smoothFrequency * (1 + vibrato);
 }
 
 void Glottis::setFrequency(double midiNoteInHz)
