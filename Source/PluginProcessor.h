@@ -16,6 +16,7 @@
 #include "WhiteNoise.hpp"
 #include "Biquad.hpp"
 #include <math.h>
+#include <map>
 
 
 class PinkTromboneADSR
@@ -84,6 +85,7 @@ public:
 	{
 		if (attackRate > 0.0f)
 		{
+			if (envelopeVal != 0.0) envelopeVal = scaledEnvelopeVal;
 			state = State::attack;
 		}
 		else if (decayRate > 0.0f)
@@ -94,7 +96,7 @@ public:
 		}
 		else
 		{
-			envelopeVal = parameters.sustain;
+			envelopeVal = 1.0f;
 			scaledEnvelopeVal = parameters.sustain;
 			state = State::sustain;
 		}
@@ -226,7 +228,7 @@ private:
 //==============================================================================
 /**
 */
-class PinkTromboneAudioProcessor  : public AudioProcessor
+class PinkTromboneAudioProcessor  : public AudioProcessor, public MPEInstrument::Listener
 {
 public:
     //==============================================================================
@@ -265,6 +267,9 @@ public:
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+	
+	void noteAdded (MPENote newNote) override;
+	void noteReleased (MPENote finishedNote) override;
 
 	
 	//=== Audio Parameters
@@ -311,10 +316,14 @@ public:
 	t_tractProps *getTractProps();
 
 private:
+	MPEInstrument instrument;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PinkTromboneAudioProcessor)
 	void applyEnvelope(float sampleVal);
 	void applyVoicing();
+	
+	std::map<uint16, Glottis*> glottisMap;
+	
 	t_tractProps tractProps;
 	Glottis *glottis;
 	Tract *tract;

@@ -20,6 +20,7 @@ public:
 	double getNoiseModulator();
 	void setFrequency(double midiNoteInHz);
 	void setVoicing(bool voice);
+	bool isActive = false;
 	
 private:
 	void setupWaveform(double lambda);
