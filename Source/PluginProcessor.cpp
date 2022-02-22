@@ -329,6 +329,7 @@ void PinkTromboneAudioProcessor::noteReleased(MPENote finishedNote)
 	
 	if(this->envelope && this->glottisMap.empty())
 	{
+		this->glottis->setFrequency(finishedNote.getFrequencyInHertz());
 		adsr.noteOff();
 	}
 	
