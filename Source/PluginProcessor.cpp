@@ -308,7 +308,6 @@ void PinkTromboneAudioProcessor::noteAdded(MPENote newNote)
 	double midiNoteInHz = newNote.getFrequencyInHertz();
 	this->voicing = true;
 	this->noteOn = true;
-	this->numNotes += 1;
 	
 	for (int i=0; i<8; i++)
 	{
@@ -332,8 +331,6 @@ void PinkTromboneAudioProcessor::noteReleased(MPENote finishedNote)
 	glotOff->second->setVoicing(false);
 	glotOff->second->setActive(false);
 	this->glottisMap.erase(finishedNote.noteID);
-	
-	this->numNotes -= 1;
 	
 	if(this->envelope && this->glottisMap.empty())
 	{

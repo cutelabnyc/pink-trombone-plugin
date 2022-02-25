@@ -24,7 +24,6 @@ Glottis::Glottis(double sampleRate) :
 	loudness(1),
 	vibratoAmount(0.005),
 	vibratoFrequency(6),
-	startSeconds(0),
 	autoWobble(false),
 	isTouched(false),
 	alwaysVoice(false)
@@ -124,10 +123,10 @@ double Glottis::runStep(double lambda, double noiseSource)
 	this->totalTime += timeStep;
 	
 	if (this->timeInWaveform > this->waveformLength)
-		{
-			this->timeInWaveform -= this->waveformLength;
-			this->setupWaveform(lambda);
-		}
+	{
+		this->timeInWaveform -= this->waveformLength;
+		this->setupWaveform(lambda);
+	}
 
 	double out = this->normalizedLFWaveform(this->timeInWaveform / this->waveformLength);
 	double aspiration = this->intensity * (1 - sqrt(this->UITenseness)) * this->getNoiseModulator() * noiseSource;

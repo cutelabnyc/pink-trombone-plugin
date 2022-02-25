@@ -305,8 +305,6 @@ public:
 	float restConstrictionX;
 	float restConstrictionY;
 	
-	int numNotes = 0;
-	
 	AudioParameterFloat* tongueX;
 	AudioParameterFloat* tongueY;
 	AudioParameterFloat* constrictionX;

@@ -27,8 +27,6 @@ private:
 	void setupWaveform(double lambda);
 	double normalizedLFWaveform(double t);
 	void calculateFrequencyFluctuations();
-	void updateCoefficients(double tenseness);
-	void updateLastOutputAvg(double out);
 	double frequency, oldFrequency, newFrequency, UIFrequency, smoothFrequency;
 	double sampleRate;
 	double timeInWaveform;
@@ -46,7 +44,6 @@ private:
 	double intensity, loudness;
 	double vibratoAmount;
 	double vibratoFrequency;
-	double startSeconds;
 	double tenseness;
 	bool autoWobble;
 	bool isTouched;
