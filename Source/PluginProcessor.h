@@ -305,6 +305,8 @@ public:
 	float restConstrictionX;
 	float restConstrictionY;
 	
+	int numNotes = 0;
+	
 	AudioParameterFloat* tongueX;
 	AudioParameterFloat* tongueY;
 	AudioParameterFloat* constrictionX;
@@ -326,6 +328,14 @@ private:
 	
 	t_tractProps tractProps;
 	Glottis *glottis;
+	Glottis *glottis1;
+	Glottis *glottis2;
+	Glottis *glottis3;
+	Glottis *glottis4;
+	Glottis *glottis5;
+	Glottis *glottis6;
+	Glottis *glottis7;
+	Glottis *glotList[8];
 	Tract *tract;
 	WhiteNoise *whiteNoise;
 	Biquad *fricativeFilter;

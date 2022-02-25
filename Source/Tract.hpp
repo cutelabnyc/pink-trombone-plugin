@@ -37,7 +37,7 @@ public:
 	Tract(double sampleRate, double blockSize, t_tractProps *p);
 	~Tract();
 
-	void runStep(double glottalOutput, double turbulenceNoise, double lambda, Glottis *glottis);
+	void runStep(double glottalOutput, double turbulenceNoise, double lambda, double glotModulator);
 	void finishBlock();
 	void setRestDiameter(double tongueIndex, double tongueDiameter);
 	void setConstriction(double cindex, double cdiam, double fricativeIntensity);
@@ -51,8 +51,8 @@ public:
 private:
 	void init();
 	void addTransient(int position);
-	void addTurbulenceNoise(double turbulenceNoise, Glottis *glottis);
-	void addTurbulenceNoiseAtIndex(double turbulenceNoise, double index, double diameter, Glottis *glottis);
+	void addTurbulenceNoise(double turbulenceNoise, double glotModulator);
+	void addTurbulenceNoiseAtIndex(double turbulenceNoise, double index, double diameter, double glotModulator);
 	void calculateReflections();
 	void calculateNoseReflections();
 	void processTransients();
