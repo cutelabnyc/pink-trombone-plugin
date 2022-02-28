@@ -279,8 +279,9 @@ public:
 	double constrictionMax = 2.0;
 	double VOT;
 	double sampleRate;
-	bool noteOn;
 	int voicingCounter = 0;
+	int numVoices = 11;
+	bool noteOn;
 	bool envelope = false;
 	bool voicing;
 	bool breath = false;
@@ -323,17 +324,9 @@ private:
 	void applyVoicing();
 	
 	std::map<uint16, Glottis*> glottisMap;
-	
 	t_tractProps tractProps;
 	Glottis *glottis;
-	Glottis *glottis1;
-	Glottis *glottis2;
-	Glottis *glottis3;
-	Glottis *glottis4;
-	Glottis *glottis5;
-	Glottis *glottis6;
-	Glottis *glottis7;
-	Glottis *glotList[8];
+	Glottis **glottises = new Glottis *[numVoices];
 	Tract *tract;
 	WhiteNoise *whiteNoise;
 	Biquad *fricativeFilter;

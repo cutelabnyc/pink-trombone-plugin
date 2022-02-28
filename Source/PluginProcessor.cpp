@@ -127,22 +127,12 @@ void PinkTromboneAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
 	this->adsr.setSampleRate(sampleRate);
 	
 	this->glottis = new Glottis(sampleRate);
-	this->glottis1 = new Glottis(sampleRate);
-	this->glottis2 = new Glottis(sampleRate);
-	this->glottis3 = new Glottis(sampleRate);
-	this->glottis4 = new Glottis(sampleRate);
-	this->glottis5 = new Glottis(sampleRate);
-	this->glottis6 = new Glottis(sampleRate);
-	this->glottis7 = new Glottis(sampleRate);
 	
-	this->glotList[0] = this->glottis;
-	this->glotList[1] = this->glottis1;
-	this->glotList[2] = this->glottis2;
-	this->glotList[3] = this->glottis3;
-	this->glotList[4] = this->glottis4;
-	this->glotList[5] = this->glottis5;
-	this->glotList[6] = this->glottis6;
-	this->glotList[7] = this->glottis7;
+	this->glottises[0] = this->glottis;
+	for (int i=1; i<this->numVoices+1; i++)
+	{
+		this->glottises[i] = new Glottis(sampleRate);
+	}
 	
 	this->tract = new Tract(sampleRate, samplesPerBlock, &this->tractProps);
 	this->whiteNoise = new WhiteNoise(sampleRate * 2.0);
@@ -244,10 +234,10 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		
 		double glotSum = 0;
 		double glotModulatorSum = 0;
-		for (int i=0; i<8; i++)
+		for (int i=0; i<this->numVoices+1; i++)
 		{
-			double glot = glotList[i]->runStep(lambda1, asp);
-			double glotModulator = glotList[i]->getNoiseModulator();
+			double glot = glottises[i]->runStep(lambda1, asp);
+			double glotModulator = glottises[i]->getNoiseModulator();
 			glotSum += glot;
 			glotModulatorSum += glotModulator;
 		}
@@ -286,9 +276,9 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 	
 	this->tract->setRestDiameter(tongueIndex, tongueDiameter);
 	this->tract->setConstriction(constrictionIndex, constrictionDiameter, this->fricativeIntensity);
-	for (int i=0; i<8; i++)
+	for (int i=0; i<this->numVoices+1; i++)
 	{
-		glotList[i]->finishBlock();
+		glottises[i]->finishBlock();
 	}
 	
 	this->tract->finishBlock();
@@ -309,14 +299,14 @@ void PinkTromboneAudioProcessor::noteAdded(MPENote newNote)
 	this->voicing = true;
 	this->noteOn = true;
 	
-	for (int i=0; i<8; i++)
+	for (int i=0; i<this->numVoices+1; i++)
 	{
-		if(!this->glotList[i]->isActive)
+		if(!this->glottises[i]->isActive)
 		{
-			glotList[i]->setFrequency(midiNoteInHz);
-			glotList[i]->setActive(true);
-			glotList[i]->setVoicing(true);
-			this->glottisMap.emplace(newNote.noteID, glotList[i]);
+			glottises[i]->setFrequency(midiNoteInHz);
+			glottises[i]->setActive(true);
+			glottises[i]->setVoicing(true);
+			this->glottisMap.emplace(newNote.noteID, glottises[i]);
 			break;
 		}
 	}
