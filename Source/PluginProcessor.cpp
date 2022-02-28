@@ -129,7 +129,7 @@ void PinkTromboneAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
 	this->glottis = new Glottis(sampleRate);
 	
 	this->glottises[0] = this->glottis;
-	for (int i=1; i<this->numVoices+1; i++)
+	for (int i=1; i<this->numVoices; i++)
 	{
 		this->glottises[i] = new Glottis(sampleRate);
 	}
