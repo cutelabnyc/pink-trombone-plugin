@@ -282,8 +282,8 @@ public:
 	int voicingCounter = 0;
 	int numVoices = 11;
 	bool noteOn;
+	bool noteOff;
 	bool envelope = false;
-	bool voicing;
 	bool breath = false;
 	
 	bool tongueXMod;

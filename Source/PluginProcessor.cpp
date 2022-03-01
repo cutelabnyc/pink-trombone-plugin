@@ -126,10 +126,7 @@ void PinkTromboneAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
 	this->sampleRate = sampleRate;
 	this->adsr.setSampleRate(sampleRate);
 	
-	this->glottis = new Glottis(sampleRate);
-	
-	this->glottises[0] = this->glottis;
-	for (int i=1; i<this->numVoices; i++)
+	for (int i=0; i<this->numVoices+1; i++)
 	{
 		this->glottises[i] = new Glottis(sampleRate);
 	}
@@ -200,12 +197,15 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		instrument.processNextMidiEvent(currentMessage);
 	}
 	
-	if(this->envelope && !adsr.isActive())
+	if(this->envelope && !adsr.isActive() && this->noteOff)
 	{
-		this->voicing = false;
-		this->glottis->setVoicing(this->voicing);
 		this->voicingCounter = 0;
-		this->glottis->isActive = false;
+		this->noteOff = false;
+		for (int i=0; i<this->numVoices+1; i++)
+		{
+			glottises[i]->setVoicing(false);
+			glottises[i]->setActive(false);
+		}
 	}
 
     // This is the place where you'd normally do the guts of your plugin's
@@ -296,17 +296,21 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 void PinkTromboneAudioProcessor::noteAdded(MPENote newNote)
 {
 	double midiNoteInHz = newNote.getFrequencyInHertz();
-	this->voicing = true;
+	bool firstNote;
 	this->noteOn = true;
+	if(this->glottisMap.empty()) firstNote = true;
 	
 	for (int i=0; i<this->numVoices+1; i++)
 	{
 		if(!this->glottises[i]->isActive)
 		{
+			this->glottisMap.emplace(newNote.noteID, glottises[i]);
 			glottises[i]->setFrequency(midiNoteInHz);
 			glottises[i]->setActive(true);
-			glottises[i]->setVoicing(true);
-			this->glottisMap.emplace(newNote.noteID, glottises[i]);
+			if(firstNote){
+				this->voicingCounter = 0;
+			}
+			else if (this->voicingCounter >= this->VOT*this->sampleRate) glottises[i]->setVoicing(true);
 			break;
 		}
 	}
@@ -318,24 +322,23 @@ void PinkTromboneAudioProcessor::noteAdded(MPENote newNote)
 void PinkTromboneAudioProcessor::noteReleased(MPENote finishedNote)
 {
 	std::map<uint16, Glottis*>::iterator glotOff = this->glottisMap.find(finishedNote.noteID);
-	glotOff->second->setVoicing(false);
 	glotOff->second->setActive(false);
+	if (!this->envelope || this->glottisMap.size()>1) glotOff->second->setVoicing(false);
 	this->glottisMap.erase(finishedNote.noteID);
 	
-	if(this->envelope && this->glottisMap.empty())
-	{
+	if(this->glottisMap.empty()) {
 		this->noteOn = false;
-		adsr.noteOff();
+		
+		if(this->envelope)
+		{
+			this->noteOff = true;
+			adsr.noteOff();
+		}
+		else if (!this->envelope)
+		{
+			this->voicingCounter = 0;
+		}
 	}
-	
-	else if (!this->envelope && this->glottisMap.empty())
-	{
-		this->noteOn = false;
-		this->voicing = false;
-		this->glottis->setVoicing(this->voicing);
-		this->voicingCounter = 0;
-	}
-	
 }
 
 void PinkTromboneAudioProcessor::applyEnvelope(float sampleVal)
@@ -355,16 +358,17 @@ void PinkTromboneAudioProcessor::applyEnvelope(float sampleVal)
 
 void PinkTromboneAudioProcessor::applyVoicing()
 {
-	if(this->voicing)
+	if (this->voicingCounter == this->VOT*this->sampleRate)
 	{
-		if (this->voicingCounter == this->VOT*this->sampleRate)
+		std::map<uint16, Glottis*>::iterator it = glottisMap.begin();
+		for (; it != glottisMap.end(); it++)
 		{
-			this->glottis->setVoicing(true);
-			this->voicingCounter = 0;
+			it->second->setVoicing(true);
 		}
-		else
-			this->voicingCounter += 1;
+		this->voicingCounter = 0;
 	}
+	else
+		this->voicingCounter += 1;
 }
 
 //==============================================================================

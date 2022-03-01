@@ -22,6 +22,7 @@ public:
 	void setVoicing(bool voice);
 	void setActive(bool active);
 	bool isActive = false;
+	bool alwaysVoice;
 	
 private:
 	void setupWaveform(double lambda);
@@ -47,7 +48,6 @@ private:
 	double tenseness;
 	bool autoWobble;
 	bool isTouched;
-	bool alwaysVoice;
 };
 
 #endif /* Glottis_hpp */
