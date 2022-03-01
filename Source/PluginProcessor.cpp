@@ -11,6 +11,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "util.h"
+#include <map>
 
 //==============================================================================
 PinkTromboneAudioProcessor::PinkTromboneAudioProcessor()
@@ -46,6 +47,9 @@ PinkTromboneAudioProcessor::PinkTromboneAudioProcessor()
 													 1.0f,   // maximum value
 													 1.0f)); // default value
 	initializeTractProps(&this->tractProps, 44);
+	
+	instrument.enableLegacyMode (24);
+	instrument.addListener(this);
 }
 
 PinkTromboneAudioProcessor::~PinkTromboneAudioProcessor()
@@ -121,7 +125,12 @@ void PinkTromboneAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
     // initialisation that you need..
 	this->sampleRate = sampleRate;
 	this->adsr.setSampleRate(sampleRate);
-	this->glottis = new Glottis(sampleRate);
+	
+	for (int i=0; i<this->numVoices+1; i++)
+	{
+		this->glottises[i] = new Glottis(sampleRate);
+	}
+	
 	this->tract = new Tract(sampleRate, samplesPerBlock, &this->tractProps);
 	this->whiteNoise = new WhiteNoise(sampleRate * 2.0);
 	this->aspirateFilter = new Biquad(sampleRate);
@@ -185,41 +194,18 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 	
 	for (auto meta : midiMessages) {
 		auto currentMessage = meta.getMessage();
-
-		if (currentMessage.isNoteOn()){
-			auto currentNote = currentMessage.getNoteNumber();
-			double midiNoteInHz = juce::MidiMessage::getMidiNoteInHertz(currentNote);
-			this->glottis->setFrequency(midiNoteInHz);
-			this->voicing = true;
-			this->noteOn = true;
-			if(this->envelope)
-				adsr.noteOn();
-		}
-		else if (currentMessage.isNoteOff())
-		{
-			this->noteOn = false;
-			if(this->envelope)
-			{
-				adsr.noteOff();
-				*tongueX = this->restTongueX;
-				*tongueY = this->restTongueY;
-				*constrictionX = this->restConstrictionX;
-				*constrictionY = this->restConstrictionY;
-			}
-			else if (!this->envelope)
-			{
-				this->voicing = false;
-				this->glottis->setVoicing(this->voicing);
-				this->voicingCounter = 0;
-			}
-		}
+		instrument.processNextMidiEvent(currentMessage);
 	}
 	
-	if(this->envelope && !adsr.isActive())
+	if(this->envelope && !adsr.isActive() && this->noteOff)
 	{
-		this->voicing = false;
-		this->glottis->setVoicing(this->voicing);
 		this->voicingCounter = 0;
+		this->noteOff = false;
+		for (int i=0; i<this->numVoices+1; i++)
+		{
+			glottises[i]->setVoicing(false);
+			glottises[i]->setActive(false);
+		}
 	}
 
     // This is the place where you'd normally do the guts of your plugin's
@@ -246,12 +232,21 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		double lambda1 = (double) j / (double) N;
 		double lambda2 = ((double) j + 0.5) / (double) N;
 		
-		double glot = this->glottis->runStep(lambda1, asp);
+		double glotSum = 0;
+		double glotModulatorSum = 0;
+		for (int i=0; i<this->numVoices+1; i++)
+		{
+			double glot = glottises[i]->runStep(lambda1, asp);
+			double glotModulator = glottises[i]->getNoiseModulator();
+			glotSum += glot;
+			glotModulatorSum += glotModulator;
+		}
 		double vocalOutput = 0.0;
-		this->tract->runStep(glot, fri, lambda1, this->glottis);
+		this->tract->runStep(glotSum, fri, lambda1, glotModulatorSum);
 		vocalOutput += this->tract->lipOutput + this->tract->noseOutput;
-		this->tract->runStep(glot, fri, lambda2, this->glottis);
+		this->tract->runStep(glotSum, fri, lambda2, glotModulatorSum);
 		vocalOutput += this->tract->lipOutput + this->tract->noseOutput;
+
 		this->applyEnvelope(adsr.getNextSample());
 		this->applyVoicing();
 		
@@ -281,7 +276,11 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 	
 	this->tract->setRestDiameter(tongueIndex, tongueDiameter);
 	this->tract->setConstriction(constrictionIndex, constrictionDiameter, this->fricativeIntensity);
-	this->glottis->finishBlock();
+	for (int i=0; i<this->numVoices+1; i++)
+	{
+		glottises[i]->finishBlock();
+	}
+	
 	this->tract->finishBlock();
 	
 	if (this->muteAudio) {
@@ -290,6 +289,54 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 			for (int j = 0; j < N; j++) {
 				writeChannel[j] = 0.0;
 			}
+		}
+	}
+}
+
+void PinkTromboneAudioProcessor::noteAdded(MPENote newNote)
+{
+	double midiNoteInHz = newNote.getFrequencyInHertz();
+	bool firstNote;
+	this->noteOn = true;
+	if(this->glottisMap.empty()) firstNote = true;
+	
+	for (int i=0; i<this->numVoices+1; i++)
+	{
+		if(!this->glottises[i]->isActive)
+		{
+			this->glottisMap.emplace(newNote.noteID, glottises[i]);
+			glottises[i]->setFrequency(midiNoteInHz);
+			glottises[i]->setActive(true);
+			if(firstNote){
+				this->voicingCounter = 0;
+			}
+			else if (this->voicingCounter >= this->VOT*this->sampleRate) glottises[i]->setVoicing(true);
+			break;
+		}
+	}
+	
+	if(this->envelope)
+		adsr.noteOn();
+}
+
+void PinkTromboneAudioProcessor::noteReleased(MPENote finishedNote)
+{
+	std::map<uint16, Glottis*>::iterator glotOff = this->glottisMap.find(finishedNote.noteID);
+	glotOff->second->setActive(false);
+	if (!this->envelope || this->glottisMap.size()>1) glotOff->second->setVoicing(false);
+	this->glottisMap.erase(finishedNote.noteID);
+	
+	if(this->glottisMap.empty()) {
+		this->noteOn = false;
+		
+		if(this->envelope)
+		{
+			this->noteOff = true;
+			adsr.noteOff();
+		}
+		else if (!this->envelope)
+		{
+			this->voicingCounter = 0;
 		}
 	}
 }
@@ -311,16 +358,17 @@ void PinkTromboneAudioProcessor::applyEnvelope(float sampleVal)
 
 void PinkTromboneAudioProcessor::applyVoicing()
 {
-	if(this->voicing)
+	if (this->voicingCounter == this->VOT*this->sampleRate)
 	{
-		if (this->voicingCounter == this->VOT*this->sampleRate)
+		std::map<uint16, Glottis*>::iterator it = glottisMap.begin();
+		for (; it != glottisMap.end(); it++)
 		{
-			this->glottis->setVoicing(true);
-			this->voicingCounter = 0;
+			it->second->setVoicing(true);
 		}
-		else
-			this->voicingCounter += 1;
+		this->voicingCounter = 0;
 	}
+	else
+		this->voicingCounter += 1;
 }
 
 //==============================================================================

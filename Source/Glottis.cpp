@@ -32,6 +32,8 @@ Glottis::Glottis(double sampleRate) :
 	this->setupWaveform(0);
 }
 
+Glottis::~Glottis() { }
+
 void Glottis::setupWaveform(double lambda)
 {
 	//this->frequency = this->oldFrequency * (1 - lambda) + this->newFrequency * lambda;
@@ -115,14 +117,17 @@ double Glottis::normalizedLFWaveform(double t)
 double Glottis::runStep(double lambda, double noiseSource)
 {
 	double timeStep = 1.0 / this->sampleRate;
+	
 	this->waveformLength = 1.0 / this->frequency;
 	this->timeInWaveform += timeStep;
 	this->totalTime += timeStep;
+	
 	if (this->timeInWaveform > this->waveformLength)
 	{
 		this->timeInWaveform -= this->waveformLength;
 		this->setupWaveform(lambda);
 	}
+
 	double out = this->normalizedLFWaveform(this->timeInWaveform / this->waveformLength);
 	double aspiration = this->intensity * (1 - sqrt(this->UITenseness)) * this->getNoiseModulator() * noiseSource;
 	aspiration *= 0.2 + 0.02 * simplex1(this->totalTime * 1.99);
@@ -157,4 +162,9 @@ void Glottis::setFrequency(double midiNoteInHz)
 void Glottis::setVoicing(bool voice)
 {
 	this->alwaysVoice = voice;
+}
+
+void Glottis::setActive(bool active)
+{
+	this->isActive = active;
 }

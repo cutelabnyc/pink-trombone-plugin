@@ -20,6 +20,9 @@ public:
 	double getNoiseModulator();
 	void setFrequency(double midiNoteInHz);
 	void setVoicing(bool voice);
+	void setActive(bool active);
+	bool isActive = false;
+	bool alwaysVoice;
 	
 private:
 	void setupWaveform(double lambda);
@@ -42,9 +45,9 @@ private:
 	double intensity, loudness;
 	double vibratoAmount;
 	double vibratoFrequency;
+	double tenseness;
 	bool autoWobble;
 	bool isTouched;
-	bool alwaysVoice;
 };
 
 #endif /* Glottis_hpp */
