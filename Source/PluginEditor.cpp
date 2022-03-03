@@ -135,7 +135,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	attackExp.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
 	attackExp.setPopupDisplayEnabled (true, true, this);
 	attackExp.setTextValueSuffix (" Attack exponent");
-	attackExp.setValue(1);
+	attackExp.setValue(0);
 	addAndMakeVisible (&attackExp);
 	attackExp.addListener(this);
 	
@@ -153,7 +153,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	decayExp.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
 	decayExp.setPopupDisplayEnabled (true, true, this);
 	decayExp.setTextValueSuffix (" Decay exponent");
-	decayExp.setValue(1);
+	decayExp.setValue(0);
 	addAndMakeVisible (&decayExp);
 	decayExp.addListener(this);
 	
@@ -180,7 +180,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	releaseExp.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
 	releaseExp.setPopupDisplayEnabled (true, true, this);
 	releaseExp.setTextValueSuffix (" Release exponent");
-	releaseExp.setValue(1);
+	releaseExp.setValue(0);
 	addAndMakeVisible (&releaseExp);
 	releaseExp.addListener(this);
 	
