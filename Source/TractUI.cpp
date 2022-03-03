@@ -99,7 +99,7 @@ void TractUI::setTongue(t_tractProps *props, double index, double diameter)
 	*(this->processor.tongueY) = (diameter - this->innerTongueControlRadius)/(this->outerTongueControlRadius - this->innerTongueControlRadius);
 }
 
-void * TractUI::getEventPosition(t_tractProps *props, double x, double y, double &index, double &diameter)
+void TractUI::getEventPosition(t_tractProps *props, double x, double y, double &index, double &diameter)
 {
 	double angle = atan2(y, x);
 	while(angle > 0) {angle -= 2*M_PI;};
@@ -296,7 +296,7 @@ void TractUI::lineTo(Graphics &g, t_tractProps *props, Path &p, double i, double
 	p.lineTo(this->originX - r * cos(angle), this->originY - r * sin(angle));
 }
 
-void * TractUI::getPolarCoordinates(t_tractProps *props, double i, double d, double &r, double &angle)
+void TractUI::getPolarCoordinates(t_tractProps *props, double i, double d, double &r, double &angle)
 {
 	angle = this->angleOffset + i * this->angleScale * M_PI / (props->lipStart - 1);
 	double wobble = props->maxAmplitude[props->n-1]+props->noseMaxAmplitude[props->noseLength-1];

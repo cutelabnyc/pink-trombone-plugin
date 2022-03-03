@@ -28,13 +28,13 @@ public:
 private:
 	void setConstriction(t_tractProps *props, double index, double diameter);
 	void setTongue(t_tractProps *props, double index, double diameter);
-	void * getEventPosition(t_tractProps *p, double x, double y, double &index, double &diameter);
+	void getEventPosition(t_tractProps *p, double x, double y, double &index, double &diameter);
 	bool isNearTongue(t_tractProps *p, double index, double diameter);
 	void drawTongueControl(Graphics &g, t_tractProps *p);
 	void drawTract(Graphics &g, t_tractProps *p);
 	void moveTo(Graphics &g, t_tractProps *props, Path &p, double index, double diameter);
 	void lineTo(Graphics &g, t_tractProps *props, Path &p, double i, double d);
-	void * getPolarCoordinates(t_tractProps *props, double i, double d, double &r, double &angle);
+	void getPolarCoordinates(t_tractProps *props, double i, double d, double &r, double &angle);
 	void drawCircle(Graphics &g, t_tractProps *props, double i, double d, double radius);
 	void drawAmplitudes(Graphics &g, t_tractProps *props);
 	
