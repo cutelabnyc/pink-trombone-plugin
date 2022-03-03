@@ -4,27 +4,33 @@
               pluginManufacturerCode="CUTE" displaySplashScreen="1" jucerFormatVersion="1"
               pluginCharacteristicsValue="pluginIsSynth,pluginProducesMidiOut,pluginWantsMidiIn">
   <MAINGROUP id="oys8Iw" name="PinkTrombone">
-    <GROUP id="{772D122A-418C-49CB-4236-573C8F2FB197}" name="Source">
-      <FILE id="W1J7Du" name="Biquad.cpp" compile="1" resource="0" file="Source/Biquad.cpp"/>
+    <GROUP id="{2790134B-2B43-CF74-D69C-99D3D8323CBA}" name="Headers">
       <FILE id="M17Ntq" name="Biquad.hpp" compile="0" resource="0" file="Source/Biquad.hpp"/>
-      <FILE id="iqeoG3" name="PluginProcessor.cpp" compile="1" resource="0"
-            file="Source/PluginProcessor.cpp"/>
-      <FILE id="V4sjih" name="Glottis.cpp" compile="1" resource="0" file="Source/Glottis.cpp"/>
       <FILE id="BmWvQ4" name="Glottis.hpp" compile="0" resource="0" file="Source/Glottis.hpp"/>
-      <FILE id="hRPLfX" name="noise.cpp" compile="1" resource="0" file="Source/noise.cpp"/>
       <FILE id="OUx6iO" name="noise.hpp" compile="0" resource="0" file="Source/noise.hpp"/>
-      <FILE id="xRaYzY" name="util.h" compile="0" resource="0" file="Source/util.h"/>
-      <FILE id="g4xw2j" name="WhiteNoise.cpp" compile="1" resource="0" file="Source/WhiteNoise.cpp"/>
-      <FILE id="wfkBOt" name="WhiteNoise.hpp" compile="0" resource="0" file="Source/WhiteNoise.hpp"/>
+      <FILE id="Wg49BK" name="PinkTromboneADSR.hpp" compile="0" resource="0"
+            file="Source/PinkTromboneADSR.hpp"/>
       <FILE id="sNtIip" name="PluginProcessor.h" compile="0" resource="0"
             file="Source/PluginProcessor.h"/>
-      <FILE id="GUip5B" name="PluginEditor.cpp" compile="1" resource="0"
-            file="Source/PluginEditor.cpp"/>
       <FILE id="neqGbM" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
-      <FILE id="b3FRSX" name="Tract.cpp" compile="1" resource="0" file="Source/Tract.cpp"/>
       <FILE id="zvZGFp" name="Tract.hpp" compile="0" resource="0" file="Source/Tract.hpp"/>
       <FILE id="d3XSZI" name="TractUI.hpp" compile="0" resource="0" file="Source/TractUI.hpp"/>
+      <FILE id="xRaYzY" name="util.h" compile="0" resource="0" file="Source/util.h"/>
+      <FILE id="wfkBOt" name="WhiteNoise.hpp" compile="0" resource="0" file="Source/WhiteNoise.hpp"/>
+    </GROUP>
+    <GROUP id="{772D122A-418C-49CB-4236-573C8F2FB197}" name="Source">
+      <FILE id="W1J7Du" name="Biquad.cpp" compile="1" resource="0" file="Source/Biquad.cpp"/>
+      <FILE id="V4sjih" name="Glottis.cpp" compile="1" resource="0" file="Source/Glottis.cpp"/>
+      <FILE id="hRPLfX" name="noise.cpp" compile="1" resource="0" file="Source/noise.cpp"/>
+      <FILE id="ZGLdRt" name="PinkTromboneADSR.cpp" compile="1" resource="0"
+            file="Source/PinkTromboneADSR.cpp"/>
+      <FILE id="iqeoG3" name="PluginProcessor.cpp" compile="1" resource="0"
+            file="Source/PluginProcessor.cpp"/>
+      <FILE id="GUip5B" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="b3FRSX" name="Tract.cpp" compile="1" resource="0" file="Source/Tract.cpp"/>
       <FILE id="j2qlr8" name="TractUI.cpp" compile="1" resource="0" file="Source/TractUI.cpp"/>
+      <FILE id="g4xw2j" name="WhiteNoise.cpp" compile="1" resource="0" file="Source/WhiteNoise.cpp"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
