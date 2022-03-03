@@ -18,9 +18,10 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    setSize (800, 600);
 	
 	tractUI.setSize(400, 300);
+    tractUI.setBounds(400, 0, 400, 300);
 	addAndMakeVisible(&tractUI);
 	
 	tongueX.setSliderStyle (Slider::RotaryVerticalDrag);
@@ -111,30 +112,21 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	addAndMakeVisible (&constrictionYModVal);
 	constrictionYModVal.addListener(this);
 	
-	VOT.setSliderStyle (Slider::RotaryVerticalDrag);
-	VOT.setRotaryParameters(M_PI, 3*M_PI + 0.1, true);
-	VOT.setRange(0, 0.3, 0.01);
-	VOT.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	VOT.setPopupDisplayEnabled (true, true, this);
-	VOT.setTextValueSuffix (" Voice Onset Time (s)");
-	VOT.setValue(0.0);
-	addAndMakeVisible (&VOT);
-	VOT.addListener(this);
+	attackSlider.setSliderStyle (Slider::LinearHorizontal);
+	attackSlider.setRange(0, 2000, 1);
+    attackExp.setTextBoxStyle (Slider::TextBoxLeft, false, 90, 14);
+	attackSlider.setTextValueSuffix (" ms");
+	attackSlider.setValue(100);
+	addAndMakeVisible (&attackSlider);
+	attackSlider.addListener(this);
 	
-	attackLength.setSliderStyle (Slider::LinearHorizontal);
-	attackLength.setRange(0, 2000, 10);
-	attackLength.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	attackLength.setPopupDisplayEnabled (true, true, this);
-	attackLength.setTextValueSuffix (" Attack length (ms)");
-	attackLength.setValue(100);
-	addAndMakeVisible (&attackLength);
-	attackLength.addListener(this);
-	
-	attackExp.setSliderStyle (Slider::LinearHorizontal);
+    attackLabel.setText("Attack", juce::dontSendNotification);
+    attackLabel.attachToComponent (&attackSlider, true);
+    addAndMakeVisible (&attackLabel);
+    
+	attackExp.setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
 	attackExp.setRange(-5, 5, 0.1);
-	attackExp.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	attackExp.setPopupDisplayEnabled (true, true, this);
-	attackExp.setTextValueSuffix (" Attack exponent");
+	attackExp.setTextBoxStyle (Slider::TextBoxRight, false, 40, 14);
 	attackExp.setValue(0);
 	addAndMakeVisible (&attackExp);
 	attackExp.addListener(this);
@@ -188,10 +180,6 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 //	addAndMakeVisible(&muteAudio);
 	muteAudio.addListener(this);
 	
-	envelope.setButtonText("Constriction envelope");
-	addAndMakeVisible(&envelope);
-	envelope.addListener(this);
-	
 	tongueXMod.setButtonText("Modulate tongue index");
 	addAndMakeVisible(&tongueXMod);
 	tongueXMod.addListener(this);
@@ -235,12 +223,10 @@ void PinkTromboneAudioProcessorEditor::paint (Graphics& g)
 void PinkTromboneAudioProcessorEditor::resized()
 {
 	// Local bounds are 0,0,400,300
-	envelope.setBounds(20, 20, 80, 20);
-	VOT.setBounds (140, 5, 65, 45);
-	breath.setBounds(220, 20, 80, 20);
+	breath.setBounds(220, 250, 80, 20);
 	
-	attackLength.setBounds (15, 30, 75, 50);
-	attackExp.setBounds (80, 30, 75, 50);
+	attackSlider.setBounds (50, 14, 200, 20);
+	attackExp.setBounds (240, 6, 75, 40);
 	
 	decayLength.setBounds (15, 55, 75, 50);
 	decayExp.setBounds (80, 55, 75, 50);
@@ -277,9 +263,7 @@ void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
 	processor.restConstrictionX = constrictionX.getValue();
 	processor.restConstrictionY = constrictionY.getValue();
 	
-	processor.VOT = VOT.getValue();
-	
-	processor.adsrParams.attack = attackLength.getValue()/1000;
+	processor.adsrParams.attack = attackSlider.getValue()/1000;
 	processor.adsrParams.attackExp = attackExp.getValue();
 	processor.adsrParams.decay = decayLength.getValue()/1000;
 	processor.adsrParams.decayExp = decayExp.getValue();
@@ -305,8 +289,6 @@ void PinkTromboneAudioProcessorEditor::buttonClicked(Button *button) { }
 void PinkTromboneAudioProcessorEditor::buttonStateChanged(Button *button)
 {
 	processor.muteAudio = this->muteAudio.getToggleState();
-	processor.envelope = this->envelope.getToggleState();
-	
 	processor.tongueXMod = this->tongueXMod.getToggleState();
 	processor.tongueYMod = this->tongueYMod.getToggleState();
 	processor.constrictionXMod = this->constrictionXMod.getToggleState();

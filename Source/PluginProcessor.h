@@ -75,13 +75,11 @@ public:
 	bool muteAudio = false;
 	double constrictionMin = -2.0;
 	double constrictionMax = 2.0;
-	double VOT;
 	double sampleRate;
 	int voicingCounter = 0;
 	int numVoices = 11;
 	bool noteOn;
 	bool noteOff;
-	bool envelope = false;
 	bool breath = false;
 	
 	bool tongueXMod;
