@@ -9,13 +9,13 @@
 
 template <typename RealType>
 Modulation<RealType>::Modulation(ModulationSource<RealType> *m)
-    : _source(m)
+    : scale(0.0)
     , active(false)
-    , scale(0.0)
+    , _source(m)
 {};
 
 template <typename RealType>
-ModulationSource<RealType> Modulation<RealType>::source()
+ModulationSource<RealType> *Modulation<RealType>::source()
 {
     return _source;
 }
@@ -29,15 +29,15 @@ Modulatable<RealType>::Modulatable(RealType initial, RealType minimum, RealType 
 
 template <typename RealType>
 RealType Modulatable<RealType>::value() {
-    RealType modulatedValue = _rootValue;
+    RealType modulatedValue = rootValue();
     for (auto m: _modulationSources) {
         if (m->active) {
             if (m->scale > 0.0) {
                 RealType range = (_maximum - modulatedValue);
-                modulatedValue += range * m->scale * m->source()->value;
+                modulatedValue += range * m->scale * m->source()->value();
             } else if (m->scale < 0.0) {
                 RealType range = (modulatedValue - _minimum);
-                modulatedValue -= range * m->scale * m->source()->value;
+                modulatedValue += range * m->scale * m->source()->value();
             }
         }
     }
@@ -58,17 +58,36 @@ void Modulatable<RealType>::setRootValue(RealType value)
 template <typename RealType>
 void Modulatable<RealType>::appendModulationSource(ModulationSource<RealType> *m)
 {
-    _modulationSources.push_back(m);
+    _modulationSources.push_back(new Modulation<RealType>(m));
 }
 
 template <typename RealType>
-ModulationSource<RealType> *Modulatable<RealType>::modulationAtIndex(int i)
+Modulation<RealType> *Modulatable<RealType>::modulationAtIndex(int i)
 {
     return _modulationSources[i];
 }
 
 template <typename RealType>
-int Modulatable<RealType>::numModulations()
+unsigned long Modulatable<RealType>::numModulations()
 {
     return _modulationSources.size();
 }
+
+ModulatableAudioParameter::ModulatableAudioParameter(AudioParameterFloat *f)
+    : Modulatable<float>(f->get(), f->range.start, f->range.end)
+    , _parameter(f)
+{}
+
+float ModulatableAudioParameter::rootValue()
+{
+    return _parameter->get();
+}
+
+void ModulatableAudioParameter::setRootValue(float value)
+{
+    _parameter->setValueNotifyingHost(value);
+}
+
+
+template class Modulatable<float>;
+template class Modulatable<double>;

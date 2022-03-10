@@ -12,7 +12,7 @@
 #include "ModulationSource.h"
 #include <math.h>
 
-class PinkTromboneADSR: ModulationSource<float>
+class PinkTromboneADSR: public ModulationSource<float>
 {
 public:
     PinkTromboneADSR();

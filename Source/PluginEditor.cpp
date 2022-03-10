@@ -301,10 +301,10 @@ void PinkTromboneAudioProcessorEditor::resized()
 
 void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
 {
-	processor.restTongueX = tongueX.getValue();
-	processor.restTongueY = tongueY.getValue();
-	processor.restConstrictionX = constrictionX.getValue();
-	processor.restConstrictionY = constrictionY.getValue();
+//	processor.restTongueX = tongueX.getValue();
+//	processor.restTongueY = tongueY.getValue();
+//	processor.restConstrictionX = constrictionX.getValue();
+//	processor.restConstrictionY = constrictionY.getValue();
 	
 	processor.adsrParams.attack = attackSlider.getValue()/1000;
 	processor.adsrParams.attackExp = attackExp.getValue();
@@ -314,17 +314,10 @@ void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
 	processor.adsrParams.release = releaseSlider.getValue()/1000;
 	processor.adsrParams.releaseExp = releaseExp.getValue();
 	
-	if(tongueXModVal.getValue() <= 0) processor.tongueXModVal = processor.restTongueX + (tongueXModVal.getValue()/100)*processor.restTongueX;
-	else if (tongueXModVal.getValue() > 0) processor.tongueXModVal = processor.restTongueX + (tongueXModVal.getValue()/100)*(1 - processor.restTongueX);
-	
-	if(tongueYModVal.getValue() <= 0) processor.tongueYModVal = processor.restTongueY + (tongueYModVal.getValue()/100)*processor.restTongueY;
-	else if (tongueYModVal.getValue() > 0) processor.tongueYModVal = processor.restTongueY + (tongueYModVal.getValue()/100)*(1 - processor.restTongueY);
-	
-	if(constrictionXModVal.getValue() <= 0) processor.constrictionXModVal = processor.restConstrictionX + (constrictionXModVal.getValue()/100)*processor.restConstrictionX;
-	else if (constrictionXModVal.getValue() > 0) processor.constrictionXModVal = processor.restConstrictionX + (constrictionXModVal.getValue()/100)*(1 - processor.restConstrictionX);
-	
-	if(constrictionYModVal.getValue() <= 0) processor.constrictionYModVal = processor.restConstrictionY + (constrictionYModVal.getValue()/100)*processor.restConstrictionY;
-	else if (constrictionYModVal.getValue() > 0) processor.constrictionYModVal = processor.restConstrictionY + (constrictionYModVal.getValue()/100)*(1 - processor.restConstrictionY);
+    processor.tongueXMod->modulationAtIndex(0)->scale = tongueXModVal.getValue() / 100;
+    processor.tongueYMod->modulationAtIndex(0)->scale = tongueYModVal.getValue() / 100;
+    processor.constrictionXMod->modulationAtIndex(0)->scale = constrictionXModVal.getValue() / 100;
+    processor.constrictionYMod->modulationAtIndex(0)->scale = constrictionYModVal.getValue() / 100;
 }
 
 void PinkTromboneAudioProcessorEditor::buttonClicked(Button *button) { }
@@ -332,9 +325,11 @@ void PinkTromboneAudioProcessorEditor::buttonClicked(Button *button) { }
 void PinkTromboneAudioProcessorEditor::buttonStateChanged(Button *button)
 {
 	processor.muteAudio = this->muteAudio.getToggleState();
-	processor.tongueXMod = this->tongueXMod.getToggleState();
-	processor.tongueYMod = this->tongueYMod.getToggleState();
-	processor.constrictionXMod = this->constrictionXMod.getToggleState();
-	processor.constrictionYMod = this->constrictionYMod.getToggleState();
+    
+    // ADSR Modulation
+    processor.tongueXMod->modulationAtIndex(0)->active = this->tongueXMod.getToggleState();
+    processor.tongueYMod->modulationAtIndex(0)->active = this->tongueYMod.getToggleState();
+    processor.constrictionXMod->modulationAtIndex(0)->active = this->constrictionXMod.getToggleState();
+    processor.constrictionYMod->modulationAtIndex(0)->active = this->constrictionYMod.getToggleState();
 	processor.breath = this->breath.getToggleState();
 }
