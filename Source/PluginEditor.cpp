@@ -112,9 +112,10 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	addAndMakeVisible (&constrictionYModVal);
 	constrictionYModVal.addListener(this);
 	
+    // Attack
 	attackSlider.setSliderStyle (Slider::LinearHorizontal);
 	attackSlider.setRange(0, 2000, 1);
-    attackExp.setTextBoxStyle (Slider::TextBoxLeft, false, 90, 14);
+    attackSlider.setTextBoxStyle (Slider::TextBoxLeft, false, 90, 14);
 	attackSlider.setTextValueSuffix (" ms");
 	attackSlider.setValue(100);
 	addAndMakeVisible (&attackSlider);
@@ -131,50 +132,58 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	addAndMakeVisible (&attackExp);
 	attackExp.addListener(this);
 	
-	decayLength.setSliderStyle (Slider::LinearHorizontal);
-	decayLength.setRange(0, 2000, 10);
-	decayLength.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	decayLength.setPopupDisplayEnabled (true, true, this);
-	decayLength.setTextValueSuffix (" Decay length (ms)");
-	decayLength.setValue(100);
-	addAndMakeVisible (&decayLength);
-	decayLength.addListener(this);
+    // Decay
+	decaySlider.setSliderStyle (Slider::LinearHorizontal);
+	decaySlider.setRange(0, 2000, 10);
+    decaySlider.setTextBoxStyle (Slider::TextBoxLeft, false, 90, 14);
+	decaySlider.setTextValueSuffix (" ms");
+	decaySlider.setValue(100);
+	addAndMakeVisible (&decaySlider);
+	decaySlider.addListener(this);
+    
+    decayLabel.setText("Decay", juce::dontSendNotification);
+    decayLabel.attachToComponent (&decaySlider, true);
+    addAndMakeVisible (&decayLabel);
 	
-	decayExp.setSliderStyle (Slider::LinearHorizontal);
-	decayExp.setRange(-5, 5, 0.1);
-	decayExp.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	decayExp.setPopupDisplayEnabled (true, true, this);
-	decayExp.setTextValueSuffix (" Decay exponent");
-	decayExp.setValue(0);
-	addAndMakeVisible (&decayExp);
-	decayExp.addListener(this);
+    decayExp.setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
+    decayExp.setRange(-5, 5, 0.1);
+    decayExp.setTextBoxStyle (Slider::TextBoxRight, false, 40, 14);
+    decayExp.setValue(0);
+    addAndMakeVisible (&decayExp);
+    decayExp.addListener(this);
 	
-	sustain.setSliderStyle (Slider::LinearHorizontal);
-	sustain.setRange(0.0, 100.0, 1);
-	sustain.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	sustain.setPopupDisplayEnabled (true, true, this);
-	sustain.setTextValueSuffix ("% Sustain");
-	sustain.setValue(0);
-	addAndMakeVisible (&sustain);
-	sustain.addListener(this);
+    // Sustain
+	sustainSlider.setSliderStyle (Slider::LinearHorizontal);
+	sustainSlider.setRange(0.0, 100.0, 1);
+    sustainSlider.setTextBoxStyle (Slider::TextBoxLeft, false, 90, 14);
+	sustainSlider.setTextValueSuffix ("%");
+	sustainSlider.setValue(0);
+	addAndMakeVisible (&sustainSlider);
+	sustainSlider.addListener(this);
+    
+    sustainLabel.setText("Sustain", juce::dontSendNotification);
+    sustainLabel.attachToComponent (&sustainSlider, true);
+    addAndMakeVisible (&sustainLabel);
 	
-	releaseLength.setSliderStyle (Slider::LinearHorizontal);
-	releaseLength.setRange(0, 2000, 10);
-	releaseLength.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	releaseLength.setPopupDisplayEnabled (true, true, this);
-	releaseLength.setTextValueSuffix (" Release length (ms)");
-	releaseLength.setValue(100);
-	addAndMakeVisible (&releaseLength);
-	releaseLength.addListener(this);
-	
-	releaseExp.setSliderStyle (Slider::LinearHorizontal);
-	releaseExp.setRange(-5, 5, 0.1);
-	releaseExp.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	releaseExp.setPopupDisplayEnabled (true, true, this);
-	releaseExp.setTextValueSuffix (" Release exponent");
-	releaseExp.setValue(0);
-	addAndMakeVisible (&releaseExp);
-	releaseExp.addListener(this);
+    // Release
+    releaseSlider.setSliderStyle (Slider::LinearHorizontal);
+    releaseSlider.setRange(0, 2000, 10);
+    releaseSlider.setTextBoxStyle (Slider::TextBoxLeft, false, 90, 14);
+    releaseSlider.setTextValueSuffix (" ms");
+    releaseSlider.setValue(100);
+    addAndMakeVisible (&releaseSlider);
+    releaseSlider.addListener(this);
+    
+    releaseLabel.setText("Decay", juce::dontSendNotification);
+    releaseLabel.attachToComponent (&releaseSlider, true);
+    addAndMakeVisible (&releaseLabel);
+    
+    releaseExp.setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
+    releaseExp.setRange(-5, 5, 0.1);
+    releaseExp.setTextBoxStyle (Slider::TextBoxRight, false, 40, 14);
+    releaseExp.setValue(0);
+    addAndMakeVisible (&releaseExp);
+    releaseExp.addListener(this);
 	
 	muteAudio.setButtonText("Mute");
 //	addAndMakeVisible(&muteAudio);
@@ -222,20 +231,54 @@ void PinkTromboneAudioProcessorEditor::paint (Graphics& g)
 
 void PinkTromboneAudioProcessorEditor::resized()
 {
-	// Local bounds are 0,0,400,300
+	// Local bounds are 0, 0, 800, 600
 	breath.setBounds(220, 250, 80, 20);
+    
+    int sliderLeftMargin = 50;
+    int sliderHeight = 20;
+    int sliderWidth = 200;
+    int sliderTopMargin = 14;
+    int sliderSpacing = 6;
+    int exponentDialLeftMargin = -10;
+    int exponentDialTopMargin = 6;
+    int exponentDialHeight = 40;
+    int exponentDialWidth = 75;
+    int exponentDialSpacing = 6;
 	
-	attackSlider.setBounds (50, 14, 200, 20);
-	attackExp.setBounds (240, 6, 75, 40);
-	
-	decayLength.setBounds (15, 55, 75, 50);
-	decayExp.setBounds (80, 55, 75, 50);
-	
-	sustain.setBounds (30, 80, 110, 50);
-	
-	releaseLength.setBounds (15, 105, 75, 50);
-	releaseExp.setBounds (80, 105, 75, 50);
-	
+    // Envelope
+	attackSlider.setBounds (sliderLeftMargin,
+                            sliderTopMargin,
+                            sliderWidth,
+                            sliderHeight);
+	attackExp.setBounds (sliderLeftMargin + sliderWidth + exponentDialLeftMargin,
+                         exponentDialTopMargin,
+                         exponentDialWidth,
+                         exponentDialHeight);
+    
+    decaySlider.setBounds (sliderLeftMargin,
+                            sliderTopMargin + (sliderHeight + sliderSpacing),
+                            sliderWidth,
+                            sliderHeight);
+    decayExp.setBounds (sliderLeftMargin + sliderWidth + exponentDialLeftMargin,
+                         exponentDialTopMargin +  + (sliderHeight + sliderSpacing),
+                         exponentDialWidth,
+                         exponentDialHeight);
+    
+    sustainSlider.setBounds (sliderLeftMargin,
+                            sliderTopMargin + 2 * (sliderHeight + sliderSpacing),
+                            sliderWidth,
+                            sliderHeight);
+    
+    releaseSlider.setBounds (sliderLeftMargin,
+                            sliderTopMargin + 3 * (sliderHeight + sliderSpacing),
+                            sliderWidth,
+                            sliderHeight);
+    releaseExp.setBounds (sliderLeftMargin + sliderWidth + exponentDialLeftMargin,
+                         exponentDialTopMargin +  + 3 * (sliderHeight + sliderSpacing),
+                         exponentDialWidth,
+                         exponentDialHeight);
+    
+    // Tract UI
 	tongueX.setBounds (0, 140, 65, 45);
 	tongueXMod.setBounds (50, 152.5, 80, 20);
 	tongueXModVal.setBounds (110, 140, 65, 45);
@@ -265,10 +308,10 @@ void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
 	
 	processor.adsrParams.attack = attackSlider.getValue()/1000;
 	processor.adsrParams.attackExp = attackExp.getValue();
-	processor.adsrParams.decay = decayLength.getValue()/1000;
+	processor.adsrParams.decay = decaySlider.getValue()/1000;
 	processor.adsrParams.decayExp = decayExp.getValue();
-	processor.adsrParams.sustain = sustain.getValue()/100;
-	processor.adsrParams.release = releaseLength.getValue()/1000;
+	processor.adsrParams.sustain = sustainSlider.getValue()/100;
+	processor.adsrParams.release = releaseSlider.getValue()/1000;
 	processor.adsrParams.releaseExp = releaseExp.getValue();
 	
 	if(tongueXModVal.getValue() <= 0) processor.tongueXModVal = processor.restTongueX + (tongueXModVal.getValue()/100)*processor.restTongueX;

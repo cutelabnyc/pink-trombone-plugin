@@ -49,10 +49,13 @@ private:
 	Slider attackSlider;
     Label attackLabel;
 	Slider attackExp;
-    Slider decayLength;
+    Slider decaySlider;
+    Label decayLabel;
     Slider decayExp;
-	Slider sustain;
-	Slider releaseLength;
+	Slider sustainSlider;
+    Label sustainLabel;
+	Slider releaseSlider;
+    Label releaseLabel;
 	Slider releaseExp;
 	
 	ToggleButton muteAudio;
