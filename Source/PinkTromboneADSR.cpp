@@ -53,13 +53,17 @@ void PinkTromboneADSR::noteOff() noexcept
     advanceState();
 }
 
-float PinkTromboneADSR::getNextSample() noexcept
+void PinkTromboneADSR::advanceOneSample() noexcept
 {
-    if (state == State::IDLE)
-        return 0.0f;
+    if (state == State::IDLE) {
+        this->_value = 0.0f;
+        return;
+    }
     
-    if (state == State::SUSTAIN)
-        return parameters.sustain;
+    if (state == State::SUSTAIN) {
+        this->_value =  parameters.sustain;
+        return;
+    }
     
     if (state == State::ATTACK || state == State::DECAY || state == State::RELEASE) {
         float exponent = 1.0f, scale = 1.0f, offset = 0.0f;
@@ -90,7 +94,11 @@ float PinkTromboneADSR::getNextSample() noexcept
             advanceState();
     }
     
-    return scaledEnvelopeVal;
+    this->_value = scaledEnvelopeVal;
+}
+
+float PinkTromboneADSR::value() {
+    return this->_value;
 }
 
 void PinkTromboneADSR::calculateRate(float start, float end) noexcept

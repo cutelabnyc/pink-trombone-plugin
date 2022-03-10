@@ -7,6 +7,9 @@
     <GROUP id="{2790134B-2B43-CF74-D69C-99D3D8323CBA}" name="Headers">
       <FILE id="M17Ntq" name="Biquad.hpp" compile="0" resource="0" file="Source/Biquad.hpp"/>
       <FILE id="BmWvQ4" name="Glottis.hpp" compile="0" resource="0" file="Source/Glottis.hpp"/>
+      <FILE id="vAUvEE" name="Modulatable.h" compile="0" resource="0" file="Source/Modulatable.h"/>
+      <FILE id="ozL0uD" name="ModulationSource.h" compile="0" resource="0"
+            file="Source/ModulationSource.h"/>
       <FILE id="OUx6iO" name="noise.hpp" compile="0" resource="0" file="Source/noise.hpp"/>
       <FILE id="Wg49BK" name="PinkTromboneADSR.hpp" compile="0" resource="0"
             file="Source/PinkTromboneADSR.hpp"/>
@@ -21,6 +24,9 @@
     <GROUP id="{772D122A-418C-49CB-4236-573C8F2FB197}" name="Source">
       <FILE id="W1J7Du" name="Biquad.cpp" compile="1" resource="0" file="Source/Biquad.cpp"/>
       <FILE id="V4sjih" name="Glottis.cpp" compile="1" resource="0" file="Source/Glottis.cpp"/>
+      <FILE id="Ps1PPS" name="Modulatable.cpp" compile="1" resource="0" file="Source/Modulatable.cpp"/>
+      <FILE id="c2QsLz" name="ModulationSource.cpp" compile="1" resource="0"
+            file="Source/ModulationSource.cpp"/>
       <FILE id="hRPLfX" name="noise.cpp" compile="1" resource="0" file="Source/noise.cpp"/>
       <FILE id="ZGLdRt" name="PinkTromboneADSR.cpp" compile="1" resource="0"
             file="Source/PinkTromboneADSR.cpp"/>

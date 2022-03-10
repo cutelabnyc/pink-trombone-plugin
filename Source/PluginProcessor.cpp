@@ -247,7 +247,8 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		this->tract->runStep(glotSum, fri, lambda2, glotModulatorSum);
 		vocalOutput += this->tract->lipOutput + this->tract->noseOutput;
 
-		this->applyEnvelope(adsr.getNextSample());
+        adsr.advanceOneSample();
+        this->applyEnvelope(adsr.value());
 		this->applyVoicing();
 		
 		channelData[j] = vocalOutput * 0.125;
