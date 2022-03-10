@@ -185,6 +185,24 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
     addAndMakeVisible (&releaseExp);
     releaseExp.addListener(this);
 	
+	breathFactor.setSliderStyle (Slider::LinearVertical);
+	breathFactor.setRange(0, 1, 0.01);
+	breathFactor.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
+	breathFactor.setPopupDisplayEnabled (true, true, this);
+	breathFactor.setTextValueSuffix (" Breathiness factor");
+	breathFactor.setValue(0.5);
+	addAndMakeVisible (&breathFactor);
+	breathFactor.addListener(this);
+	
+	sexFactor.setSliderStyle (Slider::LinearVertical);
+	sexFactor.setRange(0, 1, 0.1);
+	sexFactor.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
+	sexFactor.setPopupDisplayEnabled (true, true, this);
+	sexFactor.setTextValueSuffix (" Sex");
+	sexFactor.setValue(0.5);
+	addAndMakeVisible (&sexFactor);
+	sexFactor.addListener(this);
+	
 	muteAudio.setButtonText("Mute");
 //	addAndMakeVisible(&muteAudio);
 	muteAudio.addListener(this);
@@ -338,6 +356,9 @@ void PinkTromboneAudioProcessorEditor::resized()
                          exponentDialHeight);
     
     // Tract UI
+	
+	breathFactor.setBounds (135, 60, 75, 100);
+	
 	tongueX.setBounds (0, 140, 65, 45);
 	tongueXMod.setBounds (50, 152.5, 80, 20);
 	tongueXModVal.setBounds (110, 140, 65, 45);
@@ -378,7 +399,7 @@ void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
 	processor.adsrParams.sustain = sustainSlider.getValue()/100;
 	processor.adsrParams.release = releaseSlider.getValue()/1000;
 	processor.adsrParams.releaseExp = releaseExp.getValue();
-	
+
     processor.tongueXMod->modulationAtIndex(0)->scale = tongueXModVal.getValue() / 100;
     processor.tongueYMod->modulationAtIndex(0)->scale = tongueYModVal.getValue() / 100;
     processor.constrictionXMod->modulationAtIndex(0)->scale = constrictionXModVal.getValue() / 100;
@@ -390,6 +411,7 @@ void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
         processor.setNoseLength(extraNoseLength.getValue(), 1);
         processor.setNoseAttachment(extraNoseAttachment.getValue(), 1);
     }
+	processor.updateBreathFactor(1.5 * breathFactor.getValue() + 0.25);
 }
 
 void PinkTromboneAudioProcessorEditor::buttonClicked(Button *button) { }

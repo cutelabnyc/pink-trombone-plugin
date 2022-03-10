@@ -68,6 +68,9 @@ private:
 	Slider extraNoseAttachment;
 	Label extraNoseAttachmentLabel;
 	
+	Slider breathFactor;
+	Slider sexFactor;
+	
 	ToggleButton muteAudio;
 	ToggleButton tongueXMod;
 	ToggleButton tongueYMod;

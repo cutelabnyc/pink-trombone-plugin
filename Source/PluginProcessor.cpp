@@ -46,6 +46,7 @@ PinkTromboneAudioProcessor::PinkTromboneAudioProcessor()
 													 0.0f,   // minimum value
 													 1.0f,   // maximum value
 													 1.0f)); // default value
+
     tongueXMod = new ModulatableAudioParameter(tongueX);
     tongueYMod = new ModulatableAudioParameter(tongueY);
     constrictionXMod = new ModulatableAudioParameter(constrictionX);
@@ -55,8 +56,6 @@ PinkTromboneAudioProcessor::PinkTromboneAudioProcessor()
     tongueYMod->appendModulationSource(&adsr);
     constrictionXMod->appendModulationSource(&adsr);
     constrictionYMod->appendModulationSource(&adsr);
-    
-	initializeTractProps(&this->tractProps, 44);
 	
 	instrument.enableLegacyMode (24);
 	instrument.addListener(this);
@@ -391,6 +390,15 @@ void PinkTromboneAudioProcessor::setExtraNose(bool extraNose)
 {
 	this->extraNose = extraNose;
 	this->tract->setExtraNose(extraNose);
+}
+
+void PinkTromboneAudioProcessor::updateBreathFactor(double breathFactor)
+{
+	
+	for (int i=0; i<this->numVoices+1; i++)
+	{
+		glottises[i]->setBreathFactor(breathFactor);
+	}
 }
 
 //==============================================================================

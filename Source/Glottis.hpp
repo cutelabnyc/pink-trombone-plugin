@@ -21,8 +21,10 @@ public:
 	void setFrequency(double midiNoteInHz);
 	void setVoicing(bool voice);
 	void setActive(bool active);
+	void setBreathFactor(double breathFactor);
 	bool isActive = false;
 	bool alwaysVoice;
+	double breathFactor = 1;
 	
 private:
 	void setupWaveform(double lambda);

@@ -39,10 +39,17 @@ void Glottis::setupWaveform(double lambda)
 	//this->frequency = this->oldFrequency * (1 - lambda) + this->newFrequency * lambda;
 	double tenseness = this->oldTenseness * (1 - lambda) + this->newTenseness * lambda;
 	this->Rd = 3 * (1 - tenseness);
+	
+	if (this->breathFactor < 1) this->Rd -= (1 - this->breathFactor);
+	else this->Rd += (this->breathFactor - 1);
+//	this->Rd *= this->breathFactor;
 	this->waveformLength = 1.0 / this->frequency;
 	
 	double Rd = this->Rd;
-	if (Rd < 0.5) Rd = 0.5;
+	if (Rd < 0.5) {
+		if (this->breathFactor >= 0.5) Rd = 0.5;
+		else if (Rd < 0.25) Rd = 0.25;
+	}
 	if (Rd > 2.7) Rd = 2.7;
 	// normalized to time = 1, Ee = 1
 	double Ra = -0.01 + 0.048 * Rd;
@@ -167,4 +174,9 @@ void Glottis::setVoicing(bool voice)
 void Glottis::setActive(bool active)
 {
 	this->isActive = active;
+}
+
+void Glottis::setBreathFactor(double breathFactor)
+{
+	this->breathFactor = breathFactor;
 }
