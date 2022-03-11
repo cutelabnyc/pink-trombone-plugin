@@ -38,27 +38,47 @@ void Glottis::setupWaveform(double lambda)
 {
 	//this->frequency = this->oldFrequency * (1 - lambda) + this->newFrequency * lambda;
 	double tenseness = this->oldTenseness * (1 - lambda) + this->newTenseness * lambda;
-	this->Rd = 3 * (1 - tenseness);
+	double calculatedRd = 3 * (1 - tenseness);
 	
-	if (this->breathFactor < 1) this->Rd -= (1 - this->breathFactor);
-	else this->Rd += (this->breathFactor - 1);
-//	this->Rd *= this->breathFactor;
+	double fluctuation = calculatedRd - 1;
+	if (fluctuation > 0.3) fluctuation = 0.3;
+	else if (fluctuation < -0.3) fluctuation = -0.3;
+	
+	double Rd = this->Rd + fluctuation;
+	
 	this->waveformLength = 1.0 / this->frequency;
-	
-	double Rd = this->Rd;
+
 	if (Rd < 0.5) {
-		if (this->breathFactor >= 0.5) Rd = 0.5;
+		if (this->Rd >= 0.5) Rd = 0.5;
 		else if (Rd < 0.25) Rd = 0.25;
 	}
 	if (Rd > 2.7) Rd = 2.7;
+
 	// normalized to time = 1, Ee = 1
 	double Ra = -0.01 + 0.048 * Rd;
 	double Rk = 0.224 + 0.118 * Rd;
 	double Rg = (Rk / 4) * (0.5 + 1.2 * Rk) / (0.11 * Rd - Ra * (0.5 + 1.2 * Rk));
 	
-	double Ta = Ra;
-	double Tp = 1 / (2.0 * Rg);
+	double Ta;  //+0.03
+	double Tp = 1 / (2.0 * Rg); //-.05
 	double Te = Tp + Tp * Rk;
+
+	Ta = Ra + (1.7 * this->sexOffset/5); //+~0.06
+	if (this->Rd >= 1) {
+		Tp -= this->sexOffset/3;
+		Te -= this->sexOffset;
+	}
+	else {
+		Ta = Ra - (1-this->Rd)*(this->sexOffset/7);  //-0.045
+		Tp += this->sexOffset;
+		Te += this->sexOffset;
+	}
+	if(Ta > 0.1) Ta = 0.1;
+	if(Ta < 0.01) Ta = 0.01;
+
+//	double Ta = 0.01; //0.1;
+//	double Tp = 0.48; //0.48
+//	double Te = 0.6;  //0.6
 	
 	double epsilon = 1 / Ta;
 	double shift = exp(-epsilon * (1 - Te));
@@ -178,5 +198,10 @@ void Glottis::setActive(bool active)
 
 void Glottis::setBreathFactor(double breathFactor)
 {
-	this->breathFactor = breathFactor;
+	this->Rd = breathFactor;
+}
+
+void Glottis::setSexOffset(double sexOffset)
+{
+	this->sexOffset = sexOffset;
 }

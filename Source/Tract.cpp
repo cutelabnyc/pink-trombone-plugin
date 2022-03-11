@@ -449,3 +449,7 @@ void Tract::runStep(double glottalOutput, double turbulenceNoise, double lambda,
         this->noseOutputs[j] = this->noses[j].noseR[this->tractProps->noseProps[j].length - 1];
     }
 }
+
+void Tract::updateTractLength(int tractLength){
+	this->tractProps->n = tractLength;
+}

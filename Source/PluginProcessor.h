@@ -76,6 +76,7 @@ public:
 	void setNoseAttachment(float noseAttachment, int index);
 	void setExtraNose(bool extraNose);
 	void updateBreathFactor(double breathFactor);
+	void updateSex(double sexFactor);
 
 	
 	//=== Audio Parameters

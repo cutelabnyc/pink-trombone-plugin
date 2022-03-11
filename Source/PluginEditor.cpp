@@ -195,11 +195,11 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	breathFactor.addListener(this);
 	
 	sexFactor.setSliderStyle (Slider::LinearVertical);
-	sexFactor.setRange(0, 1, 0.1);
+	sexFactor.setRange(0, 1, 0.2);
 	sexFactor.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
 	sexFactor.setPopupDisplayEnabled (true, true, this);
 	sexFactor.setTextValueSuffix (" Sex");
-	sexFactor.setValue(0.5);
+	sexFactor.setValue(0);
 	addAndMakeVisible (&sexFactor);
 	sexFactor.addListener(this);
 	
@@ -358,6 +358,7 @@ void PinkTromboneAudioProcessorEditor::resized()
     // Tract UI
 	
 	breathFactor.setBounds (135, 60, 75, 100);
+	sexFactor.setBounds (135, 200, 75, 100);
 	
 	tongueX.setBounds (0, 140, 65, 45);
 	tongueXMod.setBounds (50, 152.5, 80, 20);
@@ -412,6 +413,7 @@ void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
         processor.setNoseAttachment(extraNoseAttachment.getValue(), 1);
     }
 	processor.updateBreathFactor(1.5 * breathFactor.getValue() + 0.25);
+	processor.updateSex(sexFactor.getValue());
 }
 
 void PinkTromboneAudioProcessorEditor::buttonClicked(Button *button) { }

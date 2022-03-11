@@ -73,6 +73,7 @@ public:
 	long getTractIndexCount();
 	long tongueIndexLowerBound();
 	long tongueIndexUpperBound();
+	void updateTractLength(int tractLength);
 	
 private:
 	void init();

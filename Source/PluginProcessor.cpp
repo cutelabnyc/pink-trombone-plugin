@@ -57,6 +57,8 @@ PinkTromboneAudioProcessor::PinkTromboneAudioProcessor()
     constrictionXMod->appendModulationSource(&adsr);
     constrictionYMod->appendModulationSource(&adsr);
 	
+	initializeTractProps(&this->tractProps, 44);
+	
 	instrument.enableLegacyMode (24);
 	instrument.addListener(this);
 }
@@ -319,6 +321,7 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 
 void PinkTromboneAudioProcessor::noteAdded(MPENote newNote)
 {
+	DBG("NOTE ON");
 	double midiNoteInHz = newNote.getFrequencyInHertz();
 	bool firstNote;
 	this->noteOn = true;
@@ -398,6 +401,18 @@ void PinkTromboneAudioProcessor::updateBreathFactor(double breathFactor)
 	for (int i=0; i<this->numVoices+1; i++)
 	{
 		glottises[i]->setBreathFactor(breathFactor);
+	}
+}
+
+void PinkTromboneAudioProcessor::updateSex(double sexFactor)
+{
+	int tractLength = 44 - 5 * sexFactor;
+	double sexOffset = sexFactor/10 + 0.05; //0.15 for women
+	
+	this->tract->updateTractLength(tractLength);
+	for (int i=0; i<this->numVoices+1; i++)
+	{
+		glottises[i]->setSexOffset(sexOffset);
 	}
 }
 
