@@ -16,12 +16,9 @@
 #include "WhiteNoise.hpp"
 #include "Biquad.hpp"
 #include "PinkTromboneADSR.hpp"
+#include "Modulatable.h"
 #include <math.h>
 #include <map>
-
-
-
-
 
 //==============================================================================
 /**
@@ -75,39 +72,22 @@ public:
 	bool muteAudio = false;
 	double constrictionMin = -2.0;
 	double constrictionMax = 2.0;
-	double VOT;
 	double sampleRate;
 	int voicingCounter = 0;
 	int numVoices = 11;
 	bool noteOn;
 	bool noteOff;
-	bool envelope = false;
 	bool breath = false;
-	
-	bool tongueXMod;
-	bool tongueYMod;
-	bool constrictionXMod;
-	bool constrictionYMod;
-	
-	float tongueXModulation;
-	float tongueYModulation;
-	float constrictionXModulation;
-	float constrictionYModulation;
-	
-	float tongueXModVal;
-	float tongueYModVal;
-	float constrictionXModVal;
-	float constrictionYModVal;
-	
-	float restTongueX;
-	float restTongueY;
-	float restConstrictionX;
-	float restConstrictionY;
 	
 	AudioParameterFloat* tongueX;
 	AudioParameterFloat* tongueY;
 	AudioParameterFloat* constrictionX;
 	AudioParameterFloat* constrictionY;
+    
+    ModulatableAudioParameter* tongueXMod;
+    ModulatableAudioParameter* tongueYMod;
+    ModulatableAudioParameter* constrictionXMod;
+    ModulatableAudioParameter* constrictionYMod;
 	
 	PinkTromboneADSR adsr;
 	PinkTromboneADSR::Parameters adsrParams;
@@ -118,7 +98,6 @@ private:
 	MPEInstrument instrument;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PinkTromboneAudioProcessor)
-	void applyEnvelope(float sampleVal);
 	void applyVoicing();
 	
 	std::map<uint16, Glottis*> glottisMap;

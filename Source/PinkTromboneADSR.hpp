@@ -9,12 +9,14 @@
 #define PinkTromboneADSR_hpp
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "ModulationSource.h"
 #include <math.h>
 
-class PinkTromboneADSR
+class PinkTromboneADSR: public ModulationSource<float>
 {
 public:
     PinkTromboneADSR();
+    virtual ~PinkTromboneADSR() = default;
     
     enum class State { IDLE, ATTACK, DECAY, SUSTAIN, RELEASE };
 
@@ -35,7 +37,8 @@ public:
     void reset() noexcept;
     void noteOn() noexcept;
     void noteOff() noexcept;
-    float getNextSample() noexcept;
+    void advanceOneSample() noexcept;
+    float value() override;
 
 private:
     void advanceState() noexcept;
@@ -56,6 +59,7 @@ private:
     float attackRate = 0.0f;
     float decayRate = 0.0f;
     float releaseRate = 0.0f;
+    float _value = 0.0f;
 };
 
 #endif /* PinkTromboneADSR_hpp */

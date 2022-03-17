@@ -17,12 +17,12 @@
 PinkTromboneAudioProcessor::PinkTromboneAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
+#if ! JucePlugin_IsMidiEffect
+    #if ! JucePlugin_IsSynth
                        .withInput  ("Input",  AudioChannelSet::stereo(), true)
-                      #endif
+    #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
-                     #endif
+    #endif
                        )
 #endif
 {
@@ -46,6 +46,16 @@ PinkTromboneAudioProcessor::PinkTromboneAudioProcessor()
 													 0.0f,   // minimum value
 													 1.0f,   // maximum value
 													 1.0f)); // default value
+    tongueXMod = new ModulatableAudioParameter(tongueX);
+    tongueYMod = new ModulatableAudioParameter(tongueY);
+    constrictionXMod = new ModulatableAudioParameter(constrictionX);
+    constrictionYMod = new ModulatableAudioParameter(constrictionY);
+    
+    tongueXMod->appendModulationSource(&adsr);
+    tongueYMod->appendModulationSource(&adsr);
+    constrictionXMod->appendModulationSource(&adsr);
+    constrictionYMod->appendModulationSource(&adsr);
+    
 	initializeTractProps(&this->tractProps, 44);
 	
 	instrument.enableLegacyMode (24);
@@ -54,6 +64,10 @@ PinkTromboneAudioProcessor::PinkTromboneAudioProcessor()
 
 PinkTromboneAudioProcessor::~PinkTromboneAudioProcessor()
 {
+    delete tongueXMod;
+    delete tongueYMod;
+    delete constrictionXMod;
+    delete constrictionYMod;
 }
 
 //==============================================================================
@@ -197,7 +211,7 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		instrument.processNextMidiEvent(currentMessage);
 	}
 	
-	if(this->envelope && !adsr.isActive() && this->noteOff)
+	if(!adsr.isActive() && this->noteOff)
 	{
 		this->voicingCounter = 0;
 		this->noteOff = false;
@@ -247,7 +261,7 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		this->tract->runStep(glotSum, fri, lambda2, glotModulatorSum);
 		vocalOutput += this->tract->lipOutput + this->tract->noseOutput;
 
-		this->applyEnvelope(adsr.getNextSample());
+        adsr.advanceOneSample();
 		this->applyVoicing();
 		
 		channelData[j] = vocalOutput * 0.125;
@@ -265,10 +279,14 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 	double innerTongueControlRadius = 2.05;
 	double outerTongueControlRadius = 3.5;
 	
-	double tongueIndex = (*tongueX + this->tongueXModulation) * ((double) (this->tract->tongueIndexUpperBound() - this->tract->tongueIndexLowerBound())) + this->tract->tongueIndexLowerBound();
-	double tongueDiameter = (*tongueY + this->tongueYModulation) * (outerTongueControlRadius - innerTongueControlRadius) + innerTongueControlRadius;
-	double constrictionIndex = (*constrictionX + this->constrictionXModulation) * (double) this->tract->getTractIndexCount();
-	double constrictionDiameter = ((*constrictionY + this->constrictionYModulation)/2 + 0.5) * (this->constrictionMax - this->constrictionMin) + this->constrictionMin;
+    double tongueIndex =
+        this->tongueXMod->value() *
+        ((double) (this->tract->tongueIndexUpperBound() - this->tract->tongueIndexLowerBound())) + this->tract->tongueIndexLowerBound();
+    double tongueDiameter =
+        this->tongueYMod->value() *
+        (outerTongueControlRadius - innerTongueControlRadius) + innerTongueControlRadius;
+	double constrictionIndex = this->constrictionXMod->value() * (double) this->tract->getTractIndexCount();
+	double constrictionDiameter = (this->constrictionYMod->value()/2 + 0.5) * (this->constrictionMax - this->constrictionMin) + this->constrictionMin;
 	//(constrictionY/2 + 0.5) is to adjust for diameter range since we are not implementing nasal cavity atm i.e. 0->1 UI range is really 0.5->1
 	
 	this->fricativeIntensity += 0.1; // TODO ex recto
@@ -310,55 +328,29 @@ void PinkTromboneAudioProcessor::noteAdded(MPENote newNote)
 			if(firstNote){
 				this->voicingCounter = 0;
 			}
-			else if (this->voicingCounter >= this->VOT*this->sampleRate) glottises[i]->setVoicing(true);
 			break;
 		}
 	}
-	
-	if(this->envelope)
-		adsr.noteOn();
+    adsr.noteOn();
 }
 
 void PinkTromboneAudioProcessor::noteReleased(MPENote finishedNote)
 {
 	std::map<uint16, Glottis*>::iterator glotOff = this->glottisMap.find(finishedNote.noteID);
 	glotOff->second->setActive(false);
-	if (!this->envelope || this->glottisMap.size()>1) glotOff->second->setVoicing(false);
+	if (this->glottisMap.size()>1) glotOff->second->setVoicing(false);
 	this->glottisMap.erase(finishedNote.noteID);
 	
 	if(this->glottisMap.empty()) {
 		this->noteOn = false;
-		
-		if(this->envelope)
-		{
-			this->noteOff = true;
-			adsr.noteOff();
-		}
-		else if (!this->envelope)
-		{
-			this->voicingCounter = 0;
-		}
+        this->noteOff = true;
+        adsr.noteOff();
 	}
-}
-
-void PinkTromboneAudioProcessor::applyEnvelope(float sampleVal)
-{
-	if(this->tongueXMod) this->tongueXModulation = (this->tongueXModVal - this->restTongueX)*sampleVal;
-	else this->tongueXModulation = 0.0;
-
-	if(this->tongueYMod) this->tongueYModulation = (this->tongueYModVal - this->restTongueY)*sampleVal;
-	else this->tongueYModulation = 0.0;
-
-	if(this->constrictionXMod) this->constrictionXModulation = (this->constrictionXModVal - this->restConstrictionX)*sampleVal;
-	else this->constrictionXModulation = 0.0;
-
-	if(this->constrictionYMod) this->constrictionYModulation = (this->constrictionYModVal - this->restConstrictionY)*sampleVal;
-	else this->constrictionYModulation = 0.0;
 }
 
 void PinkTromboneAudioProcessor::applyVoicing()
 {
-	if (this->voicingCounter == this->VOT*this->sampleRate)
+	if (this->voicingCounter == 0)
 	{
 		std::map<uint16, Glottis*>::iterator it = glottisMap.begin();
 		for (; it != glottisMap.end(); it++)

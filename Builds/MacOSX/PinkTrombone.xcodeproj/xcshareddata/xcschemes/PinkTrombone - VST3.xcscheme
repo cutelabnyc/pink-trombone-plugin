@@ -42,7 +42,8 @@
       allowLocationSimulation = "YES">
       <PathRunnable
          runnableDebuggingMode = "0"
-         FilePath = "/Applications/REAPER.app">
+         BundleIdentifier = "com.cycling74.Max"
+         FilePath = "/Applications/Max.app">
       </PathRunnable>
    </LaunchAction>
    <ProfileAction
@@ -51,15 +52,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "37E3F62AEDAE820F0415C78B"
-            BuildableName = "PinkTrombone.vst3"
-            BlueprintName = "PinkTrombone - VST3"
+            BlueprintIdentifier = "0E35F1B2ACDFA575BC3F8F22"
+            BuildableName = "PinkTrombone.app"
+            BlueprintName = "PinkTrombone - Standalone Plugin"
             ReferencedContainer = "container:PinkTrombone.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

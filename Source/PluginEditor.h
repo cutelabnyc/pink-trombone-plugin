@@ -45,18 +45,20 @@ private:
 	Slider constrictionY;
 	Slider constrictionYModVal;
 	
-	Slider VOT;
-	
-	Slider decayLength;
-	Slider decayExp;
-	Slider attackLength;
+    // Envelope
+	Slider attackSlider;
+    Label attackLabel;
 	Slider attackExp;
-	Slider sustain;
-	Slider releaseLength;
+    Slider decaySlider;
+    Label decayLabel;
+    Slider decayExp;
+	Slider sustainSlider;
+    Label sustainLabel;
+	Slider releaseSlider;
+    Label releaseLabel;
 	Slider releaseExp;
 	
 	ToggleButton muteAudio;
-	ToggleButton envelope;
 	ToggleButton tongueXMod;
 	ToggleButton tongueYMod;
 	ToggleButton constrictionXMod;
