@@ -65,6 +65,12 @@ public:
 	
 	void noteAdded (MPENote newNote) override;
 	void noteReleased (MPENote finishedNote) override;
+	
+	void openNose(bool openNose);
+	void setNoseLength(float noseLength, float extraNoseLength);
+	void setNoseAttachment(float noseAttachment, float extraNoseAttachment);
+	void setExtraNose(bool extraNose);
+	void setUINose(int noseID);
 
 	
 	//=== Audio Parameters
@@ -78,6 +84,8 @@ public:
 	bool noteOn;
 	bool noteOff;
 	bool breath = false;
+	bool extraNose;
+	int UINose;
 	
 	AudioParameterFloat* tongueX;
 	AudioParameterFloat* tongueY;

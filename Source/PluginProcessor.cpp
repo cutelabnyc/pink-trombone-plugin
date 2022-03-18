@@ -257,9 +257,12 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		}
 		double vocalOutput = 0.0;
 		this->tract->runStep(glotSum, fri, lambda1, glotModulatorSum);
-		vocalOutput += this->tract->lipOutput + this->tract->noseOutput;
+		if(this->extraNose) vocalOutput += this->tract->lipOutput + this->tract->noseOutput + this->tract->extraNoseOutput;
+		else vocalOutput += this->tract->lipOutput + this->tract->noseOutput;
+		
 		this->tract->runStep(glotSum, fri, lambda2, glotModulatorSum);
-		vocalOutput += this->tract->lipOutput + this->tract->noseOutput;
+		if(this->extraNose) vocalOutput += this->tract->lipOutput + this->tract->noseOutput + this->tract->extraNoseOutput;
+		else vocalOutput += this->tract->lipOutput + this->tract->noseOutput;
 
         adsr.advanceOneSample();
 		this->applyVoicing();
@@ -361,6 +364,36 @@ void PinkTromboneAudioProcessor::applyVoicing()
 	}
 	else
 		this->voicingCounter += 1;
+}
+
+void PinkTromboneAudioProcessor::openNose(bool openNose)
+{
+	this->tract->openNose(openNose);
+}
+
+void PinkTromboneAudioProcessor::setNoseLength(float noseLength, float extraNoseLength)
+{
+	double noseLengthValue = 5 + 39 * noseLength;
+	double extraNoseLengthValue = 5 + 39 * extraNoseLength;
+	this->tract->setNoseLength(noseLengthValue, extraNoseLengthValue);
+}
+
+void PinkTromboneAudioProcessor::setNoseAttachment(float noseAttachment, float extraNoseAttachment)
+{
+	double noseAttachmentValue = 1 + 42 * noseAttachment;
+	double extraNoseAttachmentValue = 1 + 42 * extraNoseAttachment;
+	this->tract->setNoseAttachment(noseAttachmentValue, extraNoseAttachmentValue);
+}
+
+void PinkTromboneAudioProcessor::setExtraNose(bool extraNose)
+{
+	this->extraNose = extraNose;
+	this->tract->setExtraNose(extraNose);
+}
+
+void PinkTromboneAudioProcessor::setUINose(int noseID)
+{
+	this->UINose = noseID;
 }
 
 //==============================================================================

@@ -28,6 +28,11 @@ typedef struct t_tractProps {
 	double *tractDiameter;
 	double *maxAmplitude;
 	double *noseMaxAmplitude;
+	
+	int extraNoseStart;
+	int extraNoseLength;
+	double *extraNoseDiameter;
+	double *extraNoseMaxAmplitude;
 } t_tractProps;
 
 void initializeTractProps(t_tractProps *props, int n);
@@ -41,8 +46,14 @@ public:
 	void finishBlock();
 	void setRestDiameter(double tongueIndex, double tongueDiameter);
 	void setConstriction(double cindex, double cdiam, double fricativeIntensity);
+	void openNose(bool openNose);
+	void setNoseLength(double noseLength, double extraNoseLength);
+	void setNoseAttachment(double noseAttachment, double extraNoseAttachment);
+	void setExtraNose(bool extraNose);
 	double lipOutput;
 	double noseOutput;
+	double extraNoseOutput;
+	bool extraNose;
 	
 	long getTractIndexCount();
 	long tongueIndexLowerBound();
@@ -90,8 +101,18 @@ private:
 	double *noseDiameter;
 	double *noseA;
 	
+	double *extraNoseR;
+	double *extraNoseL;
+	double *extraNoseJunctionOutputR;
+	double *extraNoseJunctionOutputL;
+	double *extraNoseReflection;
+	double *extraNoseDiameter;
+	double *extraNoseA;
+	
 	double reflectionLeft, reflectionRight, reflectionNose;
+	double extraReflectionLeft, extraReflectionRight, reflectionExtraNose;
 	double newReflectionLeft, newReflectionRight, newReflectionNose;
+	double newExtraReflectionLeft, newExtraReflectionRight, newReflectionExtraNose;
 	
 	double constrictionIndex;
 	double constrictionDiameter;
