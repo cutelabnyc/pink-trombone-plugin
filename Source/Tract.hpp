@@ -12,28 +12,44 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Glottis.hpp"
 
+#define MAX_NOSES (2)
+
 struct t_transient;
+
+typedef struct t_noseProps {
+    int start;
+    int length;
+    double *diameter;
+    double *maxAmplitude;
+} t_noseProps;
 
 typedef struct t_tractProps {
 	int n;
 	int lipStart;
 	int bladeStart;
 	int tipStart;
-	int noseStart;
-	int noseLength;
 	double noseOffset;
 	double tongueIndex;
 	double tongueDiameter;
-	double *noseDiameter;
 	double *tractDiameter;
 	double *maxAmplitude;
-	double *noseMaxAmplitude;
-	
-	int extraNoseStart;
-	int extraNoseLength;
-	double *extraNoseDiameter;
-	double *extraNoseMaxAmplitude;
+    t_noseProps *noseProps;
 } t_tractProps;
+
+typedef struct t_nose {
+    double *noseR;
+    double *noseL;
+    double *noseJunctionOutputR;
+    double *noseJunctionOutputL;
+    double *noseReflection;
+    double *noseDiameter;
+    double *noseA;
+} t_nose;
+
+typedef struct t_reflections {
+    double reflectionLeft, reflectionRight, reflectionNose;
+    double newReflectionLeft, newReflectionRight, newReflectionNose;
+} t_reflections;
 
 void initializeTractProps(t_tractProps *props, int n);
 
@@ -47,12 +63,11 @@ public:
 	void setRestDiameter(double tongueIndex, double tongueDiameter);
 	void setConstriction(double cindex, double cdiam, double fricativeIntensity);
 	void openNose(bool openNose);
-	void setNoseLength(double noseLength, double extraNoseLength);
-	void setNoseAttachment(double noseAttachment, double extraNoseAttachment);
+	void setNoseLength(double noseLength, int index);
+	void setNoseAttachment(double noseAttachment, int index);
 	void setExtraNose(bool extraNose);
 	double lipOutput;
-	double noseOutput;
-	double extraNoseOutput;
+	double *noseOutputs;
 	bool extraNose;
 	
 	long getTractIndexCount();
@@ -93,26 +108,8 @@ private:
 	double *junctionOutputL;
 	double *A;
 	
-	double *noseR;
-	double *noseL;
-	double *noseJunctionOutputR;
-	double *noseJunctionOutputL;
-	double *noseReflection;
-	double *noseDiameter;
-	double *noseA;
-	
-	double *extraNoseR;
-	double *extraNoseL;
-	double *extraNoseJunctionOutputR;
-	double *extraNoseJunctionOutputL;
-	double *extraNoseReflection;
-	double *extraNoseDiameter;
-	double *extraNoseA;
-	
-	double reflectionLeft, reflectionRight, reflectionNose;
-	double extraReflectionLeft, extraReflectionRight, reflectionExtraNose;
-	double newReflectionLeft, newReflectionRight, newReflectionNose;
-	double newExtraReflectionLeft, newExtraReflectionRight, newReflectionExtraNose;
+    t_nose *noses;
+    t_reflections *reflections;
 	
 	double constrictionIndex;
 	double constrictionDiameter;

@@ -32,22 +32,20 @@ void initializeTractProps(t_tractProps *props, int n)
 	props->tongueIndex = props->bladeStart;
 	props->tongueDiameter = 3.5;
 	props->tractDiameter = (double *) calloc(n, sizeof(double));
-	props->noseLength = (int) floor(28.0 * (double) props->n / 44.0);
-	props->noseDiameter = (double *) calloc(props->n, sizeof(double));
-	props->noseStart = props->n - props->noseLength + 1; // =17 for n =44
 	props->noseOffset = 0.8;
 	props->maxAmplitude = (double *) calloc(n, sizeof(double));
-	props->noseMaxAmplitude = (double *) calloc(props->n, sizeof(double));
-	
-	props->extraNoseLength = (int) floor(28.0 * (double) props->n / 44.0);
-	props->extraNoseDiameter = (double *) calloc(props->n, sizeof(double));
-	props->extraNoseStart = props->n - props->noseLength + 1; // =17 for n =44
-	props->extraNoseMaxAmplitude = (double *) calloc(props->n, sizeof(double));
+    
+    props->noseProps = (t_noseProps *) calloc(MAX_NOSES, sizeof(t_noseProps));
+    for (int i = 0; i < MAX_NOSES; i++) {
+        props->noseProps[i].length = (int) floor(28.0 * (double) props->n / 44.0);
+        props->noseProps[i].diameter = (double *) calloc(props->n, sizeof(double));
+        props->noseProps[i].start = props->n - props->noseProps->length + 1; // =17 for n =44
+        props->noseProps[i].maxAmplitude = (double *) calloc(props->n, sizeof(double));
+    }
 }
 
 Tract::Tract(double sampleRate, double blockTime, t_tractProps *props):
 	lipOutput(0),
-	noseOutput(0),
 	glottalReflection(0.75),
 	lipReflection(-0.85),
 	lastObstruction(-1),
@@ -62,6 +60,7 @@ Tract::Tract(double sampleRate, double blockTime, t_tractProps *props):
 	this->transients = (t_transient *) calloc(MAX_TRANSIENTS, sizeof(t_transient));
 	this->transientCount = 0;
 	this->tractProps = props;
+    this->noseOutputs = (double *) calloc(MAX_NOSES, sizeof(double));
 	this->init();
 }
 
@@ -86,49 +85,37 @@ void Tract::init() {
 	this->junctionOutputL = (double *) calloc(this->tractProps->n + 1, sizeof(double));
 	this->A = (double *) calloc(this->tractProps->n, sizeof(double));
 	
-	this->noseR = (double *) calloc(this->tractProps->n, sizeof(double));
-	this->noseL = (double *) calloc(this->tractProps->n, sizeof(double));
-	this->noseJunctionOutputR = (double *) calloc(this->tractProps->n + 1, sizeof(double));
-	this->noseJunctionOutputL = (double *) calloc(this->tractProps->n + 1, sizeof(double));
-	this->noseReflection = (double *) calloc(this->tractProps->n + 1, sizeof(double));
-	this->noseDiameter = (double *) calloc(this->tractProps->n, sizeof(double));
-	this->noseA = (double *) calloc(this->tractProps->n, sizeof(double));
-	for (int i = 0; i < this->tractProps->noseLength; i++)
-	{
-		double diameter;
-		double d = 2.0 * ((double) i / (double) this->tractProps->noseLength);
-		if (d < 1.0) diameter = 0.4 + 1.6 * d;
-		else diameter = 0.5 + 1.5 * (2.0 - d);
-		diameter = fmin(diameter, 1.9);
-		this->noseDiameter[i] = diameter;
-	}
-	
-	this->extraNoseR = (double *) calloc(this->tractProps->n, sizeof(double));
-	this->extraNoseL = (double *) calloc(this->tractProps->n, sizeof(double));
-	this->extraNoseJunctionOutputR = (double *) calloc(this->tractProps->n + 1, sizeof(double));
-	this->extraNoseJunctionOutputL = (double *) calloc(this->tractProps->n + 1, sizeof(double));
-	this->extraNoseReflection = (double *) calloc(this->tractProps->n + 1, sizeof(double));
-	this->extraNoseDiameter = (double *) calloc(this->tractProps->n, sizeof(double));
-	this->extraNoseA = (double *) calloc(this->tractProps->n, sizeof(double));
-	for (int i = 0; i < this->tractProps->extraNoseLength; i++)
-	{
-		double diameter;
-		double d = 2.0 * ((double) i / (double) this->tractProps->extraNoseLength);
-		if (d < 1.0) diameter = 0.4 + 1.6 * d;
-		else diameter = 0.5 + 1.5 * (2.0 - d);
-		diameter = fmin(diameter, 1.9);
-		this->extraNoseDiameter[i] = diameter;
-	}
-	
-	this->newReflectionLeft = this->newReflectionRight = this->newReflectionNose = 0.0;
-	this->newExtraReflectionLeft = this->newExtraReflectionRight = this->newReflectionExtraNose = 0.0;
-	this->calculateReflections();
-	this->calculateNoseReflections();
-	this->noseDiameter[0] = this->velumTarget;
-	this->extraNoseDiameter[0] = this->velumTarget;
-	memcpy(this->tractProps->tractDiameter, this->diameter, sizeof(double) * this->tractProps->n);
-	memcpy(this->tractProps->noseDiameter, this->noseDiameter, sizeof(double) * this->tractProps->n);
-	memcpy(this->tractProps->extraNoseDiameter, this->extraNoseDiameter, sizeof(double) * this->tractProps->n);
+    this->noses = (t_nose *) calloc(MAX_NOSES, sizeof(t_nose));
+    for (int j = 0; j < MAX_NOSES; j++) {
+        this->noses[j].noseR = (double *) calloc(this->tractProps->n, sizeof(double));
+        this->noses[j].noseL = (double *) calloc(this->tractProps->n, sizeof(double));
+        this->noses[j].noseJunctionOutputR = (double *) calloc(this->tractProps->n + 1, sizeof(double));
+        this->noses[j].noseJunctionOutputL = (double *) calloc(this->tractProps->n + 1, sizeof(double));
+        this->noses[j].noseReflection = (double *) calloc(this->tractProps->n + 1, sizeof(double));
+        this->noses[j].noseDiameter = (double *) calloc(this->tractProps->n, sizeof(double));
+        this->noses[j].noseA = (double *) calloc(this->tractProps->n, sizeof(double));
+        
+        for (int i = 0; i < this->tractProps->noseProps[j].length; i++)
+        {
+            double diameter;
+            double d = 2.0 * ((double) i / (double) this->tractProps->noseProps[j].length);
+            if (d < 1.0) diameter = 0.4 + 1.6 * d;
+            else diameter = 0.5 + 1.5 * (2.0 - d);
+            diameter = fmin(diameter, 1.9);
+            this->noses[j].noseDiameter[i] = diameter;
+        }
+    }
+    
+    this->reflections = (t_reflections *) calloc(MAX_NOSES, sizeof(t_reflections));
+    for (int j = 0; j < MAX_NOSES; j++) {
+        this->reflections[j].newReflectionLeft = this->reflections[j].newReflectionRight = this->reflections[j].newReflectionNose = 0.0;
+        this->noses[j].noseDiameter[0] = this->velumTarget;
+        memcpy(this->tractProps->noseProps[j].diameter, this->noses[j].noseDiameter, sizeof(double) * this->tractProps->n);
+    }
+    memcpy(this->tractProps->tractDiameter, this->diameter, sizeof(double) * this->tractProps->n);
+    
+    this->calculateReflections();
+    this->calculateNoseReflections();
 }
 
 long Tract::getTractIndexCount()
@@ -206,43 +193,29 @@ void Tract::calculateReflections()
 	}
 	
 	//now at junction with nose
-	this->reflectionLeft = this->newReflectionLeft;
-	this->reflectionRight = this->newReflectionRight;
-	this->reflectionNose = this->newReflectionNose;
-	double sum = this->A[this->tractProps->noseStart] + this->A[this->tractProps->noseStart + 1] + this->noseA[0];
-	this->newReflectionLeft = (2.0 * this->A[this->tractProps->noseStart] - sum) / sum;
-	this->newReflectionRight = (2 * this->A[this->tractProps->noseStart + 1] - sum) / sum;
-	this->newReflectionNose = (2 * this->noseA[0] - sum) / sum;
-	
-	//now at junction with extra nose
-	this->extraReflectionLeft = this->newExtraReflectionLeft;
-	this->extraReflectionRight = this->newExtraReflectionRight;
-	this->reflectionExtraNose = this->newReflectionExtraNose;
-	sum = this->A[this->tractProps->extraNoseStart] + this->A[this->tractProps->extraNoseStart + 1] + this->extraNoseA[0];
-	this->newExtraReflectionLeft = (2.0 * this->A[this->tractProps->extraNoseStart] - sum) / sum;
-	this->newExtraReflectionRight = (2 * this->A[this->tractProps->extraNoseStart + 1] - sum) / sum;
-	this->newReflectionExtraNose = (2 * this->extraNoseA[0] - sum) / sum;
+    for (int j = 0; j < MAX_NOSES; j++) {
+        this->reflections[j].reflectionLeft = this->reflections[j].newReflectionLeft;
+        this->reflections[j].reflectionRight = this->reflections[j].newReflectionRight;
+        this->reflections[j].reflectionNose = this->reflections[j].newReflectionNose;
+        double sum = this->A[this->tractProps->noseProps[j].start] + this->A[this->tractProps->noseProps[j].start + 1] + this->noses[j].noseA[0];
+        this->reflections[j].newReflectionLeft = (2.0 * this->A[this->tractProps->noseProps[j].start] - sum) / sum;
+        this->reflections[j].newReflectionRight = (2 * this->A[this->tractProps->noseProps[j].start + 1] - sum) / sum;
+        this->reflections[j].newReflectionNose = (2 * this->noses[j].noseA[0] - sum) / sum;
+    }
 }
 
 void Tract::calculateNoseReflections()
 {
-	for (int i = 0; i < this->tractProps->noseLength; i++)
-	{
-		this->noseA[i] = this->noseDiameter[i] * this->noseDiameter[i];
-	}
-	for (int i = 1; i < this->tractProps->noseLength; i++)
-	{
-		this->noseReflection[i] = (this->noseA[i - 1] - this->noseA[i]) / (this->noseA[i - 1] + this->noseA[i]);
-	}
-	
-	for (int i = 0; i < this->tractProps->extraNoseLength; i++)
-	{
-		this->extraNoseA[i] = this->extraNoseDiameter[i] * this->extraNoseDiameter[i];
-	}
-	for (int i = 1; i < this->tractProps->extraNoseLength; i++)
-	{
-		this->extraNoseReflection[i] = (this->extraNoseA[i - 1] - this->extraNoseA[i]) / (this->extraNoseA[i - 1] + this->extraNoseA[i]);
-	}
+    for (int j = 0; j < MAX_NOSES; j++) {
+        for (int i = 0; i < this->tractProps->noseProps[j].length; i++)
+        {
+            this->noses[j].noseA[i] = this->noses[j].noseDiameter[i] * this->noses[j].noseDiameter[i];
+        }
+        for (int i = 1; i < this->tractProps->noseProps[j].length; i++)
+        {
+            this->noses[j].noseReflection[i] = (this->noses[j].noseA[i - 1] - this->noses[j].noseA[i]) / (this->noses[j].noseA[i - 1] + this->noses[j].noseA[i]);
+        }
+    }
 }
 
 void Tract::finishBlock()
@@ -250,8 +223,9 @@ void Tract::finishBlock()
 	this->reshapeTract(this->blockTime);
 	this->calculateReflections();
 	memcpy(this->tractProps->tractDiameter, this->diameter, sizeof(double) * this->tractProps->n);
-	memcpy(this->tractProps->noseDiameter, this->noseDiameter, sizeof(double) * this->tractProps->noseLength);
-	memcpy(this->tractProps->extraNoseDiameter, this->extraNoseDiameter, sizeof(double) * this->tractProps->extraNoseLength);
+    for (int j = 0; j < MAX_NOSES; j++) {
+        memcpy(this->tractProps->noseProps[j].diameter, this->noses[j].noseDiameter, sizeof(double) * this->tractProps->noseProps[j].length);
+    }
 }
 
 void Tract::setRestDiameter(double tongueIndex, double tongueDiameter)
@@ -314,46 +288,27 @@ void Tract::openNose(bool openNose)
 	else this->velumTarget = 0.01;
 }
 
-void Tract::setNoseLength(double noseLength, double extraNoseLength)
+void Tract::setNoseLength(double noseLength, int index)
 {
-	this->tractProps->noseLength = (int) floor(noseLength * (double) this->tractProps->n / 44.0);
-	for (int i = 0; i < this->tractProps->noseLength; i++)
-	{
-		double diameter;
-		double d = 2.0 * ((double) i / (double) this->tractProps->noseLength);
-		if (d < 1.0) {
-			diameter = 0.4 + 1.6 * d;
-		}
-		else {
-			diameter = 0.5 + 1.5 * (2.0 - d);
-		}
-		diameter = fmin(diameter, 1.9);
-		this->noseDiameter[i] = diameter;
-	}
-	
-	if (this->extraNose)
-	{
-		this->tractProps->extraNoseLength = (int) floor(extraNoseLength * (double) this->tractProps->n / 44.0);
-		for (int i = 0; i < this->tractProps->extraNoseLength; i++)
-		{
-			double diameter;
-			double d = 2.0 * ((double) i / (double) this->tractProps->extraNoseLength);
-			if (d < 1.0) {
-				diameter = 0.4 + 1.6 * d;
-			}
-			else {
-				diameter = 0.5 + 1.5 * (2.0 - d);
-			}
-			diameter = fmin(diameter, 1.9);
-			this->extraNoseDiameter[i] = diameter;
-		}
-	}
+    this->tractProps->noseProps[index].length = (int) floor(noseLength * (double) this->tractProps->n / 44.0);
+    for (int i = 0; i < this->tractProps->noseProps[index].length; i++)
+    {
+        double diameter;
+        double d = 2.0 * ((double) i / (double) this->tractProps->noseProps[index].length);
+        if (d < 1.0) {
+            diameter = 0.4 + 1.6 * d;
+        }
+        else {
+            diameter = 0.5 + 1.5 * (2.0 - d);
+        }
+        diameter = fmin(diameter, 1.9);
+        this->noses[index].noseDiameter[i] = diameter;
+    }
 }
 
-void Tract::setNoseAttachment(double noseAttachment, double extraNoseAttachment)
+void Tract::setNoseAttachment(double noseAttachment, int index)
 {
-	this->tractProps->noseStart = (int) floor(noseAttachment * (double) this->tractProps->n / 44.0);
-	this->tractProps->extraNoseStart = (int) floor(extraNoseAttachment * (double) this->tractProps->n / 44.0);
+	this->tractProps->noseProps[index].start = (int) floor(noseAttachment * (double) this->tractProps->n / 44.0);
 }
 
 void Tract::setExtraNose(bool extraNose)
@@ -391,25 +346,24 @@ void Tract::reshapeTract(double deltaTime)
 		double targetDiameter = this->targetDiameter[i];
 		if (diameter <= 0) newLastObstruction = i;
 		double slowReturn;
-		if (i < this->tractProps->noseStart) slowReturn = 0.6;
+		if (i < this->tractProps->noseProps[0].start) slowReturn = 0.6;
 		else if (i >= this->tractProps->tipStart) slowReturn = 1.0;
-		else slowReturn = 0.6 + 0.4 * (i - this->tractProps->noseStart) / (this->tractProps->tipStart - this->tractProps->noseStart);
+		else slowReturn = 0.6 + 0.4 * (i - this->tractProps->noseProps[0].start) / (this->tractProps->tipStart - this->tractProps->noseProps[0].start);
 		this->diameter[i] = moveTowards(diameter, targetDiameter, slowReturn*amount, 2*amount);
 	}
-	if (this->lastObstruction > -1 && newLastObstruction == -1 && this->noseA[0]<0.05)
+	if (this->lastObstruction > -1 && newLastObstruction == -1 && this->noses[0].noseA[0]<0.05)
 	{
 		this->addTransient(this->lastObstruction);
 	}
 	this->lastObstruction = newLastObstruction;
 
 	amount = deltaTime * this->movementSpeed;
-	this->noseDiameter[0] = moveTowards(this->noseDiameter[0], this->velumTarget, amount * 0.25, amount * 0.1);
-	this->tractProps->noseDiameter[0] = this->noseDiameter[0];
-	this->noseA[0] = this->noseDiameter[0] * this->noseDiameter[0];
-	
-	this->extraNoseDiameter[0] = moveTowards(this->extraNoseDiameter[0], this->velumTarget, amount * 0.25, amount * 0.1);
-	this->tractProps->extraNoseDiameter[0] = this->extraNoseDiameter[0];
-	this->extraNoseA[0] = this->extraNoseDiameter[0] * this->extraNoseDiameter[0];
+    
+    for (int j = 0; j < MAX_NOSES; j++) {
+        this->noses[j].noseDiameter[0] = moveTowards(this->noses[j].noseDiameter[0], this->velumTarget, amount * 0.25, amount * 0.1);
+        this->tractProps->noseProps[j].diameter[0] = this->noses[j].noseDiameter[0];
+        this->noses[j].noseA[0] = this->noses[j].noseDiameter[0] * this->noses[j].noseDiameter[0];
+    }
 }
 
 void Tract::runStep(double glottalOutput, double turbulenceNoise, double lambda, double glotModulator)
@@ -432,26 +386,16 @@ void Tract::runStep(double glottalOutput, double turbulenceNoise, double lambda,
 		this->junctionOutputL[i] = this->L[i] + w;
 	}
 	
-	//now at junction with nose
-	int i = this->tractProps->noseStart;
-	double r = this->newReflectionLeft * (1 - lambda) + this->reflectionLeft * lambda;
-	this->junctionOutputL[i] = r * this->R[i - 1] + (1 + r) * (this->noseL[0] + this->L[i]);
-	r = this->newReflectionRight * (1 - lambda) + this->reflectionRight * lambda;
-	this->junctionOutputR[i] = r * this->L[i] + (1 + r) * (this->R[i - 1] + this->noseL[0]);
-	r = this->newReflectionNose * (1 - lambda) + this->reflectionNose * lambda;
-	this->noseJunctionOutputR[0] = r * this->noseL[0] + (1 + r) * (this->L[i] + this->R[i - 1]);
-	
-	//now at junction with extra nose
-	if(this->extraNose)
-	{
-		i = this->tractProps->extraNoseStart;
-		r = this->newExtraReflectionLeft * (1 - lambda) + this->extraReflectionLeft * lambda;
-		this->junctionOutputL[i] = r * this->R[i - 1] + (1 + r) * (this->extraNoseL[0] + this->L[i]);
-		r = this->newExtraReflectionRight * (1 - lambda) + this->extraReflectionRight * lambda;
-		this->junctionOutputR[i] = r * this->L[i] + (1 + r) * (this->R[i - 1] + this->extraNoseL[0]);
-		r = this->newReflectionExtraNose * (1 - lambda) + this->reflectionExtraNose * lambda;
-		this->extraNoseJunctionOutputR[0] = r * this->extraNoseL[0] + (1 + r) * (this->L[i] + this->R[i - 1]);
-	}
+    //now at junction with nose(s)
+    for (int j = 0; j < (this->extraNose ? 2 : 1); j++) {
+        int i = this->tractProps->noseProps[j].start;
+        double r = this->reflections[j].newReflectionLeft * (1 - lambda) + this->reflections[j].reflectionLeft * lambda;
+        this->junctionOutputL[i] = r * this->R[i - 1] + (1 + r) * (this->noses[j].noseL[0] + this->L[i]);
+        r = this->reflections[j].newReflectionRight * (1 - lambda) + this->reflections[j].reflectionRight * lambda;
+        this->junctionOutputR[i] = r * this->L[i] + (1 + r) * (this->R[i - 1] + this->noses[j].noseL[0]);
+        r = this->reflections[j].newReflectionNose * (1 - lambda) + this->reflections[j].reflectionNose * lambda;
+        this->noses[j].noseJunctionOutputR[0] = r * this->noses[j].noseL[0] + (1 + r) * (this->L[i] + this->R[i - 1]);
+    }
 	
 	for (int i=0; i < this->tractProps->n; i++)
 	{
@@ -464,6 +408,7 @@ void Tract::runStep(double glottalOutput, double turbulenceNoise, double lambda,
 		if (updateAmplitudes)
 		{
 			double amplitude = fabs(this->R[i] + this->L[i]);
+            amplitude = clamp(amplitude, -5, 5);
 			if (amplitude > this->tractProps->maxAmplitude[i]) this->tractProps->maxAmplitude[i] = amplitude;
 			else this->tractProps->maxAmplitude[i] *= 0.999;
 		}
@@ -471,59 +416,34 @@ void Tract::runStep(double glottalOutput, double turbulenceNoise, double lambda,
 	
 	this->lipOutput = this->R[this->tractProps->n - 1];
 	
-	//nose
-	this->noseJunctionOutputL[this->tractProps->noseLength] = this->noseR[this->tractProps->noseLength - 1] * this->lipReflection;
-	
-	for (int i=1; i < this->tractProps->noseLength; i++)
-	{
-		int w = this->noseReflection[i] * (this->noseR[i - 1] + this->noseL[i]);
-		this->noseJunctionOutputR[i] = this->noseR[i - 1] - w;
-		this->noseJunctionOutputL[i] = this->noseL[i] + w;
-	}
-	
-	for (int i=0; i < this->tractProps->noseLength; i++)
-	{
-		this->noseR[i] = this->noseJunctionOutputR[i] * this->fade;
-		this->noseL[i] = this->noseJunctionOutputL[i + 1] * this->fade;
-		
-		//this->noseR[i] = Math.clamp(this->noseJunctionOutputR[i] * this->fade, -1, 1);
-		//this->noseL[i] = Math.clamp(this->noseJunctionOutputL[i+1] * this->fade, -1, 1);
-		
-		if (updateAmplitudes)
-		{
-			double amplitude = fabs(this->noseR[i] + this->noseL[i]);
-			if (amplitude > this->tractProps->noseMaxAmplitude[i]) this->tractProps->noseMaxAmplitude[i] = amplitude;
-			else this->tractProps->noseMaxAmplitude[i] *= 0.999;
-		}
-	}
-	
-	this->noseOutput = this->noseR[this->tractProps->noseLength - 1];
-	
-	if(extraNose){
-		this->extraNoseJunctionOutputL[this->tractProps->extraNoseLength] = this->noseR[this->tractProps->noseLength - 1] * this->lipReflection;
-		
-		for (int i=1; i < this->tractProps->extraNoseLength; i++)
-		{
-			int w = this->extraNoseReflection[i] * (this->extraNoseR[i - 1] + this->extraNoseL[i]);
-			this->extraNoseJunctionOutputR[i] = this->extraNoseR[i - 1] - w;
-			this->extraNoseJunctionOutputL[i] = this->extraNoseL[i] + w;
-		}
-		
-		for (int i=0; i < this->tractProps->extraNoseLength; i++)
-		{
-			this->extraNoseR[i] = this->extraNoseJunctionOutputR[i] * this->fade;
-			this->extraNoseL[i] = this->extraNoseJunctionOutputL[i + 1] * this->fade;
-			
-			//this->noseR[i] = Math.clamp(this->noseJunctionOutputR[i] * this->fade, -1, 1);
-			//this->noseL[i] = Math.clamp(this->noseJunctionOutputL[i+1] * this->fade, -1, 1);
-			
-			if (updateAmplitudes)
-			{
-				double amplitude = fabs(this->extraNoseR[i] + this->extraNoseL[i]);
-				if (amplitude > this->tractProps->extraNoseMaxAmplitude[i]) this->tractProps->extraNoseMaxAmplitude[i] = amplitude;
-				else this->tractProps->extraNoseMaxAmplitude[i] *= 0.999;
-			}
-		}
-		this->extraNoseOutput = this->extraNoseR[this->tractProps->noseLength - 1];
-	}
+	//noses
+    for (int j = 0; j < (extraNose ? 2 : 1); j++) {
+        this->noses[j].noseJunctionOutputL[this->tractProps->noseProps[j].length] = this->noses[j].noseR[this->tractProps->noseProps[j].length - 1] * this->lipReflection;
+        
+        for (int i=1; i < this->tractProps->noseProps[j].length; i++)
+        {
+            int w = this->noses[j].noseReflection[i] * (this->noses[j].noseR[i - 1] + this->noses[j].noseL[i]);
+            this->noses[j].noseJunctionOutputR[i] = this->noses[j].noseR[i - 1] - w;
+            this->noses[j].noseJunctionOutputL[i] = this->noses[j].noseL[i] + w;
+        }
+        
+        for (int i = 0; i < this->tractProps->noseProps[j].length; i++)
+        {
+            this->noses[j].noseR[i] = this->noses[j].noseJunctionOutputR[i] * this->fade;
+            this->noses[j].noseL[i] = this->noses[j].noseJunctionOutputL[i + 1] * this->fade;
+            
+            //this->noseR[i] = Math.clamp(this->noseJunctionOutputR[i] * this->fade, -1, 1);
+            //this->noseL[i] = Math.clamp(this->noseJunctionOutputL[i+1] * this->fade, -1, 1);
+            
+            if (updateAmplitudes)
+            {
+                double amplitude = fabs(this->noses[j].noseR[i] + this->noses[j].noseL[i]);
+                amplitude = clamp(amplitude, -5, 5);
+                if (amplitude > this->tractProps->noseProps[j].maxAmplitude[i]) this->tractProps->noseProps[j].maxAmplitude[i] = amplitude;
+                else this->tractProps->noseProps[j].maxAmplitude[i] *= 0.999;
+            }
+        }
+        
+        this->noseOutputs[j] = this->noses[j].noseR[this->tractProps->noseProps[j].length - 1];
+    }
 }

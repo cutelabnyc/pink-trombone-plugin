@@ -178,20 +178,10 @@ void TractUI::drawTongueControl(Graphics &g, t_tractProps *p)
 
 void TractUI::drawTract(Graphics &g, t_tractProps *props)
 {
-	double *noseDiameter;
-	int noseStart;
-	int noseLength;
-	
-	if(processor.extraNose && processor.UINose == 2){
-		noseDiameter = props->extraNoseDiameter;
-		noseStart = props->extraNoseStart;
-		noseLength = props->extraNoseLength;
-	}
-	else {
-		noseDiameter = props->noseDiameter;
-		noseStart = props->noseStart;
-		noseLength = props->noseLength;
-	}
+    int displayedNoseIndex = (processor.extraNose && processor.UINose == 2) ? 1 : 0;
+    double *noseDiameter = props->noseProps[displayedNoseIndex].diameter;
+    int noseStart = props->noseProps[displayedNoseIndex].start;
+    int noseLength = props->noseProps[displayedNoseIndex].length;
 	
 	double velum = noseDiameter[0];
 	double velumAngle = velum * 4.0;
@@ -312,20 +302,12 @@ void TractUI::lineTo(Graphics &g, t_tractProps *props, Path &p, double i, double
 
 void TractUI::getPolarCoordinates(t_tractProps *props, double i, double d, double &r, double &angle)
 {
-	double *noseMaxAmplitude;
-	int noseLength;
-	
-	if(processor.extraNose && processor.UINose == 2){
-		noseMaxAmplitude = props->extraNoseMaxAmplitude;
-		noseLength = props->extraNoseLength;
-	}
-	else {
-		noseMaxAmplitude = props->noseMaxAmplitude;
-		noseLength = props->noseLength;
-	}
+    int displayedNoseIndex = (processor.extraNose && processor.UINose == 2) ? 1 : 0;
+    double *noseMaxAmplitude = props->noseProps[displayedNoseIndex].maxAmplitude;
+    int noseLength = props->noseProps[displayedNoseIndex].length;
 	
 	angle = this->angleOffset + i * this->angleScale * M_PI / (props->lipStart - 1);
-	double wobble = props->maxAmplitude[props->n-1]+noseMaxAmplitude[noseLength-1];
+	double wobble = props->maxAmplitude[props->n - 1] + noseMaxAmplitude[noseLength - 1];
 	wobble *= 0.03 * sin(2 * i - 50 * (this->counter/1000)) * i / props->n;
 	angle += wobble;
 	r = this->radius - this->scale * d + 100 * wobble;
@@ -342,23 +324,11 @@ void TractUI::drawCircle(Graphics &g, t_tractProps *props, double i, double d, d
 
 void TractUI::drawAmplitudes(Graphics &g, t_tractProps *props)
 {
-	double *noseMaxAmplitude;
-	int noseLength;
-	double *noseDiameter;
-	int noseStart;
-	
-	if(processor.extraNose && processor.UINose == 2){
-		noseMaxAmplitude = props->extraNoseMaxAmplitude;
-		noseLength = props->extraNoseLength;
-		noseDiameter = props->extraNoseDiameter;
-		noseStart = props->extraNoseStart;
-	}
-	else {
-		noseMaxAmplitude = props->noseMaxAmplitude;
-		noseLength = props->noseLength;
-		noseDiameter = props->noseDiameter;
-		noseStart = props->noseStart;
-	}
+    int displayedNoseIndex = (processor.extraNose && processor.UINose == 2) ? 1 : 0;
+    double *noseMaxAmplitude = props->noseProps[displayedNoseIndex].maxAmplitude;
+    int noseLength = props->noseProps[displayedNoseIndex].length;
+    double *noseDiameter = props->noseProps[displayedNoseIndex].diameter;
+    int noseStart = props->noseProps[displayedNoseIndex].start;
 	
 	Path p;
 	g.setColour(Colours::orchid);

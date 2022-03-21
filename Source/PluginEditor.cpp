@@ -384,8 +384,12 @@ void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
     processor.constrictionXMod->modulationAtIndex(0)->scale = constrictionXModVal.getValue() / 100;
     processor.constrictionYMod->modulationAtIndex(0)->scale = constrictionYModVal.getValue() / 100;
 	
-	processor.setNoseLength(noseLength.getValue(), extraNoseLength.getValue());
-	processor.setNoseAttachment(noseAttachment.getValue(), extraNoseAttachment.getValue());
+	processor.setNoseLength(noseLength.getValue(), 0);
+    processor.setNoseAttachment(noseAttachment.getValue(), 0);
+    if (MAX_NOSES > 1) {
+        processor.setNoseLength(extraNoseLength.getValue(), 1);
+        processor.setNoseAttachment(extraNoseAttachment.getValue(), 1);
+    }
 }
 
 void PinkTromboneAudioProcessorEditor::buttonClicked(Button *button) { }
@@ -402,11 +406,17 @@ void PinkTromboneAudioProcessorEditor::buttonStateChanged(Button *button)
 	
 	processor.breath = this->breath.getToggleState();
 	processor.openNose(this->openNose.getToggleState());
+    
+#if (MAX_NOSES >= 2)
 	processor.setExtraNose(this->extraNose.getToggleState());
 	
 	UINose.setEnabled(this->extraNose.getToggleState());
 	extraNoseLength.setEnabled(this->extraNose.getToggleState());
 	extraNoseAttachment.setEnabled(this->extraNose.getToggleState());
+#else
+    processor.setExtraNose(false);
+    extraNose.setEnabled(false);
+#endif
 }
 
 void PinkTromboneAudioProcessorEditor::comboBoxChanged(ComboBox *comboBox) {
