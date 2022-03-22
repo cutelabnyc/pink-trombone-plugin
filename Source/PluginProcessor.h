@@ -74,7 +74,7 @@ public:
 	void openNose(bool openNose);
 	void setNoseLength(float noseLength, int index);
 	void setNoseAttachment(float noseAttachment, int index);
-	void setExtraNose(bool extraNose);
+	void setExtraNose(bool extraNose, bool attachedToPrimaryNose);
 	void setUINose(int noseID);
 
 	
@@ -90,6 +90,7 @@ public:
 	bool noteOff;
 	bool breath = false;
 	bool extraNose;
+	bool extraNoseOnPrimaryNose;
 	int UINose;
 	
 	AudioParameterFloat* tongueX;

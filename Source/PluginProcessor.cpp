@@ -251,7 +251,6 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		for (int i=0; i<this->numVoices+1; i++)
 		{
 			double glot = glottises[i]->runStep(lambda1, asp);
-			double glotModulator = glottises[i]->getNoiseModulator();
 			glotSum += glot;
 		}
         
@@ -385,13 +384,15 @@ void PinkTromboneAudioProcessor::setNoseLength(float noseLength, int index)
 void PinkTromboneAudioProcessor::setNoseAttachment(float noseAttachment, int index)
 {
 	double noseAttachmentValue = NOSE_ATTACHMENT_MIN + (NOSE_ATTACHMENT_MAX - NOSE_ATTACHMENT_MIN) * noseAttachment;
+	if (index != 0 && this->extraNoseOnPrimaryNose) noseAttachmentValue *= ((double)(this->tractProps.noseProps[0].length)/(double)(this->tractProps.n));
 	this->tract->setNoseAttachment(noseAttachmentValue, index);
 }
 
-void PinkTromboneAudioProcessor::setExtraNose(bool extraNose)
+void PinkTromboneAudioProcessor::setExtraNose(bool extraNose, bool attachedToPrimaryNose)
 {
 	this->extraNose = extraNose;
-	this->tract->setExtraNose(extraNose);
+	this->extraNoseOnPrimaryNose = attachedToPrimaryNose;
+	this->tract->setExtraNose(extraNose, attachedToPrimaryNose);
 }
 
 void PinkTromboneAudioProcessor::setUINose(int noseID)

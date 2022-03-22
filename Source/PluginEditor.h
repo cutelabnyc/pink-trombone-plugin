@@ -73,6 +73,7 @@ private:
 	ToggleButton breath;
 	ToggleButton openNose;
 	ToggleButton extraNose;
+	ToggleButton extraNoseOnPrimaryNose;
 	
 	Label noseSelectLabel;
 	ComboBox UINose;

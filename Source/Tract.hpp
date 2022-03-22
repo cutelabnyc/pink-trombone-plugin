@@ -21,6 +21,7 @@ typedef struct t_noseProps {
     int length;
     double *diameter;
     double *maxAmplitude;
+	double noseOffset;
 } t_noseProps;
 
 typedef struct t_tractProps {
@@ -28,7 +29,6 @@ typedef struct t_tractProps {
 	int lipStart;
 	int bladeStart;
 	int tipStart;
-	double noseOffset;
 	double tongueIndex;
 	double tongueDiameter;
 	double *tractDiameter;
@@ -65,10 +65,11 @@ public:
 	void openNose(bool openNose);
 	void setNoseLength(double noseLength, int index);
 	void setNoseAttachment(double noseAttachment, int index);
-	void setExtraNose(bool extraNose);
+	void setExtraNose(bool extraNose, bool attachedToPrimaryNose);
 	double lipOutput;
 	double *noseOutputs;
 	bool extraNose;
+	bool extraNoseOnPrimaryNose;
 	
 	long getTractIndexCount();
 	long tongueIndexLowerBound();
