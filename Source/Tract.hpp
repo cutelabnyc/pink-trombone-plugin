@@ -65,12 +65,10 @@ public:
 	void openNose(bool openNose);
 	void setNoseLength(double noseLength, int index);
 	void setNoseAttachment(double noseAttachment, int index);
-	void setExtraNose(bool extraNose, bool attachedToPrimaryNose);
+	void setExtraNose(bool extraNose);
 	double lipOutput;
 	double *noseOutputs;
 	bool extraNose;
-	bool extraNoseOnPrimaryNose;
-	bool primaryNoseClosed = true;
 	
 	long getTractIndexCount();
 	long tongueIndexLowerBound();

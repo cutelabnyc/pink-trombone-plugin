@@ -255,27 +255,6 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	extraNoseAttachment.addListener(this);
 	extraNoseAttachment.setEnabled(this->extraNose.getToggleState());
 	
-	UINose.addItem("Nose 1", 1);
-	UINose.addItem("Nose 2", 2);
-	UINose.setSelectedId(1);
-	addAndMakeVisible(&UINose);
-	UINose.addListener(this);
-	UINose.setEnabled(this->extraNose.getToggleState());
-	
-	noseSelectLabel.setText("Select nose for UI", juce::dontSendNotification);
-	noseSelectLabel.attachToComponent (&UINose, true);
-	addAndMakeVisible (&noseSelectLabel);
-	
-	extraNoseOnPrimaryNose.setButtonText("Attach extra nose to primary nose");
-	addAndMakeVisible(&extraNoseOnPrimaryNose);
-	extraNoseOnPrimaryNose.addListener(this);
-	UINose.setEnabled(this->extraNose.getToggleState());
-	
-	openPrimaryNose.setButtonText("Open primary nose");
-	addAndMakeVisible(&openPrimaryNose);
-	openPrimaryNose.addListener(this);
-	openPrimaryNose.setEnabled(this->extraNose.getToggleState());
-	
 	addMouseListener(this, true);
 
 }
@@ -302,9 +281,6 @@ void PinkTromboneAudioProcessorEditor::resized()
 	openNose.setBounds(220, 220, 60, 20);
 	breath.setBounds(220, 250, 80, 20);
 	extraNose.setBounds(220, 280, 60, 20);
-	UINose.setBounds(220, 310, 100, 20);
-	extraNoseOnPrimaryNose.setBounds(270, 275, 100, 30);
-	openPrimaryNose.setBounds(350, 275, 60, 30);
     
     int sliderLeftMargin = 50;
     int sliderHeight = 20;
@@ -420,22 +396,14 @@ void PinkTromboneAudioProcessorEditor::buttonStateChanged(Button *button)
 	processor.openNose(this->openNose.getToggleState());
     
 #if (MAX_NOSES >= 2)
-	processor.setExtraNose(this->extraNose.getToggleState(), extraNoseOnPrimaryNose.getToggleState());
+	processor.setExtraNose(this->extraNose.getToggleState());
 	
-	UINose.setEnabled(this->extraNose.getToggleState());
 	extraNoseLength.setEnabled(this->extraNose.getToggleState());
 	extraNoseAttachment.setEnabled(this->extraNose.getToggleState());
 	
-	extraNoseOnPrimaryNose.setEnabled(this->extraNose.getToggleState());
-	openPrimaryNose.setEnabled(this->extraNose.getToggleState());
-	processor.openOrClosePrimaryNose(openPrimaryNose.getToggleState());
 	processor.setNoseAttachment(extraNoseAttachment.getValue(), 1);
 #else
     processor.setExtraNose(false);
     extraNose.setEnabled(false);
 #endif
-}
-
-void PinkTromboneAudioProcessorEditor::comboBoxChanged(ComboBox *comboBox) {
-	processor.setUINose(UINose.getSelectedId());
 }

@@ -190,8 +190,6 @@ void TractUI::drawTract(Graphics &g, t_tractProps *props)
 	g.strokePath(p, stroke);
 	g.fillPath(p);
 
-	int primaryNoseStart = props->noseProps[0].start;
-	double *primaryNoseDiameter = props->noseProps[0].diameter;
 	//for nose
 	for (int j = 0; j < (processor.extraNose ? 2 : 1); j++) {
 		double *noseDiameter = props->noseProps[j].diameter;
@@ -203,39 +201,19 @@ void TractUI::drawTract(Graphics &g, t_tractProps *props)
 		
 		p.clear();
 		stroke.setStrokeThickness((this->scale * 2.0 / 60.0));
-		if (processor.extraNoseOnPrimaryNose && j !=0) this->moveTo(g, props, p, noseStart + primaryNoseStart, noseOffset - primaryNoseDiameter[noseStart]*0.9);
-		else this->moveTo(g, props, p, noseStart, noseOffset);
-		for (int i = 0; i < noseLength; i++) {
-			if (processor.extraNoseOnPrimaryNose && j !=0){
-				this->lineTo(g, props, p, i + noseStart + primaryNoseStart, noseOffset - (noseDiameter[i] + primaryNoseDiameter[noseStart]) * 0.9);
-			}
-			else {
-				this->lineTo(g, props, p, i + noseStart, noseOffset - noseDiameter[i] * 0.9);
-			}
-
-		}
-		for (int i = noseLength - 1; i >= 1; i--) {
-			if (processor.extraNoseOnPrimaryNose && j !=0) this->lineTo(g, props, p, i + noseStart + primaryNoseStart, noseOffset - primaryNoseDiameter[noseStart]*0.9);
-			else this->lineTo(g, props, p, i + noseStart, noseOffset);
-		}
+		this->moveTo(g, props, p, noseStart, noseOffset);
+		for (int i = 0; i < noseLength; i++) this->lineTo(g, props, p, i + noseStart, noseOffset - noseDiameter[i] * 0.9);
+		for (int i = noseLength - 1; i >= 1; i--) this->lineTo(g, props, p, i + noseStart, noseOffset);
 		p.closeSubPath();
 		g.fillPath(p);
 		
 		//velum
 		p.clear();
 		stroke.setStrokeThickness((this->scale * 2.0 / 60.0));
-		if (processor.extraNoseOnPrimaryNose && j !=0) {
-			this->moveTo(g, props, p, noseStart + primaryNoseStart - 2, -primaryNoseDiameter[noseStart]);
-			this->lineTo(g, props, p, noseStart + primaryNoseStart, noseOffset - primaryNoseDiameter[noseStart]);
-			this->lineTo(g, props, p, noseStart + velumAngle + primaryNoseStart, noseOffset - primaryNoseDiameter[noseStart]);
-			this->lineTo(g, props, p, noseStart + velumAngle + primaryNoseStart - 2, -primaryNoseDiameter[noseStart]);
-		}
-		else {
-			this->moveTo(g, props, p, noseStart - 2, 0);
-			this->lineTo(g, props, p, noseStart, noseOffset);
-			this->lineTo(g, props, p, noseStart + velumAngle, noseOffset);
-			this->lineTo(g, props, p, noseStart + velumAngle - 2, 0);
-		}
+		this->moveTo(g, props, p, noseStart - 2, 0);
+		this->lineTo(g, props, p, noseStart, noseOffset);
+		this->lineTo(g, props, p, noseStart + velumAngle, noseOffset);
+		this->lineTo(g, props, p, noseStart + velumAngle - 2, 0);
 		p.closeSubPath();
 		g.strokePath(p, stroke);
 		g.fillPath(p);
@@ -282,37 +260,19 @@ void TractUI::drawTract(Graphics &g, t_tractProps *props)
 		
 		p.clear();
 		stroke.setStrokeThickness((this->scale * 5.0 / 60.0));
-		if (processor.extraNoseOnPrimaryNose && j !=0) this->moveTo(g, props, p, noseStart + primaryNoseStart, noseOffset - primaryNoseDiameter[noseStart]*0.9);
-		else this->moveTo(g, props, p, noseStart, noseOffset);
-		for (int i = 1; i < noseLength; i++) {
-			if (processor.extraNoseOnPrimaryNose && j !=0){
-				this->lineTo(g, props, p, i + noseStart + primaryNoseStart, noseOffset - (noseDiameter[i] + primaryNoseDiameter[noseStart]) * 0.9);
-			}
-			else this->lineTo(g, props, p, i + noseStart, noseOffset - noseDiameter[i] * 0.9);
-		}
-		if (processor.extraNoseOnPrimaryNose && j !=0) this->moveTo(g, props, p, primaryNoseStart + noseStart + velumAngle, noseOffset - primaryNoseDiameter[noseStart]*0.9);
-		else this->moveTo(g, props, p, noseStart + velumAngle, noseOffset);
-		for (int i = ceil(velumAngle); i < noseLength; i++) {
-			if (processor.extraNoseOnPrimaryNose && j !=0) this->lineTo(g, props, p, i + noseStart + primaryNoseStart, noseOffset - primaryNoseDiameter[noseStart]*0.9);
-			else this->lineTo(g, props, p, i + noseStart, noseOffset);
-		}
+		this->moveTo(g, props, p, noseStart, noseOffset);
+		for (int i = 1; i < noseLength; i++) this->lineTo(g, props, p, i + noseStart, noseOffset - noseDiameter[i] * 0.9);
+		this->moveTo(g, props, p, noseStart + velumAngle, noseOffset);
+		for (int i = ceil(velumAngle); i < noseLength; i++) this->lineTo(g, props, p, i + noseStart, noseOffset);
 		g.strokePath(p, stroke);
 
 		//velum
 		g.setOpacity(fmin(1.0, velum * 5));
 		p.clear();
-		if (processor.extraNoseOnPrimaryNose && j !=0) {
-			this->moveTo(g, props, p, noseStart + primaryNoseStart - 1, -primaryNoseDiameter[noseStart]*0.9 + noseOffset/2);
-			this->lineTo(g, props, p, noseStart + primaryNoseStart, noseOffset - primaryNoseDiameter[noseStart]*0.9);
-			this->moveTo(g, props, p, noseStart + velumAngle + primaryNoseStart, noseOffset - primaryNoseDiameter[noseStart+1]*0.9);
-			this->lineTo(g, props, p, noseStart + velumAngle + primaryNoseStart - 1, -primaryNoseDiameter[noseStart+1]*0.9 + noseOffset/2);
-		}
-		else {
-			this->moveTo(g, props, p, noseStart - 2, 0);
-			this->lineTo(g, props, p, noseStart, noseOffset);
-			this->moveTo(g, props, p, noseStart + velumAngle - 2, 0);
-			this->lineTo(g, props, p, noseStart + velumAngle, noseOffset);
-		}
+		this->moveTo(g, props, p, noseStart - 2, 0);
+		this->lineTo(g, props, p, noseStart, noseOffset);
+		this->moveTo(g, props, p, noseStart + velumAngle - 2, 0);
+		this->lineTo(g, props, p, noseStart + velumAngle, noseOffset);
 		g.strokePath(p, stroke);
 	}
 
@@ -348,12 +308,12 @@ void TractUI::lineTo(Graphics &g, t_tractProps *props, Path &p, double i, double
 
 void TractUI::getPolarCoordinates(t_tractProps *props, double i, double d, double &r, double &angle)
 {
-    int displayedNoseIndex = (processor.extraNose && processor.UINose == 2) ? 1 : 0;
-    double *noseMaxAmplitude = props->noseProps[displayedNoseIndex].maxAmplitude;
-    int noseLength = props->noseProps[displayedNoseIndex].length;
+	int noseLength1 = props->noseProps[0].length;
+	int noseLength2 = props->noseProps[1].length;
+	double noseMaxAmplitude = fmax(props->noseProps[0].maxAmplitude[noseLength1-1], props->noseProps[1].maxAmplitude[noseLength2-1]);
 	
 	angle = this->angleOffset + i * this->angleScale * M_PI / (props->lipStart - 1);
-	double wobble = props->maxAmplitude[props->n - 1] + noseMaxAmplitude[noseLength - 1];
+	double wobble = props->maxAmplitude[props->n - 1] + noseMaxAmplitude;
 	wobble *= 0.03 * sin(2 * i - 50 * (this->counter/1000)) * i / props->n;
 	angle += wobble;
 	r = this->radius - this->scale * d + 100 * wobble;

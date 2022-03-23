@@ -384,25 +384,13 @@ void PinkTromboneAudioProcessor::setNoseLength(float noseLength, int index)
 void PinkTromboneAudioProcessor::setNoseAttachment(float noseAttachment, int index)
 {
 	double noseAttachmentValue = NOSE_ATTACHMENT_MIN + (NOSE_ATTACHMENT_MAX - NOSE_ATTACHMENT_MIN) * noseAttachment;
-	if (index != 0 && this->extraNoseOnPrimaryNose) noseAttachmentValue *= ((double)(this->tractProps.noseProps[0].length)/(double)(this->tractProps.n));
 	this->tract->setNoseAttachment(noseAttachmentValue, index);
 }
 
-void PinkTromboneAudioProcessor::setExtraNose(bool extraNose, bool attachedToPrimaryNose)
+void PinkTromboneAudioProcessor::setExtraNose(bool extraNose)
 {
 	this->extraNose = extraNose;
-	this->extraNoseOnPrimaryNose = attachedToPrimaryNose;
-	this->tract->setExtraNose(extraNose, attachedToPrimaryNose);
-}
-
-void PinkTromboneAudioProcessor::setUINose(int noseID)
-{
-	this->UINose = noseID;
-}
-
-void PinkTromboneAudioProcessor::openOrClosePrimaryNose(bool openPrimaryNose) {
-	this->primaryNoseClosed = !openPrimaryNose;
-	this->tract->primaryNoseClosed = !openPrimaryNose;
+	this->tract->setExtraNose(extraNose);
 }
 
 //==============================================================================
