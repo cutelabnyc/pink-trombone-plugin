@@ -59,10 +59,14 @@ private:
 	Slider releaseExp;
 	
 	Slider noseLength;
+	Label noseLengthLabel;
 	Slider noseAttachment;
+	Label noseAttachmentLabel;
 	
 	Slider extraNoseLength;
+	Label extraNoseLengthLabel;
 	Slider extraNoseAttachment;
+	Label extraNoseAttachmentLabel;
 	
 	ToggleButton muteAudio;
 	ToggleButton tongueXMod;

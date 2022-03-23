@@ -217,19 +217,25 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	noseLength.setRange(0, 1, 0.01);
 	noseLength.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
 	noseLength.setPopupDisplayEnabled (true, true, this);
-	noseLength.setTextValueSuffix (" Nose length");
 	noseLength.setValue(0.59);  //noseLength = 28
 	addAndMakeVisible (&noseLength);
 	noseLength.addListener(this);
+	
+	noseLengthLabel.setText("Nose length", juce::dontSendNotification);
+	noseLengthLabel.attachToComponent (&noseLength, true);
+	addAndMakeVisible (&noseLengthLabel);
 	
 	noseAttachment.setSliderStyle (Slider::LinearHorizontal);
 	noseAttachment.setRange(0, 1, 0.01);
 	noseAttachment.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
 	noseAttachment.setPopupDisplayEnabled (true, true, this);
-	noseAttachment.setTextValueSuffix (" Nose attachment");
 	noseAttachment.setValue(0.38);  //noseStart = 17
 	addAndMakeVisible (&noseAttachment);
 	noseAttachment.addListener(this);
+	
+	noseAttachmentLabel.setText("Nose attachment", juce::dontSendNotification);
+	noseAttachmentLabel.attachToComponent (&noseAttachment, true);
+	addAndMakeVisible (&noseAttachmentLabel);
 	
 	extraNose.setButtonText("Extra nose");
 	addAndMakeVisible(&extraNose);
@@ -239,21 +245,27 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	extraNoseLength.setRange(0, 1, 0.01);
 	extraNoseLength.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
 	extraNoseLength.setPopupDisplayEnabled (true, true, this);
-	extraNoseLength.setTextValueSuffix (" Extra nose length");
 	extraNoseLength.setValue(0.59);  //noseLength = 28
 	addAndMakeVisible (&extraNoseLength);
 	extraNoseLength.addListener(this);
 	extraNoseLength.setEnabled(this->extraNose.getToggleState());
 	
+	extraNoseLengthLabel.setText("Extra nose length", juce::dontSendNotification);
+	extraNoseLengthLabel.attachToComponent (&extraNoseLength, true);
+	addAndMakeVisible (&extraNoseLengthLabel);
+	
 	extraNoseAttachment.setSliderStyle (Slider::LinearHorizontal);
 	extraNoseAttachment.setRange(0, 1, 0.01);
 	extraNoseAttachment.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
 	extraNoseAttachment.setPopupDisplayEnabled (true, true, this);
-	extraNoseAttachment.setTextValueSuffix (" Extra nose attachment");
 	extraNoseAttachment.setValue(0.38);  //noseStart = 17
 	addAndMakeVisible (&extraNoseAttachment);
 	extraNoseAttachment.addListener(this);
 	extraNoseAttachment.setEnabled(this->extraNose.getToggleState());
+	
+	extraNoseAttachmentLabel.setText("Extra nose length", juce::dontSendNotification);
+	extraNoseAttachmentLabel.attachToComponent (&extraNoseAttachment, true);
+	addAndMakeVisible (&extraNoseAttachmentLabel);
 	
 	addMouseListener(this, true);
 
@@ -278,9 +290,9 @@ void PinkTromboneAudioProcessorEditor::paint (Graphics& g)
 void PinkTromboneAudioProcessorEditor::resized()
 {
 	// Local bounds are 0, 0, 800, 600
-	openNose.setBounds(220, 220, 60, 20);
-	breath.setBounds(220, 250, 80, 20);
-	extraNose.setBounds(220, 280, 60, 20);
+	openNose.setBounds(170, 220, 60, 20);
+	extraNose.setBounds(170, 250, 60, 20);
+	breath.setBounds(20, 330, 80, 20);
     
     int sliderLeftMargin = 50;
     int sliderHeight = 20;
@@ -342,11 +354,11 @@ void PinkTromboneAudioProcessorEditor::resized()
 	constrictionYMod.setBounds (50, 265, 80, 30);
 	constrictionYModVal.setBounds (110, 260, 65, 45);
 	
-	noseLength.setBounds(220, 180, 70, 50);
-	noseAttachment.setBounds(220, 150, 70, 50);
+	noseLength.setBounds(280, 150, 70, 20);
+	noseAttachment.setBounds(280, 180, 70, 20);
 	
-	extraNoseLength.setBounds(220, 340, 70, 50);
-	extraNoseAttachment.setBounds(220, 370, 70, 50);
+	extraNoseLength.setBounds(280, 280, 70, 20);
+	extraNoseAttachment.setBounds(280, 310, 70, 20);
 	
 	muteAudio.setBounds(170, 30, 100, 20);
 	tractUI.setSize(getWidth(), getHeight());
