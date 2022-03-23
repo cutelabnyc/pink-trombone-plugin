@@ -230,6 +230,7 @@ void Tract::finishBlock()
 {
 	this->reshapeTract(this->blockTime);
 	this->calculateReflections();
+	this->calculateNoseReflections();
 	memcpy(this->tractProps->tractDiameter, this->diameter, sizeof(double) * this->tractProps->n);
     for (int j = 0; j < MAX_NOSES; j++) {
         memcpy(this->tractProps->noseProps[j].diameter, this->noses[j].noseDiameter, sizeof(double) * this->tractProps->noseProps[j].length);
@@ -322,6 +323,7 @@ void Tract::setNoseAttachment(double noseAttachment, int index)
 void Tract::setExtraNose(bool extraNose, bool attachedToPrimaryNose)
 {
 	this->extraNose = extraNose;
+	printf(this->extraNose ? "extra nose at set" : "no extra nose at set");
 	this->extraNoseOnPrimaryNose = attachedToPrimaryNose;
 	
 	if (attachedToPrimaryNose) this->tractProps->noseProps[1].noseOffset = 2 * this->tractProps->noseProps[0].noseOffset;
@@ -440,6 +442,7 @@ void Tract::runStep(double glottalOutput, double turbulenceNoise, double lambda,
 	//noses
     for (int j = 0; j < (extraNose ? 2 : 1); j++) {
         this->noses[j].noseJunctionOutputL[this->tractProps->noseProps[j].length] = this->noses[j].noseR[this->tractProps->noseProps[j].length - 1] * this->lipReflection;
+		if (this->extraNose && this->primaryNoseClosed) this->noses[0].noseJunctionOutputL[this->tractProps->noseProps[0].length] = this->noses[0].noseR[this->tractProps->noseProps[0].length-1] * -0.999;
         
         for (int i=1; i < this->tractProps->noseProps[j].length; i++)
         {

@@ -70,6 +70,7 @@ public:
 	double *noseOutputs;
 	bool extraNose;
 	bool extraNoseOnPrimaryNose;
+	bool primaryNoseClosed = true;
 	
 	long getTractIndexCount();
 	long tongueIndexLowerBound();

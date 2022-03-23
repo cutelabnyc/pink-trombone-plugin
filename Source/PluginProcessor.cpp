@@ -400,6 +400,11 @@ void PinkTromboneAudioProcessor::setUINose(int noseID)
 	this->UINose = noseID;
 }
 
+void PinkTromboneAudioProcessor::openOrClosePrimaryNose(bool openPrimaryNose) {
+	this->primaryNoseClosed = !openPrimaryNose;
+	this->tract->primaryNoseClosed = !openPrimaryNose;
+}
+
 //==============================================================================
 bool PinkTromboneAudioProcessor::hasEditor() const
 {

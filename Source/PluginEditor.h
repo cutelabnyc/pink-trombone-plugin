@@ -74,6 +74,7 @@ private:
 	ToggleButton openNose;
 	ToggleButton extraNose;
 	ToggleButton extraNoseOnPrimaryNose;
+	ToggleButton openPrimaryNose;
 	
 	Label noseSelectLabel;
 	ComboBox UINose;
