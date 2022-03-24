@@ -185,7 +185,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
     addAndMakeVisible (&releaseExp);
     releaseExp.addListener(this);
 	
-	breathFactor.setSliderStyle (Slider::LinearVertical);
+	breathFactor.setSliderStyle (Slider::LinearHorizontal);
 	breathFactor.setRange(0, 1, 0.01);
 	breathFactor.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
 	breathFactor.setPopupDisplayEnabled (true, true, this);
@@ -194,7 +194,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	addAndMakeVisible (&breathFactor);
 	breathFactor.addListener(this);
 	
-	sexFactor.setSliderStyle (Slider::LinearVertical);
+	sexFactor.setSliderStyle (Slider::LinearHorizontal);
 	sexFactor.setRange(0, 1, 0.2);
 	sexFactor.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
 	sexFactor.setPopupDisplayEnabled (true, true, this);
@@ -357,8 +357,8 @@ void PinkTromboneAudioProcessorEditor::resized()
     
     // Tract UI
 	
-	breathFactor.setBounds (135, 60, 75, 100);
-	sexFactor.setBounds (135, 200, 75, 100);
+	breathFactor.setBounds (20, 330, 75, 100);
+	sexFactor.setBounds (20, 365, 75, 100);
 	
 	tongueX.setBounds (0, 140, 65, 45);
 	tongueXMod.setBounds (50, 152.5, 80, 20);
