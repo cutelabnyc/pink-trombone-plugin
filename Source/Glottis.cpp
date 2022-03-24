@@ -59,26 +59,22 @@ void Glottis::setupWaveform(double lambda)
 	double Rk = 0.224 + 0.118 * Rd;
 	double Rg = (Rk / 4) * (0.5 + 1.2 * Rk) / (0.11 * Rd - Ra * (0.5 + 1.2 * Rk));
 	
-	double Ta;  //+0.03
-	double Tp = 1 / (2.0 * Rg); //-.05
+	double Ta;
+	double Tp = 1 / (2.0 * Rg);
 	double Te = Tp + Tp * Rk;
 
-	Ta = Ra + (1.7 * this->sexOffset/5); //+~0.06
+	Ta = Ra + (1.7 * this->sizeOffset/5);
 	if (this->Rd >= 1) {
-		Tp -= this->sexOffset/3;
-		Te -= this->sexOffset;
+		Tp -= this->sizeOffset/3;
+		Te -= this->sizeOffset;
 	}
 	else {
-		Ta = Ra - (1-this->Rd)*(this->sexOffset/7);  //-0.045
-		Tp += this->sexOffset;
-		Te += this->sexOffset;
+		Ta = Ra - (1-this->Rd)*(this->sizeOffset/7);
+		Tp += this->sizeOffset;
+		Te += this->sizeOffset;
 	}
 	if(Ta > 0.1) Ta = 0.1;
 	if(Ta < 0.01) Ta = 0.01;
-
-//	double Ta = 0.01; //0.1;
-//	double Tp = 0.48; //0.48
-//	double Te = 0.6;  //0.6
 	
 	double epsilon = 1 / Ta;
 	double shift = exp(-epsilon * (1 - Te));
@@ -201,7 +197,7 @@ void Glottis::setBreathFactor(double breathFactor)
 	this->Rd = breathFactor;
 }
 
-void Glottis::setSexOffset(double sexOffset)
+void Glottis::setSizeOffset(double sizeOffset)
 {
-	this->sexOffset = sexOffset;
+	this->sizeOffset = sizeOffset;
 }

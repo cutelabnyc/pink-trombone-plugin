@@ -189,19 +189,26 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	breathFactor.setRange(0, 1, 0.01);
 	breathFactor.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
 	breathFactor.setPopupDisplayEnabled (true, true, this);
-	breathFactor.setTextValueSuffix (" Breathiness factor");
 	breathFactor.setValue(0.5);
 	addAndMakeVisible (&breathFactor);
 	breathFactor.addListener(this);
 	
-	sexFactor.setSliderStyle (Slider::LinearHorizontal);
-	sexFactor.setRange(0, 1, 0.2);
-	sexFactor.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
-	sexFactor.setPopupDisplayEnabled (true, true, this);
-	sexFactor.setTextValueSuffix (" Sex");
-	sexFactor.setValue(0);
-	addAndMakeVisible (&sexFactor);
-	sexFactor.addListener(this);
+	breathFactorLabel.setText("Breathiness factor", juce::dontSendNotification);
+	breathFactorLabel.attachToComponent (&breathFactor, true);
+	addAndMakeVisible (&breathFactorLabel);
+	
+	sizeFactor.setSliderStyle (Slider::LinearHorizontal);
+	sizeFactor.setRange(0, 1, 0.2);
+	sizeFactor.setTextBoxStyle (Slider::NoTextBox, false, 90, 0);
+	sizeFactor.setPopupDisplayEnabled (true, true, this);
+	sizeFactor.setTextValueSuffix (" Size");
+	sizeFactor.setValue(1);
+	addAndMakeVisible (&sizeFactor);
+	sizeFactor.addListener(this);
+	
+	sizeFactorLabel.setText("Size", juce::dontSendNotification);
+	sizeFactorLabel.attachToComponent (&sizeFactor, true);
+	addAndMakeVisible (&sizeFactorLabel);
 	
 	muteAudio.setButtonText("Mute");
 //	addAndMakeVisible(&muteAudio);
@@ -226,10 +233,6 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	breath.setButtonText("Always breathe");
 	addAndMakeVisible(&breath);
 	breath.addListener(this);
-	
-	openNose.setButtonText("Open nose");
-	addAndMakeVisible(&openNose);
-	openNose.addListener(this);
 	
 	noseLength.setSliderStyle (Slider::LinearHorizontal);
 	noseLength.setRange(0, 1, 0.01);
@@ -285,6 +288,17 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 	extraNoseAttachmentLabel.attachToComponent (&extraNoseAttachment, true);
 	addAndMakeVisible (&extraNoseAttachmentLabel);
 	
+	noseMode.addItem("Always closed", 1);
+	noseMode.addItem("Always open", 2);
+	noseMode.addItem("Auto mode", 3);
+	noseMode.setSelectedId(1);
+	addAndMakeVisible(&noseMode);
+	noseMode.addListener(this);
+	
+	noseModeLabel.setText("Nose mode", juce::dontSendNotification);
+	noseModeLabel.attachToComponent (&noseMode, true);
+	addAndMakeVisible (&noseModeLabel);
+	
 	addMouseListener(this, true);
 
 }
@@ -308,7 +322,7 @@ void PinkTromboneAudioProcessorEditor::paint (Graphics& g)
 void PinkTromboneAudioProcessorEditor::resized()
 {
 	// Local bounds are 0, 0, 800, 600
-	openNose.setBounds(170, 220, 60, 20);
+	noseMode.setBounds(240, 220, 100, 20);
 	extraNose.setBounds(170, 250, 60, 20);
 	breath.setBounds(20, 330, 80, 20);
     
@@ -357,8 +371,8 @@ void PinkTromboneAudioProcessorEditor::resized()
     
     // Tract UI
 	
-	breathFactor.setBounds (20, 330, 75, 100);
-	sexFactor.setBounds (20, 365, 75, 100);
+	breathFactor.setBounds (100, 350, 75, 100);
+	sizeFactor.setBounds (100, 380, 75, 100);
 	
 	tongueX.setBounds (0, 140, 65, 45);
 	tongueXMod.setBounds (50, 152.5, 80, 20);
@@ -413,7 +427,7 @@ void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
         processor.setNoseAttachment(extraNoseAttachment.getValue(), 1);
     }
 	processor.updateBreathFactor(1.5 * breathFactor.getValue() + 0.25);
-	processor.updateSex(sexFactor.getValue());
+	processor.updateSize(sizeFactor.getValue());
 }
 
 void PinkTromboneAudioProcessorEditor::buttonClicked(Button *button) { }
@@ -429,7 +443,6 @@ void PinkTromboneAudioProcessorEditor::buttonStateChanged(Button *button)
     processor.constrictionYMod->modulationAtIndex(0)->active = this->constrictionYMod.getToggleState();
 	
 	processor.breath = this->breath.getToggleState();
-	processor.openNose(this->openNose.getToggleState());
     
 #if (MAX_NOSES >= 2)
 	processor.setExtraNose(this->extraNose.getToggleState());
@@ -442,4 +455,8 @@ void PinkTromboneAudioProcessorEditor::buttonStateChanged(Button *button)
     processor.setExtraNose(false);
     extraNose.setEnabled(false);
 #endif
+}
+
+void PinkTromboneAudioProcessorEditor::comboBoxChanged(ComboBox *comboBox) {
+	processor.setNoseMode(noseMode.getSelectedId());
 }

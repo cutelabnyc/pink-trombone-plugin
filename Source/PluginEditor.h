@@ -17,7 +17,7 @@
 //==============================================================================
 /**
 */
-class PinkTromboneAudioProcessorEditor  : public AudioProcessorEditor, private Slider::Listener, private ToggleButton::Listener
+class PinkTromboneAudioProcessorEditor  : public AudioProcessorEditor, private Slider::Listener, private ToggleButton::Listener, private ComboBox::Listener
 {
 public:
     PinkTromboneAudioProcessorEditor (PinkTromboneAudioProcessor&);
@@ -31,6 +31,7 @@ private:
 	void sliderValueChanged (Slider* slider) override;
 	void buttonClicked (Button* button) override;
 	void buttonStateChanged (Button* button) override;
+	void comboBoxChanged (ComboBox* comboBox) override;
 	
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
@@ -69,7 +70,9 @@ private:
 	Label extraNoseAttachmentLabel;
 	
 	Slider breathFactor;
-	Slider sexFactor;
+	Label breathFactorLabel;
+	Slider sizeFactor;
+	Label sizeFactorLabel;
 	
 	ToggleButton muteAudio;
 	ToggleButton tongueXMod;
@@ -77,10 +80,10 @@ private:
 	ToggleButton constrictionXMod;
 	ToggleButton constrictionYMod;
 	ToggleButton breath;
-	ToggleButton openNose;
 	ToggleButton extraNose;
 	
-	Label noseSelectLabel;
+	ComboBox noseMode;
+	Label noseModeLabel;
 	
 	TractUI tractUI;
 	

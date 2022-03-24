@@ -66,9 +66,11 @@ public:
 	void setNoseLength(double noseLength, int index);
 	void setNoseAttachment(double noseAttachment, int index);
 	void setExtraNose(bool extraNose);
+	void setAutoVelum(bool autoVelum);
 	double lipOutput;
 	double *noseOutputs;
 	bool extraNose;
+	bool autoVelum;
 	
 	long getTractIndexCount();
 	long tongueIndexLowerBound();

@@ -321,7 +321,6 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 
 void PinkTromboneAudioProcessor::noteAdded(MPENote newNote)
 {
-	DBG("NOTE ON");
 	double midiNoteInHz = newNote.getFrequencyInHertz();
 	bool firstNote;
 	this->noteOn = true;
@@ -404,16 +403,34 @@ void PinkTromboneAudioProcessor::updateBreathFactor(double breathFactor)
 	}
 }
 
-void PinkTromboneAudioProcessor::updateSex(double sexFactor)
+void PinkTromboneAudioProcessor::updateSize(double sizeFactor)
 {
-	int tractLength = 44 - 5 * sexFactor;
-	double sexOffset = sexFactor/10 + 0.05; //0.15 for women
+	int tractLength = 39 + 5 * sizeFactor;
+	double sizeOffset = 0.15 - sizeFactor/10;
 	
 	this->tract->updateTractLength(tractLength);
 	for (int i=0; i<this->numVoices+1; i++)
 	{
-		glottises[i]->setSexOffset(sexOffset);
+		glottises[i]->setSizeOffset(sizeOffset);
 	}
+}
+
+void PinkTromboneAudioProcessor::setAutoVelum(bool autoVelum)
+{
+	this->tract->setAutoVelum(autoVelum);
+}
+
+void PinkTromboneAudioProcessor::setNoseMode(int selectedId)
+{
+	if (selectedId == 1) {
+		this->openNose(false);
+		this->setAutoVelum(false);
+	}
+	else if (selectedId == 2){
+		this->openNose(true);
+		this->setAutoVelum(false);
+	}
+	else if (selectedId == 3) this->setAutoVelum(true);
 }
 
 //==============================================================================

@@ -22,7 +22,7 @@ public:
 	void setVoicing(bool voice);
 	void setActive(bool active);
 	void setBreathFactor(double breathFactor);
-	void setSexOffset(double sexOffset);
+	void setSizeOffset(double sizeOffset);
 	bool isActive = false;
 	bool alwaysVoice;
 	
@@ -49,7 +49,7 @@ private:
 	double vibratoFrequency;
 	double tenseness;
 	double breathFactor = 1;
-	double sexOffset = 0;
+	double sizeOffset = 0;
 	bool autoWobble;
 	bool isTouched;
 };

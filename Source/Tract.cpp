@@ -77,6 +77,29 @@ void Tract::init() {
 		else diameter = 1.5;
 		this->diameter[i] = this->restDiameter[i] = this->targetDiameter[i] = this->newDiameter[i] = diameter;
 	}
+	// a more granular area function below. Numbers can be played with.
+//	for (int i = 0; i < this->tractProps->n; i++)
+//	{
+//		double diameter = 0;
+//
+//		if (i < 5 * (double) this->tractProps->n / 44.0 -0.5) diameter = 0.6;
+//		else if (i < 9 * (double) this->tractProps->n / 44.0) diameter = 1.6;
+//		else if (i < 12 * (double) this->tractProps->n / 44.0) diameter = 1.3;
+//		else if (i < 14 * (double) this->tractProps->n / 44.0) diameter = 1.4;
+//		else if (i < 22 * (double) this->tractProps->n / 44.0) diameter = 1.1;
+//		else if (i < 28 * (double) this->tractProps->n / 44.0) diameter = 1.6;
+//		else if (i < 29 * (double) this->tractProps->n / 44.0) diameter = 1.9;
+//		else if (i < 30 * (double) this->tractProps->n / 44.0) diameter = 2.1;
+//		else if (i < 31 * (double) this->tractProps->n / 44.0) diameter = 2.7;
+//		else if (i < 33 * (double) this->tractProps->n / 44.0) diameter = 3.2;
+//		else if (i < 37 * (double) this->tractProps->n / 44.0) diameter = 3.5;
+//		else if (i < 38 * (double) this->tractProps->n / 44.0) diameter = 3.4;
+//		else if (i < 40 * (double) this->tractProps->n / 44.0) diameter = 3.6;
+//		else if (i < 41 * (double) this->tractProps->n / 44.0) diameter = 3.1;
+//		else if (i < 42 * (double) this->tractProps->n / 44.0) diameter = 2.6;
+//		else diameter = 2.1;
+//		this->diameter[i] = this->restDiameter[i] = this->targetDiameter[i] = this->newDiameter[i] = diameter;
+//	}
 	this->R = (double *) calloc(this->tractProps->n, sizeof(double));
 	this->L = (double *) calloc(this->tractProps->n, sizeof(double));
 	this->reflection = (double *) calloc(this->tractProps->n + 1, sizeof(double));
@@ -259,6 +282,10 @@ void Tract::setConstriction(double cindex, double cdiam, double fricativeIntensi
 	
 	double diameter = this->constrictionDiameter - 0.3;
 	if (diameter < 0) diameter = 0;
+	if (this->autoVelum) {
+		if (diameter == 0 && (this->constrictionIndex > this->tractProps->noseProps[0].start || this->constrictionIndex > this->tractProps->noseProps[1].start)) this->velumTarget = 0.4;
+		else this->velumTarget = 0.01;
+	}
 	long width = 2;
 	if (this->constrictionIndex < 25) width = 10;
 	else if (this->constrictionIndex >= this->tractProps->tipStart) width= 5;
@@ -318,6 +345,11 @@ void Tract::setExtraNose(bool extraNose)
 	this->tractProps->noseProps[1].noseOffset = this->tractProps->noseProps[0].noseOffset;
 }
 
+void Tract::setAutoVelum(bool autoVelum)
+{
+	this->autoVelum = autoVelum;
+}
+
 void Tract::processTransients()
 {
 	for (int i = 0; i < this->transientCount; i++)
@@ -359,10 +391,11 @@ void Tract::reshapeTract(double deltaTime)
 	}
 	this->lastObstruction = newLastObstruction;
 
-	amount = deltaTime * this->movementSpeed;
+	if(this->autoVelum && diameter == 0) amount = deltaTime * this->movementSpeed/100000;
+	else amount = deltaTime * this->movementSpeed;
     
     for (int j = 0; j < MAX_NOSES; j++) {
-        this->noses[j].noseDiameter[0] = moveTowards(this->noses[j].noseDiameter[0], this->velumTarget, amount * 0.25, amount * 0.1);
+        this->noses[j].noseDiameter[0] = moveTowards(this->noses[j].noseDiameter[0], this->velumTarget, amount * 0.5, amount * 0.1);
         this->tractProps->noseProps[j].diameter[0] = this->noses[j].noseDiameter[0];
         this->noses[j].noseA[0] = this->noses[j].noseDiameter[0] * this->noses[j].noseDiameter[0];
     }
