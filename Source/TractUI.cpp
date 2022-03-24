@@ -118,7 +118,7 @@ bool TractUI::isNearTongue(t_tractProps *p, double index, double diameter)
 void TractUI::drawTongueControl(Graphics &g, t_tractProps *p)
 {
 	Path path;
-	this->originX = 3.7 * getWidth() / 5.0;
+	this->originX = 2.9 * getWidth() / 5.0;
 	this->originY = 3.5 * getHeight() / 5.0;
 	this->radius = getWidth() * this->fillRatio;
 	this->scale = this->radius / 5.0;
@@ -178,8 +178,6 @@ void TractUI::drawTongueControl(Graphics &g, t_tractProps *p)
 
 void TractUI::drawTract(Graphics &g, t_tractProps *props)
 {
-	double velum = props->noseDiameter[0];
-	double velumAngle = velum * 4.0;
 	
 	// first draw fill
 	Path p;
@@ -193,28 +191,33 @@ void TractUI::drawTract(Graphics &g, t_tractProps *props)
 	g.fillPath(p);
 
 	//for nose
-	p.clear();
-	stroke.setStrokeThickness((this->scale * 2.0 / 60.0));
-	this->moveTo(g, props, p, props->noseStart, -props->noseOffset);
-	for (int i = 0; i < props->noseLength; i++) {
-		this->lineTo(g, props, p, i + props->noseStart, -props->noseOffset - props->noseDiameter[i] * 0.9);
+	for (int j = 0; j < (processor.extraNose ? 2 : 1); j++) {
+		double *noseDiameter = props->noseProps[j].diameter;
+		int noseStart = props->noseProps[j].start;
+		int noseLength = props->noseProps[j].length;
+		double noseOffset = -props->noseProps[j].noseOffset;
+		double velum = noseDiameter[0];
+		double velumAngle = velum * 4.0;
+		
+		p.clear();
+		stroke.setStrokeThickness((this->scale * 2.0 / 60.0));
+		this->moveTo(g, props, p, noseStart, noseOffset);
+		for (int i = 0; i < noseLength; i++) this->lineTo(g, props, p, i + noseStart, noseOffset - noseDiameter[i] * 0.9);
+		for (int i = noseLength - 1; i >= 1; i--) this->lineTo(g, props, p, i + noseStart, noseOffset);
+		p.closeSubPath();
+		g.fillPath(p);
+		
+		//velum
+		p.clear();
+		stroke.setStrokeThickness((this->scale * 2.0 / 60.0));
+		this->moveTo(g, props, p, noseStart - 2, 0);
+		this->lineTo(g, props, p, noseStart, noseOffset);
+		this->lineTo(g, props, p, noseStart + velumAngle, noseOffset);
+		this->lineTo(g, props, p, noseStart + velumAngle - 2, 0);
+		p.closeSubPath();
+		g.strokePath(p, stroke);
+		g.fillPath(p);
 	}
-	for (int i = props->noseLength - 1; i >= 1; i--) {
-		this->lineTo(g, props, p, i + props->noseStart, -props->noseOffset);
-	}
-	p.closeSubPath();
-	g.fillPath(p);
-
-	//velum
-	p.clear();
-	stroke.setStrokeThickness((this->scale * 2.0 / 60.0));
-	this->moveTo(g, props, p, props->noseStart - 2, 0);
-	this->lineTo(g, props, p, props->noseStart, -props->noseOffset);
-	this->lineTo(g, props, p, props->noseStart + velumAngle, -props->noseOffset);
-	this->lineTo(g, props, p, props->noseStart + velumAngle - 2, 0);
-	p.closeSubPath();
-	g.strokePath(p, stroke);
-	g.fillPath(p);
 	
 	//white text
 //	this.ctx.fillStyle = "white";
@@ -238,31 +241,40 @@ void TractUI::drawTract(Graphics &g, t_tractProps *props)
 	g.setColour(Colour::fromString("FFC070C6"));
 	this->moveTo(g, props, p, 1, props->tractDiameter[0]);
 	for (int i = 2; i < props->n; i++) this->lineTo(g, props, p, i, props->tractDiameter[i]);
-	this->moveTo(g, props, p, 1, 0);
-	for (int i = 2; i < props->noseStart - 2; i++) this->lineTo(g, props, p, i, 0);
-	this->moveTo(g, props, p, props->noseStart + velumAngle - 2, 0);
-	for (int i = props->noseStart + ceil(velumAngle) - 2; i < props->n; i++) this->lineTo(g, props, p, i, 0);
-	g.strokePath(p, stroke);
+	for (int j = 0; j < (processor.extraNose ? 2 : 1); j++) {
+		g.setColour(Colour::fromString("FFC070C6"));
+		int noseStart = props->noseProps[j].start;
+		double *noseDiameter = props->noseProps[j].diameter;
+		int noseLength = props->noseProps[j].length;
+		double noseOffset = -props->noseProps[j].noseOffset;
+		double velum = noseDiameter[0];
+		double velumAngle = velum * 4.0;
+		
+		this->moveTo(g, props, p, 1, 0);
+		for (int i = 2; i < noseStart - 2; i++) this->lineTo(g, props, p, i, 0);
+		this->moveTo(g, props, p, noseStart + velumAngle - 2, 0);
+		for (int i = noseStart + ceil(velumAngle) - 2; i < props->n; i++) this->lineTo(g, props, p, i, 0);
+		g.strokePath(p, stroke);
+	
+		//for nose
+		
+		p.clear();
+		stroke.setStrokeThickness((this->scale * 5.0 / 60.0));
+		this->moveTo(g, props, p, noseStart, noseOffset);
+		for (int i = 1; i < noseLength; i++) this->lineTo(g, props, p, i + noseStart, noseOffset - noseDiameter[i] * 0.9);
+		this->moveTo(g, props, p, noseStart + velumAngle, noseOffset);
+		for (int i = ceil(velumAngle); i < noseLength; i++) this->lineTo(g, props, p, i + noseStart, noseOffset);
+		g.strokePath(p, stroke);
 
-	//for nose
-	p.clear();
-	stroke.setStrokeThickness((this->scale * 5.0 / 60.0));
-	this->moveTo(g, props, p, props->noseStart, -props->noseOffset);
-	for (int i = 1; i < props->noseLength; i++) {
-		this->lineTo(g, props, p, i + props->noseStart, -props->noseOffset - props->noseDiameter[i] * 0.9);
+		//velum
+		g.setOpacity(fmin(1.0, velum * 5));
+		p.clear();
+		this->moveTo(g, props, p, noseStart - 2, 0);
+		this->lineTo(g, props, p, noseStart, noseOffset);
+		this->moveTo(g, props, p, noseStart + velumAngle - 2, 0);
+		this->lineTo(g, props, p, noseStart + velumAngle, noseOffset);
+		g.strokePath(p, stroke);
 	}
-	this->moveTo(g, props, p, props->noseStart + velumAngle, -props->noseOffset);
-	for (int i = ceil(velumAngle); i < props->noseLength; i++) this->lineTo(g, props, p, i + props->noseStart, -props->noseOffset);
-	g.strokePath(p, stroke);
-
-	//velum
-	g.setOpacity(fmin(1.0, velum * 5));
-	p.clear();
-	this->moveTo(g, props, p, props->noseStart - 2, 0);
-	this->lineTo(g, props, p, props->noseStart, -props->noseOffset);
-	this->moveTo(g, props, p, props->noseStart + velumAngle - 2, 0);
-	this->lineTo(g, props, p, props->noseStart + velumAngle, -props->noseOffset);
-	g.strokePath(p, stroke);
 
 	// TODO: text?
 //	this.ctx.fillStyle = "orchid";
@@ -296,8 +308,12 @@ void TractUI::lineTo(Graphics &g, t_tractProps *props, Path &p, double i, double
 
 void TractUI::getPolarCoordinates(t_tractProps *props, double i, double d, double &r, double &angle)
 {
+	int noseLength1 = props->noseProps[0].length;
+	int noseLength2 = props->noseProps[1].length;
+	double noseMaxAmplitude = fmax(props->noseProps[0].maxAmplitude[noseLength1-1], props->noseProps[1].maxAmplitude[noseLength2-1]);
+	
 	angle = this->angleOffset + i * this->angleScale * M_PI / (props->lipStart - 1);
-	double wobble = props->maxAmplitude[props->n-1]+props->noseMaxAmplitude[props->noseLength-1];
+	double wobble = props->maxAmplitude[props->n - 1] + noseMaxAmplitude;
 	wobble *= 0.03 * sin(2 * i - 50 * (this->counter/1000)) * i / props->n;
 	angle += wobble;
 	r = this->radius - this->scale * d + 100 * wobble;
@@ -328,12 +344,20 @@ void TractUI::drawAmplitudes(Graphics &g, t_tractProps *props)
 		g.strokePath(p, stroke);
 	}
 	
-	for (int i = 1; i < props->noseLength; i++) {
-		stroke.setStrokeThickness(sqrt(props->noseMaxAmplitude[i]) *3);
+	for (int j = 0; j < (processor.extraNose ? 2 : 1); j++) {
+		double *noseMaxAmplitude = props->noseProps[j].maxAmplitude;
+		int noseLength = props->noseProps[j].length;
+		double *noseDiameter = props->noseProps[j].diameter;
+		int noseStart = props->noseProps[j].start;
+		double noseOffset = -props->noseProps[j].noseOffset;
 		
-		this->moveTo(g, props, p, props->noseStart + i, -props->noseOffset);
-		this->lineTo(g, props, p, props->noseStart + i, -props->noseOffset - props->noseDiameter[i]*0.9);
-		g.strokePath(p, stroke);
+		for (int i = 1; i < noseLength; i++) {
+			stroke.setStrokeThickness(sqrt(noseMaxAmplitude[i]) *3);
+			
+			this->moveTo(g, props, p, noseStart + i, noseOffset);
+			this->lineTo(g, props, p, noseStart + i, noseOffset - noseDiameter[i]*0.9);
+			g.strokePath(p, stroke);
+		}
 	}
 }
 

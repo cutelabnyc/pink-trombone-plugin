@@ -100,7 +100,7 @@ void Glottis::finishBlock()
 	this->newTenseness = this->UITenseness +
 		0.1 * simplex1(this->totalTime * 0.46) + 0.05 * simplex1(this->totalTime * 0.36);
 	if (!this->isTouched && alwaysVoice) this->newTenseness += (3-this->UITenseness)*(1-this->intensity);
-	if (this->isTouched || alwaysVoice) this->intensity += 0.13;
+    if (this->isTouched || alwaysVoice) this->intensity += 0.26; //0.13; make the intensity jump a bit faster
 	else this->intensity -= 0.05;
 	this->intensity = clamp(this->intensity, 0.0, 1.0);
 }

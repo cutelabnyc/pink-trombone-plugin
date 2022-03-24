@@ -58,12 +58,26 @@ private:
     Label releaseLabel;
 	Slider releaseExp;
 	
+	Slider noseLength;
+	Label noseLengthLabel;
+	Slider noseAttachment;
+	Label noseAttachmentLabel;
+	
+	Slider extraNoseLength;
+	Label extraNoseLengthLabel;
+	Slider extraNoseAttachment;
+	Label extraNoseAttachmentLabel;
+	
 	ToggleButton muteAudio;
 	ToggleButton tongueXMod;
 	ToggleButton tongueYMod;
 	ToggleButton constrictionXMod;
 	ToggleButton constrictionYMod;
 	ToggleButton breath;
+	ToggleButton openNose;
+	ToggleButton extraNose;
+	
+	Label noseSelectLabel;
 	
 	TractUI tractUI;
 	

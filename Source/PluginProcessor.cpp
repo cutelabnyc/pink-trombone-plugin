@@ -247,19 +247,26 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		double lambda2 = ((double) j + 0.5) / (double) N;
 		
 		double glotSum = 0;
-		double glotModulatorSum = 0;
+        double glotModulator = glottises[0]->getNoiseModulator();
 		for (int i=0; i<this->numVoices+1; i++)
 		{
 			double glot = glottises[i]->runStep(lambda1, asp);
-			double glotModulator = glottises[i]->getNoiseModulator();
 			glotSum += glot;
-			glotModulatorSum += glotModulator;
 		}
+        
+        // Collect upsampled output from two different lambdas
 		double vocalOutput = 0.0;
-		this->tract->runStep(glotSum, fri, lambda1, glotModulatorSum);
-		vocalOutput += this->tract->lipOutput + this->tract->noseOutput;
-		this->tract->runStep(glotSum, fri, lambda2, glotModulatorSum);
-		vocalOutput += this->tract->lipOutput + this->tract->noseOutput;
+		this->tract->runStep(glotSum, fri, lambda1, glotModulator);
+        vocalOutput += this->tract->lipOutput;
+        for (int k = 0; k < (this->extraNose ? 2 : 1); k++) {
+            vocalOutput += this->tract->noseOutputs[k];
+        }
+		
+		this->tract->runStep(glotSum, fri, lambda2, glotModulator);
+        vocalOutput += this->tract->lipOutput;
+        for (int k = 0; k < (this->extraNose ? 2 : 1); k++) {
+            vocalOutput += this->tract->noseOutputs[k];
+        }
 
         adsr.advanceOneSample();
 		this->applyVoicing();
@@ -361,6 +368,29 @@ void PinkTromboneAudioProcessor::applyVoicing()
 	}
 	else
 		this->voicingCounter += 1;
+}
+
+void PinkTromboneAudioProcessor::openNose(bool openNose)
+{
+	this->tract->openNose(openNose);
+}
+
+void PinkTromboneAudioProcessor::setNoseLength(float noseLength, int index)
+{
+	double noseLengthValue = NOSE_LENGTH_MIN + (NOSE_LENGTH_MAX - NOSE_LENGTH_MIN) * noseLength;
+	this->tract->setNoseLength(noseLengthValue, index);
+}
+
+void PinkTromboneAudioProcessor::setNoseAttachment(float noseAttachment, int index)
+{
+	double noseAttachmentValue = NOSE_ATTACHMENT_MIN + (NOSE_ATTACHMENT_MAX - NOSE_ATTACHMENT_MIN) * noseAttachment;
+	this->tract->setNoseAttachment(noseAttachmentValue, index);
+}
+
+void PinkTromboneAudioProcessor::setExtraNose(bool extraNose)
+{
+	this->extraNose = extraNose;
+	this->tract->setExtraNose(extraNose);
 }
 
 //==============================================================================

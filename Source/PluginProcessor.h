@@ -20,6 +20,11 @@
 #include <math.h>
 #include <map>
 
+#define NOSE_LENGTH_MIN (5)
+#define NOSE_LENGTH_MAX (44)
+#define NOSE_ATTACHMENT_MIN (3)
+#define NOSE_ATTACHMENT_MAX (40)
+
 //==============================================================================
 /**
 */
@@ -65,6 +70,11 @@ public:
 	
 	void noteAdded (MPENote newNote) override;
 	void noteReleased (MPENote finishedNote) override;
+	
+	void openNose(bool openNose);
+	void setNoseLength(float noseLength, int index);
+	void setNoseAttachment(float noseAttachment, int index);
+	void setExtraNose(bool extraNose);
 
 	
 	//=== Audio Parameters
@@ -78,6 +88,7 @@ public:
 	bool noteOn;
 	bool noteOff;
 	bool breath = false;
+	bool extraNose;
 	
 	AudioParameterFloat* tongueX;
 	AudioParameterFloat* tongueY;
