@@ -46,7 +46,7 @@ private:
 	double scale;
 	double innerTongueControlRadius = 2.05;
 	double outerTongueControlRadius = 3.5;
-	double fillRatio = 1.6 / 6.0;
+	double fillRatio = 2.5 / 6.0;
 	bool isTongue;
 	double counter = 0;
 };

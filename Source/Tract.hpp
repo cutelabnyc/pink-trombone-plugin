@@ -87,7 +87,7 @@ private:
 	void processTransients();
 	void reshapeTract(double deltaTime);
 	
-	double sampleRate, blockTime;
+	double sampleRate, blockTime, blockTimeSeconds;
 	t_tractProps *tractProps;
 	double glottalReflection;
 	double lipReflection;

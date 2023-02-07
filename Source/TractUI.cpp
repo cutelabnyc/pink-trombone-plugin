@@ -23,6 +23,7 @@ TractUI::~TractUI() { }
 
 void TractUI::paint(Graphics &g)
 {
+    g.fillAll(Colours::snow);
 	t_tractProps *props = this->processor.getTractProps();
 	this->drawTongueControl(g, props);
 	this->drawTract(g, props);

@@ -57,6 +57,7 @@ Tract::Tract(double sampleRate, double blockTime, t_tractProps *props):
 {
 	this->sampleRate = sampleRate;
 	this->blockTime = blockTime;
+    this->blockTimeSeconds = blockTime / sampleRate;
 	this->transients = (t_transient *) calloc(MAX_TRANSIENTS, sizeof(t_transient));
 	this->transientCount = 0;
 	this->tractProps = props;
@@ -243,7 +244,7 @@ void Tract::calculateNoseReflections()
 
 void Tract::finishBlock()
 {
-	this->reshapeTract(this->blockTime);
+	this->reshapeTract(this->blockTimeSeconds);
 	this->calculateReflections();
 	this->calculateNoseReflections();
 	memcpy(this->tractProps->tractDiameter, this->diameter, sizeof(double) * this->tractProps->n);
@@ -372,7 +373,7 @@ void Tract::processTransients()
 
 void Tract::reshapeTract(double deltaTime)
 {
-	double amount = deltaTime * this->movementSpeed; ;
+	double amount = deltaTime * this->movementSpeed;
 	int newLastObstruction = -1;
 	for (int i = 0; i < this->tractProps->n; i++)
 	{
