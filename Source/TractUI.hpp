@@ -13,6 +13,9 @@
 #include "PluginProcessor.h"
 #include "Tract.hpp"
 
+#define TONGUE_CONTROL_X    (3.2 / 5.0)
+#define TONGUE_CONTROL_Y    (3.5 / 5.0)
+
 class TractUI : public Component, public Timer {
 public:
 	TractUI(PinkTromboneAudioProcessor &);

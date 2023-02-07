@@ -6,6 +6,7 @@
 //
 
 #include "TractUI.hpp"
+#include <algorithm>
 
 TractUI::TractUI(PinkTromboneAudioProcessor &p):
 processor(p),
@@ -93,6 +94,14 @@ void TractUI::setTongue(t_tractProps *props, double index, double diameter)
 	} else if (diameter > this->outerTongueControlRadius){
 		diameter = this->outerTongueControlRadius;
 	}
+    
+    // Nasty curve fitting
+    double tongueIndexCenter = (tongueUpperIndexBound + tongueLowerIndexBound) / 2.0;
+    double fromPoint = (outerTongueControlRadius - diameter) / (outerTongueControlRadius - innerTongueControlRadius);
+    fromPoint = std::min(1.0, std::max(fromPoint, 0.0));
+    fromPoint = std::pow(fromPoint, 0.58) - 0.2 * (fromPoint * fromPoint - fromPoint); //horrible kludge to fit curve to straight line
+    double out = fromPoint * 0.5 * (tongueUpperIndexBound - tongueLowerIndexBound);
+    index = std::min(tongueIndexCenter + out, std::max(index, tongueIndexCenter - out));
 	
 	*(this->processor.tongueX) = (index - tongueLowerIndexBound)/(tongueUpperIndexBound-tongueLowerIndexBound);
 	*(this->processor.tongueY) = (diameter - this->innerTongueControlRadius)/(this->outerTongueControlRadius - this->innerTongueControlRadius);
@@ -101,9 +110,9 @@ void TractUI::setTongue(t_tractProps *props, double index, double diameter)
 void TractUI::getEventPosition(t_tractProps *props, double x, double y, double &index, double &diameter)
 {
 	double angle = atan2(y, x);
-	while(angle > 0) {angle -= 2*M_PI;};
-	index = (M_PI + angle - this->angleOffset) * (props->lipStart - 1)/(this->angleScale * M_PI);
-	diameter = (this->radius - sqrt(pow(x, 2) + pow(y, 2)))/this->scale;
+	while(angle > 0) {angle -= 2 * M_PI;};
+	index = (M_PI + angle - this->angleOffset) * (props->lipStart - 1) / (this->angleScale * M_PI);
+	diameter = (this->radius - sqrt(pow(x, 2) + pow(y, 2))) / this->scale;
 }
 
 bool TractUI::isNearTongue(t_tractProps *p, double index, double diameter)
@@ -119,8 +128,8 @@ bool TractUI::isNearTongue(t_tractProps *p, double index, double diameter)
 void TractUI::drawTongueControl(Graphics &g, t_tractProps *p)
 {
 	Path path;
-	this->originX = 2.9 * getWidth() / 5.0;
-	this->originY = 3.5 * getHeight() / 5.0;
+	this->originX = getWidth() * TONGUE_CONTROL_X;
+	this->originY = getHeight() * TONGUE_CONTROL_Y;
 	this->radius = getWidth() * this->fillRatio;
 	this->scale = this->radius / 5.0;
 	PathStrokeType strokeType(this->scale * 0.75);
@@ -165,12 +174,12 @@ void TractUI::drawTongueControl(Graphics &g, t_tractProps *p)
 	double rad = this->radius - this->scale * (p->tongueDiameter);
 	double x = this->originX - rad * cos(angle);
 	double y = this->originY - rad * sin(angle);
-	double cr = this->scale * 18.0 / 60.0;
+	double cr = this->scale * 32.0 / 60.0;
 	strokeType.setStrokeThickness(this->scale * 4.0 / 60.0);
 	g.setColour(Colours::black);
 	g.setOpacity(0.7);
 	Path cp;
-	cp.addEllipse(x, y, cr, cr);
+	cp.addEllipse(x - cr / 2.0, y - cr / 2.0, cr, cr);
 	g.strokePath(cp, strokeType);
 	g.setOpacity(0.15);
 	g.fillPath(cp);

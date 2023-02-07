@@ -48,7 +48,9 @@ PinkTromboneAudioProcessor::PinkTromboneAudioProcessor()
 													 1.0f)); // default value
 
     tongueXMod = new ModulatableAudioParameter(tongueX);
+    tongueXMod->setRootValue(0.5);
     tongueYMod = new ModulatableAudioParameter(tongueY);
+    tongueYMod->setRootValue(0.5);
     constrictionXMod = new ModulatableAudioParameter(constrictionX);
     constrictionYMod = new ModulatableAudioParameter(constrictionY);
     

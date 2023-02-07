@@ -29,7 +29,7 @@ void initializeTractProps(t_tractProps *props, int n)
 	props->bladeStart = (int) floor(props->bladeStart * (double) n / 44.0);
 	props->tipStart = (int) floor(props->tipStart * (double) n / 44.0);
 	props->lipStart = (int) floor(props->lipStart * (double) n / 44.0);
-	props->tongueIndex = props->bladeStart;
+	props->tongueIndex = (props->lipStart + props->bladeStart) / 2.0;
 	props->tongueDiameter = 3.5;
 	props->tractDiameter = (double *) calloc(n, sizeof(double));
 	props->maxAmplitude = (double *) calloc(n, sizeof(double));
