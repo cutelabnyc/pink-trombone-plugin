@@ -142,6 +142,7 @@ void PinkTromboneAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
     // initialisation that you need..
 	this->sampleRate = sampleRate;
 	this->adsr.setSampleRate(sampleRate);
+    restartConstrictionSampleMax = RESTART_CONSTRICTION_TIME_SEC * sampleRate;
 	
 	for (int i=0; i<this->numVoices+1; i++)
 	{
@@ -303,7 +304,17 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 	this->fricativeIntensity = minf(1.0, this->fricativeIntensity);
 	
 	this->tract->setRestDiameter(tongueIndex, tongueDiameter);
-	this->tract->setConstriction(constrictionIndex, constrictionDiameter, this->fricativeIntensity);
+    
+    // Only activate the constriction if there's a note on, or the mouse is down
+    if (restartConstrictionEnvelope) {
+        restartConstrictionEnvelope = false;
+        restartConstrictionSampleCount = 0;
+    }
+    bool envelopeIsRestarting = (restartConstrictionSampleCount < restartConstrictionSampleMax);
+    if (isSettingConstriction || (!glottisMap.empty() && !envelopeIsRestarting)) {
+        this->tract->setConstriction(constrictionIndex, constrictionDiameter, this->fricativeIntensity);
+    }
+    restartConstrictionSampleCount += N;
 	for (int i=0; i<this->numVoices+1; i++)
 	{
 		glottises[i]->finishBlock();
@@ -326,16 +337,22 @@ void PinkTromboneAudioProcessor::noteAdded(MPENote newNote)
 	double midiNoteInHz = newNote.getFrequencyInHertz();
 	bool firstNote;
 	this->noteOn = true;
-	if(this->glottisMap.empty()) firstNote = true;
+    if(this->glottisMap.empty()) {
+        firstNote = true;
+        restartConstrictionSampleCount = restartConstrictionSampleMax + 1;
+    } else {
+        restartConstrictionEnvelope = true;
+        restartConstrictionSampleCount = 0;
+    }
 	
-	for (int i=0; i<this->numVoices+1; i++)
+	for (int i = 0; i < this->numVoices + 1; i++)
 	{
 		if(!this->glottises[i]->isActive)
 		{
 			this->glottisMap.emplace(newNote.noteID, glottises[i]);
 			glottises[i]->setFrequency(midiNoteInHz);
 			glottises[i]->setActive(true);
-			if(firstNote){
+			if (firstNote) {
 				this->voicingCounter = 0;
 			}
 			break;
@@ -348,7 +365,7 @@ void PinkTromboneAudioProcessor::noteReleased(MPENote finishedNote)
 {
 	std::map<uint16, Glottis*>::iterator glotOff = this->glottisMap.find(finishedNote.noteID);
 	glotOff->second->setActive(false);
-	if (this->glottisMap.size()>1) glotOff->second->setVoicing(false);
+	if (this->glottisMap.size() > 1) glotOff->second->setVoicing(false);
 	this->glottisMap.erase(finishedNote.noteID);
 	
 	if(this->glottisMap.empty()) {
@@ -433,6 +450,11 @@ void PinkTromboneAudioProcessor::setNoseMode(int selectedId)
 		this->setAutoVelum(false);
 	}
 	else if (selectedId == 3) this->setAutoVelum(true);
+}
+
+void PinkTromboneAudioProcessor::setIsSettingConstriction(bool tf)
+{
+    isSettingConstriction = tf;
 }
 
 //==============================================================================

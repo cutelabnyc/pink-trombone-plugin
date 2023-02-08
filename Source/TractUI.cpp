@@ -47,12 +47,13 @@ void TractUI::mouseDown(const juce::MouseEvent &e)
 	this->getEventPosition(props, x, y, index, diameter);
 	bool isNearTongue = this->isNearTongue(props, index, diameter);
 
-	if(isNearTongue){
+	if (isNearTongue){
 		this->isTongue = true;
 		this->setTongue(props, index, diameter);
 	} else {
 		this->isTongue = false;
 		this->setConstriction(props, index, diameter);
+        processor.setIsSettingConstriction(true);
 	}
 }
 
@@ -72,10 +73,15 @@ void TractUI::mouseDrag(const juce::MouseEvent &e)
 		this->setConstriction(props, index, diameter);
 }
 
+void TractUI::mouseUp (const MouseEvent&)
+{
+    processor.setIsSettingConstriction(false);
+}
+
 void TractUI::setConstriction(t_tractProps *props, double index, double diameter)
 {
 	*(this->processor.constrictionX) = index/props->n;
-	*(this->processor.constrictionY) = (diameter - this->processor.constrictionMin)/(this->processor.constrictionMax - this->processor.constrictionMin);
+	*(this->processor.constrictionY) = (diameter - this->processor.constrictionMin) / (this->processor.constrictionMax - this->processor.constrictionMin);
 }
 
 void TractUI::setTongue(t_tractProps *props, double index, double diameter)

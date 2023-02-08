@@ -24,6 +24,7 @@
 #define NOSE_LENGTH_MAX (44)
 #define NOSE_ATTACHMENT_MIN (3)
 #define NOSE_ATTACHMENT_MAX (40)
+#define RESTART_CONSTRICTION_TIME_SEC (0.05)
 
 //==============================================================================
 /**
@@ -79,6 +80,7 @@ public:
 	void updateSize(double sizeFactor);
 	void setAutoVelum(bool autoVelum);
 	void setNoseMode(int selectedId);
+    void setIsSettingConstriction(bool tf);
 
 	
 	//=== Audio Parameters
@@ -123,4 +125,8 @@ private:
 	WhiteNoise *whiteNoise;
 	Biquad *fricativeFilter;
 	Biquad *aspirateFilter;
+    bool isSettingConstriction = false;
+    bool restartConstrictionEnvelope = false;
+    uint32_t restartConstrictionSampleCount = 0;
+    uint32_t restartConstrictionSampleMax = 1;
 };
