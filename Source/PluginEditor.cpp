@@ -24,6 +24,10 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
     tractUI.setBounds(0, 0, tractUI.getWidth(), tractUI.getHeight());
 	addAndMakeVisible(&tractUI);
     
+    adsrUI.setSize(300, 100);
+    adsrUI.setBounds(300, 0, 300, 100);
+    addAndMakeVisible(&adsrUI);
+    
     // Initialize
     noseLength.setValue(0.59);
     noseAttachment.setValue(0.38);

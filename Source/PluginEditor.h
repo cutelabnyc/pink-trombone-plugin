@@ -13,6 +13,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
 #include "TractUI.hpp"
+#include "ADSRUI.hpp"
 
 //==============================================================================
 /**
@@ -86,6 +87,7 @@ private:
 	Label noseModeLabel;
 	
 	TractUI tractUI;
+    ADSRUI adsrUI;
 	
 	SliderParameterAttachment* tongueXAttachment;
 	SliderParameterAttachment* tongueYAttachment;
