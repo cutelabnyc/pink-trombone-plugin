@@ -32,9 +32,18 @@
 class PinkTromboneAudioProcessor  : public AudioProcessor, public MPEInstrument::Listener
 {
 public:
+    
     //==============================================================================
     PinkTromboneAudioProcessor();
     ~PinkTromboneAudioProcessor();
+    
+    //==============================================================================
+    static juce::String initial;
+    static juce::String peak;
+    static juce::String attack;
+    static juce::String decay;
+    static juce::String sustain;
+    static juce::String release;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -81,6 +90,7 @@ public:
 	void setAutoVelum(bool autoVelum);
 	void setNoseMode(int selectedId);
     void setIsSettingConstriction(bool tf);
+    AudioProcessorValueTreeState& getParametersTree();
 
 	
 	//=== Audio Parameters
@@ -113,6 +123,8 @@ public:
 
 private:
 	MPEInstrument instrument;
+    AudioProcessorValueTreeState parameters;
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PinkTromboneAudioProcessor)
 	void applyVoicing();

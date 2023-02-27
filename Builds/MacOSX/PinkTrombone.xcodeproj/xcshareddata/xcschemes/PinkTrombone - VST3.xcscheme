@@ -42,7 +42,7 @@
       allowLocationSimulation = "YES">
       <PathRunnable
          runnableDebuggingMode = "0"
-         FilePath = "/Applications/REAPER.app">
+         FilePath = "/Applications/Max.app">
       </PathRunnable>
    </LaunchAction>
    <ProfileAction

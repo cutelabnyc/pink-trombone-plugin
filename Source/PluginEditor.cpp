@@ -14,12 +14,24 @@
 
 //==============================================================================
 PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTromboneAudioProcessor& p)
-    : AudioProcessorEditor (&p), processor (p), tractUI(p)
+: AudioProcessorEditor (&p)
+, processor (p)
+, tractUI(p)
+, adsrUI(
+         p.getParametersTree(),
+         {
+             PinkTromboneAudioProcessor::initial,
+             PinkTromboneAudioProcessor::attack,
+             PinkTromboneAudioProcessor::peak,
+             PinkTromboneAudioProcessor::decay,
+             PinkTromboneAudioProcessor::sustain,
+             PinkTromboneAudioProcessor::release
+         })
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setSize (600, 400);
-	
+    
 	tractUI.setSize(300, 300);
     tractUI.setBounds(0, 0, tractUI.getWidth(), tractUI.getHeight());
 	addAndMakeVisible(&tractUI);

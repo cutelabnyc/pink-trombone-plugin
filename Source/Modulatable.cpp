@@ -78,14 +78,21 @@ ModulatableAudioParameter::ModulatableAudioParameter(AudioParameterFloat *f)
     , _parameter(f)
 {}
 
+float ModulatableAudioParameter::value()
+{
+    float modulatedValue = this->Modulatable::value();
+    
+    return _parameter->convertFrom0to1(modulatedValue);
+}
+
 float ModulatableAudioParameter::rootValue()
 {
-    return _parameter->get();
+    return _parameter->convertTo0to1(_parameter->get());
 }
 
 void ModulatableAudioParameter::setRootValue(float value)
 {
-    _parameter->setValueNotifyingHost(value);
+    _parameter->setValueNotifyingHost(_parameter->convertFrom0to1(value));
 }
 
 

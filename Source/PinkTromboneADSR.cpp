@@ -72,9 +72,11 @@ void PinkTromboneADSR::advanceOneSample() noexcept
         
         if (state == State::ATTACK) {
             exponent = parameters.attackExp;
+            offset = parameters.initial;
+            scale = (parameters.peak - parameters.initial);
         } else if (state == State::DECAY) {
             exponent = parameters.decayExp;
-            scale = (1.0f - parameters.sustain);
+            scale = (parameters.peak - parameters.sustain);
             offset = parameters.sustain;
         } else if (state == State::RELEASE) {
             exponent = parameters.releaseExp;

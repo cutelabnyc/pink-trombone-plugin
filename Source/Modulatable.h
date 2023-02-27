@@ -33,7 +33,7 @@ class Modulatable {
 public:
     Modulatable(RealType initial, RealType minimum, RealType maximum);
     virtual ~Modulatable() = default;
-    RealType value();
+    virtual RealType value();
     virtual RealType rootValue();
     virtual void setRootValue(RealType value);
     void appendModulationSource(ModulationSource<RealType> *m);
@@ -49,6 +49,7 @@ private:
 class ModulatableAudioParameter: public Modulatable<float> {
 public:
     ModulatableAudioParameter(AudioParameterFloat *f);
+    float value() override;
     float rootValue() override;
     void setRootValue(float value) override;
 private:
