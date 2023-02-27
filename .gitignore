@@ -2,3 +2,4 @@ Builds/*/build
 JuceLibraryCode
 *xcuserdata
 .DS_Store
+build

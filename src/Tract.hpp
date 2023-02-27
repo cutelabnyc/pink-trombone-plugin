@@ -9,7 +9,7 @@
 #define Tract_hpp
 
 #include <stdio.h>
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "JuceHeader.h"
 #include "Glottis.hpp"
 
 #define MAX_NOSES (2)

@@ -9,7 +9,7 @@
 #define TractUI_hpp
 
 #include <stdio.h>
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "JuceHeader.h"
 #include "PluginProcessor.h"
 #include "Tract.hpp"
 

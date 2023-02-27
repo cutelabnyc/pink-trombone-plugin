@@ -11,7 +11,7 @@
 #include <type_traits>
 #include <vector>
 #include "ModulationSource.h"
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "JuceHeader.h"
 
 template <typename RealType>
 class Modulation {

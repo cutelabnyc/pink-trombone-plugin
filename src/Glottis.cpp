@@ -12,6 +12,7 @@
 
 Glottis::Glottis(double sampleRate) :
 	timeInWaveform(0),
+    frequency(100),
 //	oldFrequency(140),
 //	newFrequency(140),
 //	smoothFrequency(140),

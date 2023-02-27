@@ -9,7 +9,7 @@
 #define Glottis_hpp
 
 #include <stdio.h>
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "JuceHeader.h"
 
 class Glottis {
 public:

@@ -46,7 +46,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
     breathFactor.setValue(0.5);
     sizeFactor.setValue(1.0);
     extraNose.setToggleState(false, juce::dontSendNotification);
-    processor.setExtraNose(this->extraNose.getToggleState());
+//    processor.setExtraNose(this->extraNose.getToggleState());
 //    processor.setNoseLength(0.59, 0);
 //    processor.setNoseAttachment(0.38, 0);
 //    processor.updateBreathFactor(1.5 * 0.5 + 0.25);

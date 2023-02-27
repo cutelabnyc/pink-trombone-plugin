@@ -8,7 +8,7 @@
 #ifndef PinkTromboneADSR_hpp
 #define PinkTromboneADSR_hpp
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "JuceHeader.h"
 #include "ModulationSource.h"
 #include <math.h>
 

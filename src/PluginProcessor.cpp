@@ -160,7 +160,13 @@ PinkTromboneAudioProcessor::~PinkTromboneAudioProcessor()
 //==============================================================================
 const String PinkTromboneAudioProcessor::getName() const
 {
+#if defined(JucePlugin_Name)
     return JucePlugin_Name;
+#elif defined(JUCE_APPLICATION_NAME_STRING)
+    return JUCE_APPLICATION_NAME_STRING;
+#else
+    return "JUCE Application";
+#endif
 }
 
 bool PinkTromboneAudioProcessor::acceptsMidi() const

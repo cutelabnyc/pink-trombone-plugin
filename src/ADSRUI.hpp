@@ -9,7 +9,7 @@
 #define ADSRUI_hpp
 
 #include <stdio.h>
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "JuceHeader.h"
 
 #define HANDLES_COUNT   (4)
 
