@@ -35,7 +35,7 @@ public:
     
     //==============================================================================
     PinkTromboneAudioProcessor();
-    ~PinkTromboneAudioProcessor();
+    ~PinkTromboneAudioProcessor() override;
     
     //==============================================================================
     static juce::String initial;
@@ -44,6 +44,11 @@ public:
     static juce::String decay;
     static juce::String sustain;
     static juce::String release;
+    static juce::String envModConstrictionX;
+    static juce::String envModConstrictionY;
+    static juce::String envModTongueX;
+    static juce::String envModTongueY;
+    static juce::String envModPitch;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;

@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include "JuceHeader.h"
 #include "ADSRUI.hpp"
-#include "ModLookAndFeel.hpp"
+#include "ModSliderComponent.hpp"
 
 class EnvelopeComponent : public Component {
     
@@ -28,9 +28,8 @@ private:
     
     ADSRUI _adsrui;
     Label titleLabel;
-    Slider tongueModXSlider;
     
-    ModLookAndFeel modLookAndFeel;
+    ModSliderComponent _tongueModXSlider;
 };
 
 #endif /* EnvelopeComponent_hpp */

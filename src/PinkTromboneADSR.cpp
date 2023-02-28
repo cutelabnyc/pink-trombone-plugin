@@ -107,13 +107,13 @@ void PinkTromboneADSR::calculateRate(float start, float end) noexcept
 {
     switch (state) {
         case State::ATTACK:
-            duration = parameters.attack;
+            duration = parameters.attack / 1000.0f;
             break;
         case State::DECAY:
-            duration = parameters.decay;
+            duration = parameters.decay / 1000.0f;
             break;
         case State::RELEASE:
-            duration = parameters.release;
+            duration = parameters.release / 1000.0f;
             break;
         default:
             duration = -1.0f;

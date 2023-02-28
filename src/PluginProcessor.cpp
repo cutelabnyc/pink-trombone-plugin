@@ -13,14 +13,19 @@
 #include "util.h"
 #include <map>
 
-juce::String PinkTromboneAudioProcessor::initial    ("initial");
-juce::String PinkTromboneAudioProcessor::peak       ("peak");
-juce::String PinkTromboneAudioProcessor::attack     ("attack");
-juce::String PinkTromboneAudioProcessor::decay      ("decay");
-juce::String PinkTromboneAudioProcessor::sustain    ("sustain");
-juce::String PinkTromboneAudioProcessor::release    ("release");
+juce::String PinkTromboneAudioProcessor::initial                ("initial");
+juce::String PinkTromboneAudioProcessor::peak                   ("peak");
+juce::String PinkTromboneAudioProcessor::attack                 ("attack");
+juce::String PinkTromboneAudioProcessor::decay                  ("decay");
+juce::String PinkTromboneAudioProcessor::sustain                ("sustain");
+juce::String PinkTromboneAudioProcessor::release                ("release");
+juce::String PinkTromboneAudioProcessor::envModConstrictionX    ("envModConstrictionX");
+juce::String PinkTromboneAudioProcessor::envModConstrictionY    ("envModConstrictionY");
+juce::String PinkTromboneAudioProcessor::envModTongueX          ("envModTongueX");
+juce::String PinkTromboneAudioProcessor::envModTongueY          ("envModTongueY");
+juce::String PinkTromboneAudioProcessor::envModPitch            ("envModPitch");
 
-juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
+static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
 {
     std::vector<std::unique_ptr<juce::AudioProcessorParameterGroup>> params;
     
@@ -46,7 +51,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
                                                                   );
         auto attack = std::make_unique<juce::AudioParameterFloat> (PinkTromboneAudioProcessor::attack,
                                                                   TRANS ("Attack"),
-                                                                  juce::NormalisableRange<float> (0.0f, 20000.0f, 0.1f, 1.0/3.0f),
+                                                                  juce::NormalisableRange<float> (0.0f, 1000.0f, 0.1f, 1.0f/3.0f),
                                                                   5.0f,
                                                                   TRANS ("Attack time"),
                                                                   juce::AudioProcessorParameter::genericParameter,
@@ -55,8 +60,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
                                                                   );
         auto decay = std::make_unique<juce::AudioParameterFloat> (PinkTromboneAudioProcessor::decay,
                                                                   TRANS ("Decay"),
-                                                                  juce::NormalisableRange<float> (1.0f, 60000.0f, 0.1f, 1.0/3.0f),
-                                                                  1000.0f,
+                                                                  juce::NormalisableRange<float> (1.0f, 1000.0f, 0.1f, 1.0f/3.0f),
+                                                                  100.0f,
                                                                   TRANS ("Decay time"),
                                                                   juce::AudioProcessorParameter::genericParameter,
                                                                   [](float value, int) {return juce::String (value);},
@@ -73,13 +78,58 @@ juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
                                                                   );
         auto release = std::make_unique<juce::AudioParameterFloat> (PinkTromboneAudioProcessor::release,
                                                                   TRANS ("Release"),
-                                                                  juce::NormalisableRange<float> (1.0f, 60000.0f, 0.1f, 3.0f),
-                                                                  600000.0f,
+                                                                  juce::NormalisableRange<float> (1.0f, 1000.0f, 0.1f, 3.0f),
+                                                                  100.0f,
                                                                   TRANS ("Release time"),
                                                                   juce::AudioProcessorParameter::genericParameter,
                                                                   [](float value, int) {return juce::String (value);},
                                                                   [](juce::String text) {return text.dropLastCharacters(3).getFloatValue();}
                                                                   );
+        auto constrictionXEnvMod = std::make_unique<juce::AudioParameterFloat> (PinkTromboneAudioProcessor::envModConstrictionX,
+                                                                                TRANS ("Envelope Mod Constriction X"),
+                                                                                juce::NormalisableRange<float> (-1.0f, 1.0f, 0.01f),
+                                                                                0.0f,
+                                                                                TRANS ("Envelope Modulation Constriction X"),
+                                                                                juce::AudioProcessorParameter::genericParameter,
+                                                                                [](float value, int) {return juce::String (value);},
+                                                                                [](juce::String text) {return text.dropLastCharacters(3).getFloatValue();}
+                                                                                );
+        auto constrictionYEnvMod = std::make_unique<juce::AudioParameterFloat> (PinkTromboneAudioProcessor::envModConstrictionY,
+                                                                                TRANS ("Envelope Mod Constriction Y"),
+                                                                                juce::NormalisableRange<float> (-1.0f, 1.0f, 0.01f),
+                                                                                0.0f,
+                                                                                TRANS ("Envelope Modulation Constriction Y"),
+                                                                                juce::AudioProcessorParameter::genericParameter,
+                                                                                [](float value, int) {return juce::String (value);},
+                                                                                [](juce::String text) {return text.dropLastCharacters(3).getFloatValue();}
+                                                                                );
+        auto tongueXEnvMod = std::make_unique<juce::AudioParameterFloat> (PinkTromboneAudioProcessor::envModTongueX,
+                                                                                TRANS ("Envelope Mod Tongue X"),
+                                                                                juce::NormalisableRange<float> (-1.0f, 1.0f, 0.01f),
+                                                                                0.0f,
+                                                                                TRANS ("Envelope Modulation Tongue X"),
+                                                                                juce::AudioProcessorParameter::genericParameter,
+                                                                                [](float value, int) {return juce::String (value);},
+                                                                                [](juce::String text) {return text.dropLastCharacters(3).getFloatValue();}
+                                                                                );
+        auto tongueYEnvMod = std::make_unique<juce::AudioParameterFloat> (PinkTromboneAudioProcessor::envModTongueY,
+                                                                                TRANS ("Envelope Mod Tongue Y"),
+                                                                                juce::NormalisableRange<float> (-1.0f, 1.0f, 0.01f),
+                                                                                0.0f,
+                                                                                TRANS ("Envelope Modulation Tongue Y"),
+                                                                                juce::AudioProcessorParameter::genericParameter,
+                                                                                [](float value, int) {return juce::String (value);},
+                                                                                [](juce::String text) {return text.dropLastCharacters(3).getFloatValue();}
+                                                                                );
+        auto pitchEnvMod = std::make_unique<juce::AudioParameterFloat> (PinkTromboneAudioProcessor::envModPitch,
+                                                                                TRANS ("Envelope Mod Pitch"),
+                                                                                juce::NormalisableRange<float> (-1.0f, 1.0f, 0.01f),
+                                                                                0.0f,
+                                                                                TRANS ("Envelope Modulation Pitch"),
+                                                                                juce::AudioProcessorParameter::genericParameter,
+                                                                                [](float value, int) {return juce::String (value);},
+                                                                                [](juce::String text) {return text.dropLastCharacters(3).getFloatValue();}
+                                                                                );
 
         auto group = std::make_unique<juce::AudioProcessorParameterGroup> ("envelope",
                                                                            TRANS ("Envelope"),
@@ -89,7 +139,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
                                                                            std::move(attack),
                                                                            std::move(decay),
                                                                            std::move(sustain),
-                                                                           std::move(release));
+                                                                           std::move(release),
+                                                                           std::move(constrictionXEnvMod),
+                                                                           std::move(constrictionYEnvMod),
+                                                                           std::move(tongueXEnvMod),
+                                                                           std::move(tongueYEnvMod),
+                                                                           std::move(pitchEnvMod));
         params.push_back (std::move (group));
     }
     
@@ -300,18 +355,25 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
     
     // Update the ADSR with our parameters
     RangedAudioParameter *param = parameters.getParameter(PinkTromboneAudioProcessor::initial);
-    adsrParams.initial = param->convertTo0to1(param->getValue());
+    adsrParams.initial = param->convertFrom0to1(param->getValue());
     param = parameters.getParameter(PinkTromboneAudioProcessor::attack);
-    adsrParams.attack = param->convertTo0to1(param->getValue());
+    adsrParams.attack = param->convertFrom0to1(param->getValue());
     param = parameters.getParameter(PinkTromboneAudioProcessor::peak);
-    adsrParams.peak = param->convertTo0to1(param->getValue());
+    adsrParams.peak = param->convertFrom0to1(param->getValue());
     param = parameters.getParameter(PinkTromboneAudioProcessor::decay);
-    adsrParams.decay = param->convertTo0to1(param->getValue());
+    adsrParams.decay = param->convertFrom0to1(param->getValue());
     param = parameters.getParameter(PinkTromboneAudioProcessor::sustain);
-    adsrParams.sustain = param->convertTo0to1(param->getValue());
+    adsrParams.sustain = param->convertFrom0to1(param->getValue());
     param = parameters.getParameter(PinkTromboneAudioProcessor::release);
-    adsrParams.release = param->convertTo0to1(param->getValue());
+    adsrParams.release = param->convertFrom0to1(param->getValue());
 	adsr.setParameters(adsrParams);
+    
+    // Handle Modulation
+    constrictionXMod->modulationAtIndex(0)->scale = parameters.getParameter(PinkTromboneAudioProcessor::envModConstrictionX)->getValue();
+    constrictionYMod->modulationAtIndex(0)->scale = parameters.getParameter(PinkTromboneAudioProcessor::envModConstrictionY)->getValue();
+    tongueXMod->modulationAtIndex(0)->scale = parameters.getParameter(PinkTromboneAudioProcessor::envModTongueX)->getValue();
+    tongueXMod->modulationAtIndex(0)->active = true;
+    tongueYMod->modulationAtIndex(0)->scale = parameters.getParameter(PinkTromboneAudioProcessor::envModTongueY)->getValue();
 	
 	for (auto meta : midiMessages) {
 		auto currentMessage = meta.getMessage();

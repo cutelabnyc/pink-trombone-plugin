@@ -34,6 +34,7 @@ target_sources(PinkTromboneApp
   src/EnvelopeComponent.cpp
   src/Glottis.cpp
   src/ModLookAndFeel.cpp
+  src/ModSliderComponent.cpp
   src/Modulatable.cpp
   src/noise.cpp
   src/PinkTromboneADSR.cpp
