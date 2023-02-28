@@ -17,7 +17,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 : AudioProcessorEditor (&p)
 , processor (p)
 , tractUI(p)
-, adsrUI(
+, envelopeComponent(
          p.getParametersTree(),
          {
              PinkTromboneAudioProcessor::initial,
@@ -36,9 +36,9 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
     tractUI.setBounds(0, 0, tractUI.getWidth(), tractUI.getHeight());
 	addAndMakeVisible(&tractUI);
     
-    adsrUI.setSize(300, 100);
-    adsrUI.setBounds(300, 0, 300, 100);
-    addAndMakeVisible(&adsrUI);
+    envelopeComponent.setSize(300, getHeight() / 2);
+    envelopeComponent.setBounds(300, 0, 300, getHeight() / 2);
+    addAndMakeVisible(&envelopeComponent);
     
     // Initialize
     noseLength.setValue(0.59);
@@ -116,17 +116,20 @@ void PinkTromboneAudioProcessorEditor::resized()
 {
     auto uiLeftBasis = 300;
     
+//    tractUI.setSize(300, 300);
+//    tractUI.setBounds(0, 0, tractUI.getWidth(), tractUI.getHeight());
+    
 	// Local bounds are 0, 0, 800, 600
 	noseMode.setBounds(240 + uiLeftBasis, 220, 100, 20);
 	breath.setBounds(20 + uiLeftBasis, 330, 80, 20);
     
     // Tract UI
-	
 	breathFactor.setBounds (100 + uiLeftBasis, 350, 75, 100);
 	sizeFactor.setBounds (100 + uiLeftBasis, 380, 75, 100);
 	
 	muteAudio.setBounds(170 + uiLeftBasis, 30, 100, 20);
-	tractUI.setSize(getWidth(), getHeight());
+	tractUI.setSize(getWidth() / 2, getHeight() / 2);
+    envelopeComponent.setBounds(getWidth() / 2, 0, getWidth() / 2, getHeight() / 2);
 }
 
 void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)

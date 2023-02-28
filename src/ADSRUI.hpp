@@ -12,6 +12,7 @@
 #include "JuceHeader.h"
 
 #define HANDLES_COUNT   (4)
+#define HANDLE_WIDTH    (8)
 
 class ADSRUI : public Component, public juce::AudioProcessorValueTreeState::Listener {
     

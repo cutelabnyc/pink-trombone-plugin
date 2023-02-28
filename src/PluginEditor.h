@@ -13,7 +13,7 @@
 #include "JuceHeader.h"
 #include "PluginProcessor.h"
 #include "TractUI.hpp"
-#include "ADSRUI.hpp"
+#include "EnvelopeComponent.hpp"
 
 //==============================================================================
 /**
@@ -48,6 +48,7 @@ private:
 	Slider constrictionYModVal;
 	
     // Envelope
+    Label envelopeSectionLabel;
 	Slider attackSlider;
     Label attackLabel;
 	Slider attackExp;
@@ -87,7 +88,7 @@ private:
 	Label noseModeLabel;
 	
 	TractUI tractUI;
-    ADSRUI adsrUI;
+    EnvelopeComponent envelopeComponent;
 	
 	SliderParameterAttachment* tongueXAttachment;
 	SliderParameterAttachment* tongueYAttachment;

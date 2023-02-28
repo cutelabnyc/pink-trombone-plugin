@@ -50,6 +50,7 @@ target_sources(PinkTrombonePlugin PRIVATE
   src/Plugin.cpp
   src/ADSRUI.cpp
   src/Biquad.cpp
+  src/EnvelopeComponent.cpp
   src/Glottis.cpp
   src/Modulatable.cpp
   src/noise.cpp
