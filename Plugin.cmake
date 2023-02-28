@@ -52,6 +52,7 @@ target_sources(PinkTrombonePlugin PRIVATE
   src/Biquad.cpp
   src/EnvelopeComponent.cpp
   src/Glottis.cpp
+  src/ModLookAndFeel.cpp
   src/Modulatable.cpp
   src/noise.cpp
   src/PinkTromboneADSR.cpp
