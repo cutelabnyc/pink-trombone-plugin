@@ -146,11 +146,6 @@ void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)
 	processor.adsrParams.sustain = sustainSlider.getValue()/100;
 	processor.adsrParams.release = releaseSlider.getValue()/1000;
 	processor.adsrParams.releaseExp = releaseExp.getValue();
-
-    processor.tongueXMod->modulationAtIndex(0)->scale = tongueXModVal.getValue() / 100;
-    processor.tongueYMod->modulationAtIndex(0)->scale = tongueYModVal.getValue() / 100;
-    processor.constrictionXMod->modulationAtIndex(0)->scale = constrictionXModVal.getValue() / 100;
-    processor.constrictionYMod->modulationAtIndex(0)->scale = constrictionYModVal.getValue() / 100;
 	
 	processor.setNoseLength(noseLength.getValue(), 0);
     processor.setNoseAttachment(noseAttachment.getValue(), 0);
@@ -167,12 +162,6 @@ void PinkTromboneAudioProcessorEditor::buttonClicked(Button *button) { }
 void PinkTromboneAudioProcessorEditor::buttonStateChanged(Button *button)
 {
 	processor.muteAudio = this->muteAudio.getToggleState();
-    
-    // ADSR Modulation
-    processor.tongueXMod->modulationAtIndex(0)->active = this->tongueXMod.getToggleState();
-    processor.tongueYMod->modulationAtIndex(0)->active = this->tongueYMod.getToggleState();
-    processor.constrictionXMod->modulationAtIndex(0)->active = this->constrictionXMod.getToggleState();
-    processor.constrictionYMod->modulationAtIndex(0)->active = this->constrictionYMod.getToggleState();
 	
 	processor.breath = this->breath.getToggleState();
     

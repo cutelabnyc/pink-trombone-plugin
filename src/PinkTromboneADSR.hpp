@@ -22,15 +22,15 @@ public:
 
     struct Parameters
     {
-        float initial       = 0.0f;     /** Normalized initial value */
-        float attack        = 0.1f;     /**< Attack time in seconds */
-        float peak          = 1.0f;     /**<Nornalized maximum value */
-        float decay         = 0.1f;     /**< Decay time in seconds */
-        float sustain       = 1.0f;     /**< Sustain height. 1.0 is full height */
-        float release       = 0.1f;     /**< Release time in seconds */
-        float attackExp     = 0.0f;     /**<  Curvature of the attack phase */
-        float decayExp      = 0.0f;     /**< Curvature of the decay phase */
-        float releaseExp    = 0.0f;     /**< Curvature of the release phase */
+        float initial       = 0.0f;     /** Initial value */
+        float attack        = 0.1f;     /** Attack time in seconds */
+        float peak          = 1.0f;     /** Maximum value */
+        float decay         = 0.1f;     /** Decay time in seconds */
+        float sustain       = 1.0f;     /** Sustain height. 1.0 is full height */
+        float release       = 0.1f;     /** Release time in seconds */
+        float attackExp     = 0.0f;     /** Curvature of the attack phase */
+        float decayExp      = 0.0f;     /** Curvature of the decay phase */
+        float releaseExp    = 0.0f;     /** Curvature of the release phase */
     };
 
     void setParameters (const Parameters& newParameters);

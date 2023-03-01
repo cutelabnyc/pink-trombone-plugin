@@ -186,17 +186,15 @@ PinkTromboneAudioProcessor::PinkTromboneAudioProcessor()
 													 1.0f,   // maximum value
 													 1.0f)); // default value
 
-    tongueXMod = new ModulatableAudioParameter(tongueX);
-    tongueXMod->setRootValue(0.5);
-    tongueYMod = new ModulatableAudioParameter(tongueY);
-    tongueYMod->setRootValue(0.5);
-    constrictionXMod = new ModulatableAudioParameter(constrictionX);
-    constrictionYMod = new ModulatableAudioParameter(constrictionY);
+    tongueXMod = new ModulatedAudioParameter(tongueX);
+    tongueYMod = new ModulatedAudioParameter(tongueY);
+    constrictionXMod = new ModulatedAudioParameter(constrictionX);
+    constrictionYMod = new ModulatedAudioParameter(constrictionY);
     
-    tongueXMod->appendModulationSource(&adsr);
-    tongueYMod->appendModulationSource(&adsr);
-    constrictionXMod->appendModulationSource(&adsr);
-    constrictionYMod->appendModulationSource(&adsr);
+    tongueXMod->appendModulationStage(&adsr, parameters.getParameter(PinkTromboneAudioProcessor::envModTongueX));
+    tongueYMod->appendModulationStage(&adsr, parameters.getParameter(PinkTromboneAudioProcessor::envModTongueY));
+    constrictionXMod->appendModulationStage(&adsr, parameters.getParameter(PinkTromboneAudioProcessor::envModConstrictionX));
+    constrictionYMod->appendModulationStage(&adsr, parameters.getParameter(PinkTromboneAudioProcessor::envModConstrictionY));
 	
 	initializeTractProps(&this->tractProps, 44);
 	
@@ -355,25 +353,18 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
     
     // Update the ADSR with our parameters
     RangedAudioParameter *param = parameters.getParameter(PinkTromboneAudioProcessor::initial);
-    adsrParams.initial = param->convertFrom0to1(param->getValue());
+    adsrParams.initial = param->getValue();
     param = parameters.getParameter(PinkTromboneAudioProcessor::attack);
     adsrParams.attack = param->convertFrom0to1(param->getValue());
     param = parameters.getParameter(PinkTromboneAudioProcessor::peak);
-    adsrParams.peak = param->convertFrom0to1(param->getValue());
+    adsrParams.peak = param->getValue();
     param = parameters.getParameter(PinkTromboneAudioProcessor::decay);
     adsrParams.decay = param->convertFrom0to1(param->getValue());
     param = parameters.getParameter(PinkTromboneAudioProcessor::sustain);
-    adsrParams.sustain = param->convertFrom0to1(param->getValue());
+    adsrParams.sustain = param->getValue();
     param = parameters.getParameter(PinkTromboneAudioProcessor::release);
     adsrParams.release = param->convertFrom0to1(param->getValue());
 	adsr.setParameters(adsrParams);
-    
-    // Handle Modulation
-    constrictionXMod->modulationAtIndex(0)->scale = parameters.getParameter(PinkTromboneAudioProcessor::envModConstrictionX)->getValue();
-    constrictionYMod->modulationAtIndex(0)->scale = parameters.getParameter(PinkTromboneAudioProcessor::envModConstrictionY)->getValue();
-    tongueXMod->modulationAtIndex(0)->scale = parameters.getParameter(PinkTromboneAudioProcessor::envModTongueX)->getValue();
-    tongueXMod->modulationAtIndex(0)->active = true;
-    tongueYMod->modulationAtIndex(0)->scale = parameters.getParameter(PinkTromboneAudioProcessor::envModTongueY)->getValue();
 	
 	for (auto meta : midiMessages) {
 		auto currentMessage = meta.getMessage();

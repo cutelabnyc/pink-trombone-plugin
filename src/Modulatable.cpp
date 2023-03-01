@@ -8,93 +8,45 @@
 #include "Modulatable.h"
 
 template <typename RealType>
-Modulation<RealType>::Modulation(ModulationSource<RealType> *m)
-    : scale(0.0)
-    , active(false)
-    , _source(m)
-{};
+ModulationStage<RealType>::ModulationStage(ModulationSource<RealType> *source): _source(source) { }
 
 template <typename RealType>
-ModulationSource<RealType> *Modulation<RealType>::source()
+AttenuvertedModulationStage<RealType>::AttenuvertedModulationStage(
+    ModulationSource<RealType> *source,
+    RangedAudioParameter *avParameter)
+: ModulationStage<RealType>(source)
+, _avParameter(avParameter) { }
+
+template <typename RealType>
+RealType AttenuvertedModulationStage<RealType>::modulatedValue(RealType normalizedInputValue)
 {
-    return _source;
-}
-
-template <typename RealType>
-Modulatable<RealType>::Modulatable(RealType initial, RealType minimum, RealType maximum)
-    : _rootValue(initial)
-    , _minimum(minimum)
-    , _maximum(maximum)
-{};
-
-template <typename RealType>
-RealType Modulatable<RealType>::value() {
-    RealType modulatedValue = rootValue();
-    for (auto m: _modulationSources) {
-        if (m->active) {
-            if (m->scale > 0.0) {
-                RealType range = (_maximum - modulatedValue);
-                modulatedValue += range * m->scale * m->source()->value();
-            } else if (m->scale < 0.0) {
-                RealType range = (modulatedValue - _minimum);
-                modulatedValue += range * m->scale * m->source()->value();
-            }
-        }
+    auto avValue = (_avParameter->getValue() - 0.5) * 2;
+    auto sourceValue = this->_source->value();
+    if (avValue == 0) {
+        return normalizedInputValue;
+    } else if (avValue > 0) {
+        RealType upperRange = fminf(0.5f, 1.0f - normalizedInputValue);
+        return normalizedInputValue + upperRange * avValue * sourceValue;
+    } else {
+        RealType lowerRange = fminf(0.5f, normalizedInputValue);
+        return normalizedInputValue + lowerRange * avValue * sourceValue;
     }
-    return modulatedValue;
 }
 
-template <typename RealType>
-RealType Modulatable<RealType>::rootValue() {
-    return _rootValue;
-}
+ModulatedAudioParameter::ModulatedAudioParameter(RangedAudioParameter *parameter): _parameter(parameter) {}
 
-template <typename RealType>
-void Modulatable<RealType>::setRootValue(RealType value)
+float ModulatedAudioParameter::value()
 {
-    _rootValue = value;
+    float normalizedInput = _parameter->getValue();
+    for (auto & modulation : _modulationStages) {
+        normalizedInput = modulation.get()->modulatedValue(normalizedInput);
+    }
+    return normalizedInput;
 }
 
-template <typename RealType>
-void Modulatable<RealType>::appendModulationSource(ModulationSource<RealType> *m)
+void ModulatedAudioParameter::appendModulationStage(ModulationSource<float> *source, RangedAudioParameter *avParameter)
 {
-    _modulationSources.push_back(new Modulation<RealType>(m));
+    _modulationStages.push_back(
+        std::make_unique<AttenuvertedModulationStage<float>>(source, avParameter)
+    );
 }
-
-template <typename RealType>
-Modulation<RealType> *Modulatable<RealType>::modulationAtIndex(int i)
-{
-    return _modulationSources[i];
-}
-
-template <typename RealType>
-unsigned long Modulatable<RealType>::numModulations()
-{
-    return _modulationSources.size();
-}
-
-ModulatableAudioParameter::ModulatableAudioParameter(AudioParameterFloat *f)
-    : Modulatable<float>(f->get(), f->range.start, f->range.end)
-    , _parameter(f)
-{}
-
-float ModulatableAudioParameter::value()
-{
-    float modulatedValue = this->Modulatable::value();
-    
-    return _parameter->convertFrom0to1(modulatedValue);
-}
-
-float ModulatableAudioParameter::rootValue()
-{
-    return _parameter->convertTo0to1(_parameter->get());
-}
-
-void ModulatableAudioParameter::setRootValue(float value)
-{
-    _parameter->setValueNotifyingHost(_parameter->convertFrom0to1(value));
-}
-
-
-template class Modulatable<float>;
-template class Modulatable<double>;

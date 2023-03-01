@@ -116,10 +116,10 @@ public:
 	AudioParameterFloat* constrictionX;
 	AudioParameterFloat* constrictionY;
     
-    ModulatableAudioParameter* tongueXMod;
-    ModulatableAudioParameter* tongueYMod;
-    ModulatableAudioParameter* constrictionXMod;
-    ModulatableAudioParameter* constrictionYMod;
+    ModulatedAudioParameter* tongueXMod;
+    ModulatedAudioParameter* tongueYMod;
+    ModulatedAudioParameter* constrictionXMod;
+    ModulatedAudioParameter* constrictionYMod;
 	
 	PinkTromboneADSR adsr;
 	PinkTromboneADSR::Parameters adsrParams;
