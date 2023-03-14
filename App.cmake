@@ -33,6 +33,7 @@ target_sources(PinkTromboneApp
   src/Biquad.cpp
   src/EnvelopeComponent.cpp
   src/Glottis.cpp
+  src/HiddenLookAndFeel.cpp
   src/ModLookAndFeel.cpp
   src/ModSliderComponent.cpp
   src/Modulatable.cpp

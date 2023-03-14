@@ -30,7 +30,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (600, 400);
+    setSize (900, 600);
     
 	tractUI.setSize(300, 300);
     tractUI.setBounds(0, 0, tractUI.getWidth(), tractUI.getHeight());
@@ -120,7 +120,7 @@ void PinkTromboneAudioProcessorEditor::resized()
 //    tractUI.setBounds(0, 0, tractUI.getWidth(), tractUI.getHeight());
     
 	// Local bounds are 0, 0, 800, 600
-	noseMode.setBounds(240 + uiLeftBasis, 220, 100, 20);
+	noseMode.setBounds(24, 350, 100, 20);
 	breath.setBounds(20 + uiLeftBasis, 330, 80, 20);
     
     // Tract UI
@@ -128,8 +128,8 @@ void PinkTromboneAudioProcessorEditor::resized()
 	sizeFactor.setBounds (100 + uiLeftBasis, 380, 75, 100);
 	
 	muteAudio.setBounds(170 + uiLeftBasis, 30, 100, 20);
-	tractUI.setSize(getWidth() / 2, getHeight() / 2);
-    envelopeComponent.setBounds(getWidth() / 2, 0, getWidth() / 2, getHeight() / 2);
+	tractUI.setSize(getWidth() / 3, getHeight() / 2);
+    envelopeComponent.setBounds(getWidth() / 3.0, 0, getWidth() * 2.0 / 3.0, getHeight() / 2);
 }
 
 void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)

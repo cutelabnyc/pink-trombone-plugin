@@ -112,7 +112,7 @@ public:
 
 		_keyboardFocusGrabber = std::make_unique<GrabFocusWhenShownComponentMovementWatcher>(&_midiKeyboardComponent);
 
-		setSize (800, 494);
+		setSize (1200, 700);
     }
 
 	void handleAsyncUpdate() override

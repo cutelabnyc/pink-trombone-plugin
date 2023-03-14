@@ -136,7 +136,7 @@ void TractUI::drawTongueControl(Graphics &g, t_tractProps *p)
 	Path path;
 	this->originX = getWidth() * TONGUE_CONTROL_X;
 	this->originY = getHeight() * TONGUE_CONTROL_Y;
-	this->radius = getWidth() * this->fillRatio;
+	this->radius = fminl(getWidth(), getHeight()) * this->fillRatio;
 	this->scale = this->radius / 5.0;
 	PathStrokeType strokeType(this->scale * 0.75);
 	double tongueLowerIndexBound = p->bladeStart + 2;
