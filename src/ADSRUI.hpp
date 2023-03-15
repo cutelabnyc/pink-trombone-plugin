@@ -31,6 +31,7 @@ public:
     ~ADSRUI() override;
     
     void paint(Graphics &g) override;
+    void resized() override;
     
     void mouseDown(const MouseEvent& e) override;
     void mouseDrag(const MouseEvent& e) override;
@@ -49,12 +50,7 @@ private:
     int activeHandleIndex = -1;
     
     AudioProcessorValueTreeState *state;
-    RangedAudioParameter *initialParam;
-    RangedAudioParameter *peakParam;
-    RangedAudioParameter *attackParam;
-    RangedAudioParameter *decayParam;
-    RangedAudioParameter *sustainParam;
-    RangedAudioParameter *releaseParam;
+    ParameterIdentifiers _identifiers;
     
     float attackTimeNormalized = 0.5;
     float decayTimeNormalized = 0.5;
@@ -65,6 +61,7 @@ private:
     float end = 0.0;
     
     juce::Point<int> handles[HANDLES_COUNT];
+    std::function<void()> destructor;
 };
 
 #endif /* ADSRUI_hpp */

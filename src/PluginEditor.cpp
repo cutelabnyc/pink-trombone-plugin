@@ -129,7 +129,7 @@ void PinkTromboneAudioProcessorEditor::resized()
 	
 	muteAudio.setBounds(170 + uiLeftBasis, 30, 100, 20);
 	tractUI.setSize(getWidth() / 3, getHeight() / 2);
-    envelopeComponent.setBounds(getWidth() / 3.0, 0, getWidth() * 2.0 / 3.0, getHeight() / 2);
+    envelopeComponent.setBounds(getWidth() / 3.0, 0, getWidth() * 2.0 / 3.0, getHeight() / 3.5);
 }
 
 void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)

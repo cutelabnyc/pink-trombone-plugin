@@ -60,6 +60,7 @@ target_sources(PinkTrombonePlugin PRIVATE
   src/PinkTromboneADSR.cpp
   src/PluginEditor.cpp
   src/PluginProcessor.cpp
+  src/SimpleLFO.cpp
   src/Tract.cpp
   src/TractUI.cpp
   src/WhiteNoise.cpp
