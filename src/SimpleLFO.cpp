@@ -21,10 +21,9 @@ SimpleLFO::SimpleLFO(AudioProcessorValueTreeState &instate,
     instate.addParameterListener(_identifiers.frequency, this);
     instate.addParameterListener(_identifiers.type, this);
 
-    auto self = this;
-    _destructor = [&] {
-        instate.removeParameterListener(_identifiers.frequency, self);
-        instate.removeParameterListener(_identifiers.type, self);
+    _destructor = [this] {
+        state->removeParameterListener(_identifiers.frequency, this);
+        state->removeParameterListener(_identifiers.type, this);
     };
 }
 

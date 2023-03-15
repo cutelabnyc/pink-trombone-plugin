@@ -19,8 +19,7 @@ ModSliderComponent::ModSliderComponent(AudioProcessorValueTreeState &state, cons
     _slider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     state.addParameterListener(parameterID, this);
     
-    auto self = this;
-    destructor = [&] { state.removeParameterListener(parameterID, self); };
+    destructor = [this, &state, parameterID] { state.removeParameterListener(parameterID, this); };
     
     auto param = state.getParameter(parameterID);
     configureLabelVisibility(param->convertFrom0to1(param->getValue()));

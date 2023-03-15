@@ -30,14 +30,13 @@ ADSRUI::ADSRUI(AudioProcessorValueTreeState &instate,
     
     repositionHandles();
 
-    auto self = this;
-    destructor = [&] {
-        instate.removeParameterListener(identifiers.initial, self);
-        instate.removeParameterListener(identifiers.peak, self);
-        instate.removeParameterListener(identifiers.attack, self);
-        instate.removeParameterListener(identifiers.decay, self);
-        instate.removeParameterListener(identifiers.sustain, self);
-        instate.removeParameterListener(identifiers.release, self);
+    destructor = [this] {
+        state->removeParameterListener(_identifiers.initial, this);
+        state->removeParameterListener(_identifiers.peak, this);
+        state->removeParameterListener(_identifiers.attack, this);
+        state->removeParameterListener(_identifiers.decay, this);
+        state->removeParameterListener(_identifiers.sustain, this);
+        state->removeParameterListener(_identifiers.release, this);
     };
 }
 
