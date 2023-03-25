@@ -1,5 +1,5 @@
 //
-//  EnvelopeComponent_hpp.cpp
+//  EnvelopeComponent.cpp
 //  PinkTrombone
 //
 //  Created by Samuel Tarakajian on 2/8/23.

@@ -27,6 +27,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
              PinkTromboneAudioProcessor::sustain,
              PinkTromboneAudioProcessor::release
          })
+, lfoComponent(p.getParametersTree())
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -39,6 +40,10 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
     envelopeComponent.setSize(300, getHeight() / 2);
     envelopeComponent.setBounds(300, 0, 300, getHeight() / 2);
     addAndMakeVisible(&envelopeComponent);
+
+	lfoComponent.setSize(300, getHeight() / 2);
+    lfoComponent.setBounds(300, 0, 300, getHeight() / 2);
+    addAndMakeVisible(&lfoComponent);
     
     // Initialize
     noseLength.setValue(0.59);
@@ -114,22 +119,36 @@ void PinkTromboneAudioProcessorEditor::paint (Graphics& g)
 
 void PinkTromboneAudioProcessorEditor::resized()
 {
-    auto uiLeftBasis = 300;
+    auto uiLeftBasis = 100;
+	auto modulationComponentsWidth = getWidth() * 2.0 / 3.0;
+	auto moodulationComponentsHeight = getHeight() / 3.5;
     
 //    tractUI.setSize(300, 300);
 //    tractUI.setBounds(0, 0, tractUI.getWidth(), tractUI.getHeight());
     
 	// Local bounds are 0, 0, 800, 600
-	noseMode.setBounds(24, 350, 100, 20);
-	breath.setBounds(20 + uiLeftBasis, 330, 80, 20);
+	noseMode.setBounds(uiLeftBasis, 350, 100, 20);
+	breath.setBounds(uiLeftBasis, 380, 80, 20);
     
     // Tract UI
-	breathFactor.setBounds (100 + uiLeftBasis, 350, 75, 100);
-	sizeFactor.setBounds (100 + uiLeftBasis, 380, 75, 100);
+	breathFactor.setBounds (uiLeftBasis, 410, 75, 25);
+	sizeFactor.setBounds (uiLeftBasis, 430, 75, 25);
 	
 	muteAudio.setBounds(170 + uiLeftBasis, 30, 100, 20);
 	tractUI.setSize(getWidth() / 3, getHeight() / 2);
-    envelopeComponent.setBounds(getWidth() / 3.0, 0, getWidth() * 2.0 / 3.0, getHeight() / 3.5);
+
+    envelopeComponent.setBounds(
+		getWidth() - modulationComponentsWidth,
+		0,
+		modulationComponentsWidth,
+		moodulationComponentsHeight
+	);
+	lfoComponent.setBounds(
+		getWidth() - modulationComponentsWidth,
+		moodulationComponentsHeight,
+		modulationComponentsWidth,
+		moodulationComponentsHeight
+	);
 }
 
 void PinkTromboneAudioProcessorEditor::sliderValueChanged (Slider* slider)

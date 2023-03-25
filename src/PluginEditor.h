@@ -14,6 +14,7 @@
 #include "PluginProcessor.h"
 #include "TractUI.hpp"
 #include "EnvelopeComponent.hpp"
+#include "LFOComponent.hpp"
 
 //==============================================================================
 /**
@@ -89,6 +90,7 @@ private:
 	
 	TractUI tractUI;
     EnvelopeComponent envelopeComponent;
+	LFOComponent lfoComponent;
 	
 	SliderParameterAttachment* tongueXAttachment;
 	SliderParameterAttachment* tongueYAttachment;

@@ -24,6 +24,15 @@ juce::String PinkTromboneAudioProcessor::envModConstrictionY    ("envModConstric
 juce::String PinkTromboneAudioProcessor::envModTongueX          ("envModTongueX");
 juce::String PinkTromboneAudioProcessor::envModTongueY          ("envModTongueY");
 juce::String PinkTromboneAudioProcessor::envModPitch            ("envModPitch");
+juce::String PinkTromboneAudioProcessor::lfoShape               ("lfoShape");
+juce::String PinkTromboneAudioProcessor::lfoRate                ("lfoRate");
+juce::String PinkTromboneAudioProcessor::lfoMode                ("lfoMode");
+juce::String PinkTromboneAudioProcessor::lfoModConstrictionX    ("lfoModConstrictionX");
+juce::String PinkTromboneAudioProcessor::lfoModConstrictionY    ("lfoModConstrictionY");
+juce::String PinkTromboneAudioProcessor::lfoModTongueX          ("lfoModTongueX");
+juce::String PinkTromboneAudioProcessor::lfoModTongueY          ("lfoModTongueY");
+juce::String PinkTromboneAudioProcessor::lfoModPitch            ("lfoModPitch");
+
 
 static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
 {
@@ -145,6 +154,90 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
                                                                            std::move(tongueXEnvMod),
                                                                            std::move(tongueYEnvMod),
                                                                            std::move(pitchEnvMod));
+        params.push_back (std::move (group));
+    }
+
+    // LFO
+    {
+        auto shape = std::make_unique<juce::AudioParameterChoice> (
+            PinkTromboneAudioProcessor::lfoShape,
+            TRANS ("Shape"),
+            StringArray { "Sine", "Slope", "Square", "Triangle", "Noise" },
+            1
+        );
+        auto rate = std::make_unique<juce::AudioParameterFloat> (PinkTromboneAudioProcessor::lfoRate,
+            TRANS ("Rate"),
+            juce::NormalisableRange<float> (0.001, 10.0f, 0.01f, 1.0f / 3.0f),
+            1.0f,
+            TRANS ("LFORate"),
+            juce::AudioProcessorParameter::genericParameter,
+            nullptr,
+            nullptr
+        );
+        auto mode = std::make_unique<juce::AudioParameterChoice> (
+            PinkTromboneAudioProcessor::lfoMode,
+            TRANS ("Mode"),
+            StringArray { "Free", "Locked" },
+            1
+        );
+        auto constrictionXLFOMod = std::make_unique<juce::AudioParameterFloat> (PinkTromboneAudioProcessor::lfoModConstrictionX,
+            TRANS ("LFO Mod Constriction X"),
+            juce::NormalisableRange<float> (-1.0f, 1.0f, 0.01f),
+            0.0f,
+            TRANS ("LFO Modulation Constriction X"),
+            juce::AudioProcessorParameter::genericParameter,
+            nullptr,
+            nullptr
+        );
+        auto constrictionYLFOMod = std::make_unique<juce::AudioParameterFloat> (PinkTromboneAudioProcessor::lfoModConstrictionY,
+            TRANS ("LFO Mod Constriction Y"),
+            juce::NormalisableRange<float> (-1.0f, 1.0f, 0.01f),
+            0.0f,
+            TRANS ("LFO Modulation Constriction Y"),
+            juce::AudioProcessorParameter::genericParameter,
+            nullptr,
+            nullptr
+        );
+        auto tongueXLFOMod = std::make_unique<juce::AudioParameterFloat> (PinkTromboneAudioProcessor::lfoModTongueX,
+            TRANS ("LFO Mod Tongue X"),
+            juce::NormalisableRange<float> (-1.0f, 1.0f, 0.01f),
+            0.0f,
+            TRANS ("LFO Modulation Tongue X"),
+            juce::AudioProcessorParameter::genericParameter,
+            nullptr,
+            nullptr
+        );
+        auto tongueYLFOMod = std::make_unique<juce::AudioParameterFloat> (PinkTromboneAudioProcessor::lfoModTongueY,
+            TRANS ("LFO Mod Tongue Y"),
+            juce::NormalisableRange<float> (-1.0f, 1.0f, 0.01f),
+            0.0f,
+            TRANS ("LFO Modulation Tongue Y"),
+            juce::AudioProcessorParameter::genericParameter,
+            nullptr,
+            nullptr
+        );
+        auto pitchLFOMod = std::make_unique<juce::AudioParameterFloat> (PinkTromboneAudioProcessor::lfoModPitch,
+            TRANS ("LFO Mod Pitch"),
+            juce::NormalisableRange<float> (-1.0f, 1.0f, 0.01f),
+            0.0f,
+            TRANS ("LFO Modulation Pitch"),
+            juce::AudioProcessorParameter::genericParameter,
+            nullptr,
+            nullptr
+        );
+
+        auto group = std::make_unique<juce::AudioProcessorParameterGroup> ("envelope",
+            TRANS ("Envelope"),
+            "|",
+            std::move(shape),
+            std::move(rate),
+            std::move(mode),
+            std::move(constrictionXLFOMod),
+            std::move(constrictionYLFOMod),
+            std::move(tongueXLFOMod),
+            std::move(tongueYLFOMod),
+            std::move(pitchLFOMod)
+        );
         params.push_back (std::move (group));
     }
     

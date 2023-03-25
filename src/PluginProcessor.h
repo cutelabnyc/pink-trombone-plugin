@@ -38,6 +38,7 @@ public:
     ~PinkTromboneAudioProcessor() override;
     
     //==============================================================================
+    // Envelope
     static juce::String initial;
     static juce::String peak;
     static juce::String attack;
@@ -49,6 +50,16 @@ public:
     static juce::String envModTongueX;
     static juce::String envModTongueY;
     static juce::String envModPitch;
+
+    // LFO
+    static juce::String lfoShape;
+    static juce::String lfoRate;
+    static juce::String lfoMode;
+    static juce::String lfoModConstrictionX;
+    static juce::String lfoModConstrictionY;
+    static juce::String lfoModTongueX;
+    static juce::String lfoModTongueY;
+    static juce::String lfoModPitch;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
