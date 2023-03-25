@@ -11,6 +11,7 @@ SimpleLFO::SimpleLFO(AudioProcessorValueTreeState &instate,
                ParameterIdentifiers identifiers)
     : state(&instate)
     , _identifiers(identifiers)
+    , _sineLookupTable([] (float x) { return sinf(M_PI * 2.0 * x); }, 0.0f, 1.0f, 5096)
 {
     auto freqParam = instate.getParameter(_identifiers.frequency);
     _frequencyHz = freqParam->convertFrom0to1(freqParam->getValue());
@@ -32,26 +33,31 @@ SimpleLFO::~SimpleLFO()
     _destructor();
 }
 
-void SimpleLFO::advanceOneSample()
+void SimpleLFO::advanceOneSample() noexcept
 {
+    _phase += _phaseDelta;
 
+    if (_phase >= 1) {
+        _phase = fmodf(_phase, 1.0);
+    } else if (_phase < 0) {
+        _phase = 1.0 + fmodf(_phase, 1.0);
+    }
 }
 
-void SimpleLFO::setSampleRate (double newSampleRate)
+void SimpleLFO::setSampleRate (double newSampleRate) noexcept
 {
+    _sampleRate = fmax(1.0, newSampleRate); // no negative sample rates or anything crazy
+    _recalculatePhaseDelta();
+}
 
+void SimpleLFO::setFrequency(float newFrequencyHz)
+{
+    _frequencyHz = newFrequencyHz;
 }
 
 float SimpleLFO::value()
 {
 
-}
-
-SimpleLFO::LFOType SimpleLFO::typeForNormalizedParameterValue(float value)
-{
-    int wholeValue = (int) roundf(value * LFOType::LENGTH);
-    if (wholeValue >= LFOType::LENGTH) return LFOType::Sine;
-    return (LFOType) wholeValue;
 }
 
 void SimpleLFO::parameterChanged(const String& parameterID, float newValue)
@@ -61,4 +67,16 @@ void SimpleLFO::parameterChanged(const String& parameterID, float newValue)
     } else if (parameterID == _identifiers.type) {
         _type = typeForNormalizedParameterValue(newValue / ((float) LFOType::LENGTH));
     }
+}
+
+SimpleLFO::LFOType SimpleLFO::typeForNormalizedParameterValue(float value)
+{
+    int wholeValue = (int) roundf(value * LFOType::LENGTH);
+    if (wholeValue >= LFOType::LENGTH) return LFOType::Sine;
+    return (LFOType) wholeValue;
+}
+
+void SimpleLFO::_recalculatePhaseDelta()
+{
+    _phaseDelta = _frequencyHz / _sampleRate;
 }

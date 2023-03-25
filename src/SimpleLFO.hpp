@@ -34,19 +34,23 @@ public:
     ~SimpleLFO() override;
     void advanceOneSample() noexcept;
     void setSampleRate (double newSampleRate) noexcept;
+    void setFrequency(float newFrequency);
     float value() override;
     void parameterChanged (const String& parameterID, float newValue) override;
 private:
     LFOType typeForNormalizedParameterValue(float value);
+    void _recalculatePhaseDelta();
 
     AudioProcessorValueTreeState *state;
     ParameterIdentifiers _identifiers;
+    float _phaseDelta = 0.0;
     float _frequencyHz = 1.0;
     float _phase = 0.0;
     float _value = 0.0;
     LFOType _type = LFOType::Sine;
     double _sampleRate = 44100.0;
     std::function<void()> _destructor;
+    juce::dsp::LookupTableTransform<float> _sineLookupTable;
 };
 
 #endif /* PinkTromboneADSR_hpp */
