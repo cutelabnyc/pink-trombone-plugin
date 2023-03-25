@@ -56,11 +56,11 @@ target_sources(PinkTrombonePlugin PRIVATE
   src/ModLookAndFeel.cpp
   src/ModSliderComponent.cpp
   src/Modulatable.cpp
-  src/noise.cpp
   src/PinkTromboneADSR.cpp
   src/PluginEditor.cpp
   src/PluginProcessor.cpp
   src/SimpleLFO.cpp
+  src/SimplexNoise.cpp
   src/Tract.cpp
   src/TractUI.cpp
   src/WhiteNoise.cpp

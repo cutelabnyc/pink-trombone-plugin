@@ -1,34 +1,24 @@
 //
-//  noise.cpp
+//  SimplexNoise.cpp
 //  PinkTrombone - VST3
 //
 //  Created by Samuel Tarakajian on 8/29/19.
 //
 
-#include "noise.hpp"
+#include "SimplexNoise.hpp"
 #include <ctime>
 #include <sys/time.h>
 #include <math.h>
-
-typedef struct Grad {
-	double x;
-	double y;
-	double z;
-} Grad;
-
-static double dot2(Grad *gin, double x, double y) {
-	return gin->x * x + gin->y * y;
-}
 
 //Grad.prototype.dot3 = function(x, y, z) {
 //	return this.x*x + this.y*y + this.z*z;
 //};
 
-static Grad grad3[] = {{1,1,0},{-1,1,0},{1,-1,0},{-1,-1,0},
+SimplexNoise::Grad SimplexNoise::grad3[] = {{1,1,0},{-1,1,0},{1,-1,0},{-1,-1,0},
 	{1,0,1},{-1,0,1},{1,0,-1},{-1,0,-1},
 	{0,1,1},{0,-1,1},{0,1,-1},{0,-1,-1}};
 
-static short p[] = {151,160,137,91,90,15,
+short SimplexNoise::p[] = {151,160,137,91,90,15,
 	131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,
 	190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
 	88,237,149,56,87,174,20,125,136,171,168, 68,175,74,165,71,134,139,48,27,166,
@@ -42,13 +32,10 @@ static short p[] = {151,160,137,91,90,15,
 	49,192,214, 31,181,199,106,157,184, 84,204,176,115,121,50,45,127, 4,150,254,
 	138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180};
 // To remove the need for index wrapping, double the permutation table length
-static int perm[512];
-static Grad gradP[512];
-static bool didseed = false;
 
 // This isn't a very good seeding function, but it works ok. It supports 2^16
 // different seed values. Write something better if you need more seeds.
-static void seed(short seed) {
+void SimplexNoise::seed(short seed) {
 	if(seed < 256) {
 		seed |= seed << 8;
 	}
@@ -58,7 +45,7 @@ static void seed(short seed) {
 		if (i & 1) {
 			v = p[i] ^ (seed & 255);
 		} else {
-			v = p[i] ^ ((seed>>8) & 255);
+			v = p[i] ^ ((seed >> 8) & 255);
 		}
 		
 		perm[i] = perm[i + 256] = v;
@@ -66,7 +53,7 @@ static void seed(short seed) {
 	}
 };
 
-short timeseed() {
+static short timeseed() {
 	struct timeval tp;
 	gettimeofday(&tp, NULL);
 	long long mslong = (long long) tp.tv_sec * 1000L + tp.tv_usec / 1000; //get current timestamp in milliseconds
@@ -80,14 +67,11 @@ short timeseed() {
  }*/
 
 // Skewing and unskewing factors for 2, 3, and 4 dimensions
-static double F2 = 0.5 * (sqrt(3.0) - 1.0);
-static double G2 = (3 - sqrt(3.0)) / 6.0;
-
-static double F3 = 1.0 / 3.0;
-static double G3 = 1.0 / 6.0;
+static const double F2 = 0.5 * (sqrt(3.0) - 1.0);
+static const double G2 = (3 - sqrt(3.0)) / 6.0;
 
 // 2D simplex noise
-double simplex2(double xin, double yin) {
+double SimplexNoise::simplex2(double xin, double yin) {
 	
 	if (!didseed) {
 		seed(timeseed());
@@ -150,6 +134,6 @@ double simplex2(double xin, double yin) {
 	return 70 * (n0 + n1 + n2);
 };
 
-double simplex1(double xin) {
+double SimplexNoise::simplex1(double xin) {
 	return simplex2(xin * 1.2, -xin * 0.7);
 }

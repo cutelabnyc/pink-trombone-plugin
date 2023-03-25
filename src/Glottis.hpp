@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include "JuceHeader.h"
+#include "SimplexNoise.hpp"
 
 class Glottis {
 public:
@@ -30,6 +31,7 @@ private:
 	void setupWaveform(double lambda);
 	double normalizedLFWaveform(double t);
 	void calculateFrequencyFluctuations();
+	SimplexNoise noise;
 	double frequency, oldFrequency, newFrequency, UIFrequency, smoothFrequency;
 	double sampleRate;
 	double timeInWaveform;
