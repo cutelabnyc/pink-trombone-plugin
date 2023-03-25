@@ -36,6 +36,7 @@ SimpleLFO::~SimpleLFO()
 void SimpleLFO::advanceOneSample() noexcept
 {
     _phase += _phaseDelta;
+    _totalPhase += _phaseDelta;
 
     if (_phase >= 1) {
         _phase = fmodf(_phase, 1.0);
@@ -53,11 +54,38 @@ void SimpleLFO::setSampleRate (double newSampleRate) noexcept
 void SimpleLFO::setFrequency(float newFrequencyHz)
 {
     _frequencyHz = newFrequencyHz;
+    _recalculatePhaseDelta();
+}
+
+void SimpleLFO::setDuty(float duty)
+{
+    _duty = duty;
 }
 
 float SimpleLFO::value()
 {
-
+    switch (_type) {
+        case Sine:
+            return _sineLookupTable.processSampleUnchecked(_phase);
+        case Slope:
+            return _phase;
+        case Square:
+            return _phase < _duty ? 1.0f : 0.0f;
+        case Triangle:
+            if (_duty <= 0.0f) {
+                return 0.0f;
+            } else if (_duty >= 1.0f || _phase == _duty) {
+                return 1.0f;
+            } else if (_phase < _duty) {
+                return _phase / _duty;
+            } else {
+                return (_phase - _duty) / (1.0f - _duty);
+            }
+        case Noise:
+            return noise.simplex1(_totalPhase);
+        default:
+            return 1.0;
+    }
 }
 
 void SimpleLFO::parameterChanged(const String& parameterID, float newValue)

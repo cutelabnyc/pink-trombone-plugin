@@ -10,6 +10,7 @@
 
 #include "JuceHeader.h"
 #include "ModulationSource.h"
+#include "SimplexNoise.hpp"
 #include <math.h>
 
 class SimpleLFO: public ModulationSource<float>, public juce::AudioProcessorValueTreeState::Listener
@@ -35,6 +36,7 @@ public:
     void advanceOneSample() noexcept;
     void setSampleRate (double newSampleRate) noexcept;
     void setFrequency(float newFrequency);
+    void setDuty(float duty);
     float value() override;
     void parameterChanged (const String& parameterID, float newValue) override;
 private:
@@ -43,9 +45,12 @@ private:
 
     AudioProcessorValueTreeState *state;
     ParameterIdentifiers _identifiers;
+    SimplexNoise noise;
+    float _duty = 0.5;
     float _phaseDelta = 0.0;
     float _frequencyHz = 1.0;
     float _phase = 0.0;
+    double _totalPhase = 0.0;
     float _value = 0.0;
     LFOType _type = LFOType::Sine;
     double _sampleRate = 44100.0;
