@@ -24,12 +24,11 @@ RealType AttenuvertedModulationStage<RealType>::modulatedValue(RealType normaliz
     auto sourceValue = this->_source->value();
     if (avValue == 0) {
         return normalizedInputValue;
-    } else if (avValue > 0) {
-        RealType upperRange = fminf(0.5f, 1.0f - normalizedInputValue);
-        return normalizedInputValue + upperRange * avValue * sourceValue;
     } else {
-        RealType lowerRange = fminf(0.5f, normalizedInputValue);
-        return normalizedInputValue + lowerRange * avValue * sourceValue;
+        RealType upperBound = fminf(1.0f, normalizedInputValue + 0.5f * std::abs(avValue));
+        RealType lowerBound = fmaxf(0.0f, normalizedInputValue - 0.5f * std::abs(avValue));
+
+        return (sourceValue * avValue / 2.0f + 0.5) * (upperBound - lowerBound) + lowerBound;
     }
 }
 
