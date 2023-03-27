@@ -298,8 +298,8 @@ PinkTromboneAudioProcessor::PinkTromboneAudioProcessor()
     // LFO Modulation
     tongueXMod->appendModulationStage(&_modLFO, parameters.getParameter(PinkTromboneAudioProcessor::lfoModTongueX));
     tongueYMod->appendModulationStage(&_modLFO, parameters.getParameter(PinkTromboneAudioProcessor::lfoModTongueY));
-    constrictionXMod->appendModulationStage(&_modLFO, parameters.getParameter(PinkTromboneAudioProcessor::envModConstrictionX));
-    constrictionYMod->appendModulationStage(&_modLFO, parameters.getParameter(PinkTromboneAudioProcessor::envModConstrictionY));
+    constrictionXMod->appendModulationStage(&_modLFO, parameters.getParameter(PinkTromboneAudioProcessor::lfoModConstrictionX));
+    constrictionYMod->appendModulationStage(&_modLFO, parameters.getParameter(PinkTromboneAudioProcessor::lfoModConstrictionY));
 	
 	initializeTractProps(&this->tractProps, 44);
 	
@@ -773,11 +773,4 @@ void PinkTromboneAudioProcessor::setStateInformation (const void* data, int size
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
-}
-
-//==============================================================================
-// This creates new instances of the plugin..
-AudioProcessor* JUCE_CALLTYPE createPluginFilter()
-{
-    return new PinkTromboneAudioProcessor();
 }
