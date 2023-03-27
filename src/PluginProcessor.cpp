@@ -226,8 +226,8 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
             nullptr
         );
 
-        auto group = std::make_unique<juce::AudioProcessorParameterGroup> ("envelope",
-            TRANS ("Envelope"),
+        auto group = std::make_unique<juce::AudioProcessorParameterGroup> ("lfo",
+            TRANS ("LFO"),
             "|",
             std::move(shape),
             std::move(rate),
