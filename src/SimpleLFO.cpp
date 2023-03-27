@@ -16,15 +16,15 @@ SimpleLFO::SimpleLFO(AudioProcessorValueTreeState &instate,
     auto freqParam = instate.getParameter(_identifiers.frequency);
     _frequencyHz = freqParam->convertFrom0to1(freqParam->getValue());
     _type = typeForNormalizedParameterValue(
-        instate.getParameter(_identifiers.type)->getValue()
+        instate.getParameter(_identifiers.shape)->getValue()
     );
 
     instate.addParameterListener(_identifiers.frequency, this);
-    instate.addParameterListener(_identifiers.type, this);
+    instate.addParameterListener(_identifiers.shape, this);
 
     _destructor = [this] {
         state->removeParameterListener(_identifiers.frequency, this);
-        state->removeParameterListener(_identifiers.type, this);
+        state->removeParameterListener(_identifiers.shape, this);
     };
 }
 
@@ -68,18 +68,18 @@ float SimpleLFO::value()
         case Sine:
             return _sineLookupTable.processSampleUnchecked(_phase);
         case Slope:
-            return _phase;
+            return 2.0f * _phase - 1.0f;
         case Square:
-            return _phase < _duty ? 1.0f : 0.0f;
+            return _phase < _duty ? 1.0f : -1.0f;
         case Triangle:
             if (_duty <= 0.0f) {
-                return 0.0f;
+                return -1.0f;
             } else if (_duty >= 1.0f || _phase == _duty) {
                 return 1.0f;
             } else if (_phase < _duty) {
-                return _phase / _duty;
+                return (_phase / _duty) * 2.0f - 1.0;
             } else {
-                return (_phase - _duty) / (1.0f - _duty);
+                return (1.0f - ((_phase - _duty) / (1.0f - _duty))) * 2.0 - 1.0;;
             }
         case Noise:
             return noise.simplex1(_totalPhase);
@@ -92,7 +92,8 @@ void SimpleLFO::parameterChanged(const String& parameterID, float newValue)
 {
     if (parameterID == _identifiers.frequency) {
         _frequencyHz = newValue;
-    } else if (parameterID == _identifiers.type) {
+        _recalculatePhaseDelta();
+    } else if (parameterID == _identifiers.shape) {
         _type = typeForNormalizedParameterValue(newValue / ((float) LFOType::LENGTH));
     }
 }

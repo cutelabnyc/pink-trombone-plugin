@@ -15,14 +15,15 @@
 #define TEXT_INPUT_HEIGHT       (46)
 
 LFOComponent::LFOComponent(AudioProcessorValueTreeState &state)
-: _tongueModXSlider(state, PinkTromboneAudioProcessor::lfoModTongueX)
+: _audioVisualiserComponent(1)
+, _rateSliderAttachment(state, PinkTromboneAudioProcessor::lfoRate, _rateSlider)
+, _shapePickerAttachment(state, PinkTromboneAudioProcessor::lfoShape, _shapePicker)
+, _modePickerAttachment(state, PinkTromboneAudioProcessor::lfoMode, _modePicker)
+, _tongueModXSlider(state, PinkTromboneAudioProcessor::lfoModTongueX)
 , _tongueModYSlider(state, PinkTromboneAudioProcessor::lfoModTongueY)
 , _constrictionModXSlider(state, PinkTromboneAudioProcessor::lfoModConstrictionX)
 , _constrictionModYSlider(state, PinkTromboneAudioProcessor::lfoModConstrictionY)
 , _pitchModSlider(state, PinkTromboneAudioProcessor::lfoModPitch)
-, _rateSliderAttachment(state, PinkTromboneAudioProcessor::lfoRate, _rateSlider)
-, _shapePickerAttachment(state, PinkTromboneAudioProcessor::lfoShape, _shapePicker)
-, _modePickerAttachment(state, PinkTromboneAudioProcessor::lfoMode, _modePicker)
 {   
     _titleLabel.setText("LFO", juce::dontSendNotification);
     _titleLabel.setFont (juce::Font ("Myriad Pro", 8.0f, juce::Font::plain));
@@ -42,6 +43,8 @@ LFOComponent::LFOComponent(AudioProcessorValueTreeState &state)
     _pitchModLabel.setText("Pitch", juce::dontSendNotification);
     _pitchModLabel.setFont (juce::Font ("Myriad Pro", 8.0f, juce::Font::plain));
     addAndMakeVisible(_pitchModLabel);
+
+    addAndMakeVisible(_audioVisualiserComponent);
     
     addAndMakeVisible(_tongueModXSlider);
     addAndMakeVisible(_tongueModYSlider);
@@ -63,6 +66,11 @@ LFOComponent::~LFOComponent()
     
 }
 
+AudioVisualiserComponent *LFOComponent::getVisualiser() 
+{
+    return &_audioVisualiserComponent;
+}
+
 void LFOComponent::paint(Graphics &)
 {
     
@@ -71,6 +79,8 @@ void LFOComponent::paint(Graphics &)
 void LFOComponent::resized()
 {
     _titleLabel.setBounds(0, 0, getWidth(), TITLE_HEIGHT);
+
+    _audioVisualiserComponent.setBounds(0, TITLE_HEIGHT, getWidth() - 2.0 * MOD_SLIDER_WIDTH, getHeight() - TITLE_HEIGHT);
     
     auto modSliderX = getWidth() - (MOD_SLIDER_WIDTH);
     _tongueModXSlider.setBounds(modSliderX, 0, 0.5 * MOD_SLIDER_WIDTH, MOD_SLIDER_HEIGHT);

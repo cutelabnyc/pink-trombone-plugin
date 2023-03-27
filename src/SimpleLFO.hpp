@@ -27,7 +27,8 @@ public:
 
     struct ParameterIdentifiers {
         juce::String frequency;
-        juce::String type;
+        juce::String shape;
+        juce::String mode;
     };
     
     SimpleLFO(AudioProcessorValueTreeState &state,
@@ -51,7 +52,6 @@ private:
     float _frequencyHz = 1.0;
     float _phase = 0.0;
     double _totalPhase = 0.0;
-    float _value = 0.0;
     LFOType _type = LFOType::Sine;
     double _sampleRate = 44100.0;
     std::function<void()> _destructor;

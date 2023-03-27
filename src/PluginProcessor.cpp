@@ -256,6 +256,11 @@ PinkTromboneAudioProcessor::PinkTromboneAudioProcessor()
     #endif
                        )
     , parameters(*this, nullptr, juce::Identifier("PinkTrombone"), createParameterLayout())
+    , _modLFO(parameters, {
+        PinkTromboneAudioProcessor::lfoRate,
+        PinkTromboneAudioProcessor::lfoShape,
+        PinkTromboneAudioProcessor::lfoMode
+    })
 #endif
 {
 	addParameter (tongueX = new AudioParameterFloat ("tonguex", // parameter ID
@@ -284,10 +289,17 @@ PinkTromboneAudioProcessor::PinkTromboneAudioProcessor()
     constrictionXMod = new ModulatedAudioParameter(constrictionX);
     constrictionYMod = new ModulatedAudioParameter(constrictionY);
     
+    // ADSR Modulation
     tongueXMod->appendModulationStage(&adsr, parameters.getParameter(PinkTromboneAudioProcessor::envModTongueX));
     tongueYMod->appendModulationStage(&adsr, parameters.getParameter(PinkTromboneAudioProcessor::envModTongueY));
     constrictionXMod->appendModulationStage(&adsr, parameters.getParameter(PinkTromboneAudioProcessor::envModConstrictionX));
     constrictionYMod->appendModulationStage(&adsr, parameters.getParameter(PinkTromboneAudioProcessor::envModConstrictionY));
+
+    // LFO Modulation
+    tongueXMod->appendModulationStage(&_modLFO, parameters.getParameter(PinkTromboneAudioProcessor::lfoModTongueX));
+    tongueYMod->appendModulationStage(&_modLFO, parameters.getParameter(PinkTromboneAudioProcessor::lfoModTongueY));
+    constrictionXMod->appendModulationStage(&_modLFO, parameters.getParameter(PinkTromboneAudioProcessor::envModConstrictionX));
+    constrictionYMod->appendModulationStage(&_modLFO, parameters.getParameter(PinkTromboneAudioProcessor::envModConstrictionY));
 	
 	initializeTractProps(&this->tractProps, 44);
 	
@@ -378,6 +390,7 @@ void PinkTromboneAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
     // initialisation that you need..
 	this->sampleRate = sampleRate;
 	this->adsr.setSampleRate(sampleRate);
+    _modLFO.setSampleRate(sampleRate);
     restartConstrictionSampleMax = RESTART_CONSTRICTION_TIME_SEC * sampleRate;
 	
 	for (int i=0; i<this->numVoices+1; i++)
@@ -521,7 +534,14 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
             vocalOutput += this->tract->noseOutputs[k];
         }
 
+
         adsr.advanceOneSample();
+        _modLFO.advanceOneSample();
+        float sample = _modLFO.value();
+        for (auto i = 0; i < _lfoVisualisers.size(); i++) {
+            _lfoVisualisers[i]->pushSample(&sample, 1);
+        }
+
 		this->applyVoicing();
 		
 		channelData[j] = vocalOutput * 0.125;
@@ -709,6 +729,19 @@ void PinkTromboneAudioProcessor::setIsSettingConstriction(bool tf)
 AudioProcessorValueTreeState& PinkTromboneAudioProcessor::getParametersTree()
 {
     return parameters;
+}
+
+//==============================================================================
+void PinkTromboneAudioProcessor::addLFOVisualiser(AudioVisualiserComponent *component)
+{
+    const ScopedLock sl (listenerLock);
+    _lfoVisualisers.addIfNotAlreadyThere (component);
+}
+
+void PinkTromboneAudioProcessor::removeLFOVisualiser(AudioVisualiserComponent *component)
+{
+    const ScopedLock sl (listenerLock);
+    _lfoVisualisers.removeFirstMatchingValue (component);
 }
 
 //==============================================================================

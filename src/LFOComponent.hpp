@@ -19,12 +19,15 @@ public:
     LFOComponent(AudioProcessorValueTreeState &state);
     ~LFOComponent() override;
     
+    AudioVisualiserComponent *getVisualiser();
     void paint(Graphics &g) override;
     void resized() override;
     
 private:
     
     Label _titleLabel;
+
+    AudioVisualiserComponent _audioVisualiserComponent;
 
     Label _tongueModXLabel;
     Label _tongueModYLabel;

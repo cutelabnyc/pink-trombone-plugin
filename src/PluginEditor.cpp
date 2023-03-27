@@ -41,6 +41,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
     envelopeComponent.setBounds(300, 0, 300, getHeight() / 2);
     addAndMakeVisible(&envelopeComponent);
 
+	p.addLFOVisualiser(lfoComponent.getVisualiser());
 	lfoComponent.setSize(300, getHeight() / 2);
     lfoComponent.setBounds(300, 0, 300, getHeight() / 2);
     addAndMakeVisible(&lfoComponent);
@@ -107,6 +108,7 @@ PinkTromboneAudioProcessorEditor::PinkTromboneAudioProcessorEditor (PinkTrombone
 
 PinkTromboneAudioProcessorEditor::~PinkTromboneAudioProcessorEditor()
 {
+	processor.removeLFOVisualiser(lfoComponent.getVisualiser());
 }
 
 //==============================================================================

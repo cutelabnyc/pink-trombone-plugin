@@ -16,6 +16,7 @@
 #include "WhiteNoise.hpp"
 #include "Biquad.hpp"
 #include "PinkTromboneADSR.hpp"
+#include "SimpleLFO.hpp"
 #include "Modulatable.h"
 #include <math.h>
 #include <map>
@@ -108,6 +109,10 @@ public:
     void setIsSettingConstriction(bool tf);
     AudioProcessorValueTreeState& getParametersTree();
 
+    //==============================================================================
+    CriticalSection listenerLock;
+    void addLFOVisualiser(AudioVisualiserComponent *component);
+    void removeLFOVisualiser(AudioVisualiserComponent *component);
 	
 	//=== Audio Parameters
 	float fricativeIntensity = 0.0;
@@ -140,6 +145,7 @@ public:
 private:
 	MPEInstrument instrument;
     AudioProcessorValueTreeState parameters;
+    SimpleLFO _modLFO;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PinkTromboneAudioProcessor)
@@ -157,4 +163,5 @@ private:
     bool restartConstrictionEnvelope = false;
     uint32_t restartConstrictionSampleCount = 0;
     uint32_t restartConstrictionSampleMax = 1;
+    Array<AudioVisualiserComponent *> _lfoVisualisers;
 };
