@@ -34,6 +34,9 @@ RealType AttenuvertedModulationStage<RealType>::modulatedValue(RealType normaliz
 
 ModulatedAudioParameter::ModulatedAudioParameter(RangedAudioParameter *parameter): _parameter(parameter) {}
 
+/**
+ * Normalized
+*/
 float ModulatedAudioParameter::value()
 {
     float normalizedInput = _parameter->getValue();

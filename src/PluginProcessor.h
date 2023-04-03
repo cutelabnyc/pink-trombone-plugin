@@ -26,6 +26,7 @@
 #define NOSE_ATTACHMENT_MIN (3)
 #define NOSE_ATTACHMENT_MAX (40)
 #define RESTART_CONSTRICTION_TIME_SEC (0.05)
+#define NUM_VOICES (11)
 
 //==============================================================================
 /**
@@ -124,7 +125,7 @@ public:
 	double constrictionMax = 2.0;
 	double sampleRate;
 	int voicingCounter = 0;
-	int numVoices = 11;
+	int numVoices = NUM_VOICES;
 	bool noteOn;
 	bool noteOff;
 	bool breath = false;
@@ -139,6 +140,7 @@ public:
     ModulatedAudioParameter* tongueYMod;
     ModulatedAudioParameter* constrictionXMod;
     ModulatedAudioParameter* constrictionYMod;
+    ModulatedAudioParameter* pitchMod;
 	
 	PinkTromboneADSR adsr;
 	PinkTromboneADSR::Parameters adsrParams;
@@ -149,15 +151,20 @@ private:
 	MPEInstrument instrument;
     AudioProcessorValueTreeState parameters;
     SimpleLFO _modLFO;
+    juce::dsp::LookupTableTransform<float> _mtofLookupTable;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PinkTromboneAudioProcessor)
 	void applyVoicing();
+
+    typedef struct GlottisParams {
+        float rootMIDIPitch;
+        Glottis *glottis;
+    } GlottisParams;
 	
-	std::map<uint16, Glottis*> glottisMap;
+	std::map<uint16, GlottisParams*> glottisMap;
 	t_tractProps tractProps;
-	Glottis *glottis;
-	Glottis **glottises = new Glottis *[numVoices];
+    GlottisParams glottisParams[NUM_VOICES];
 	Tract *tract;
 	WhiteNoise *whiteNoise;
 	Biquad *fricativeFilter;

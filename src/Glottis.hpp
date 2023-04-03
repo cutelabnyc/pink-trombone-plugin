@@ -19,7 +19,7 @@ public:
 	double runStep(double lambda, double noiseSource);
 	void finishBlock();
 	double getNoiseModulator();
-	void setFrequency(double midiNoteInHz);
+	void setFrequency(double frequency);
 	void setVoicing(bool voice);
 	void setActive(bool active);
 	void setBreathFactor(double breathFactor);

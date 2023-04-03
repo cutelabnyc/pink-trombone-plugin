@@ -259,6 +259,8 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
             "|",
             std::move(pitchAdjust)
         );
+
+        params.push_back (std::move (group));
     }
     
     return { params.begin(), params.end() };
@@ -281,6 +283,7 @@ PinkTromboneAudioProcessor::PinkTromboneAudioProcessor()
         PinkTromboneAudioProcessor::lfoShape,
         PinkTromboneAudioProcessor::lfoMode
     })
+    , _mtofLookupTable([] (float x) { return 440.0f * std::powf (2.0f, (x - 69.0f) / 12.0f); }, 0.0f, 127.0f, 5096)
 #endif
 {
 	addParameter (tongueX = new AudioParameterFloat ("tonguex", // parameter ID
@@ -308,18 +311,21 @@ PinkTromboneAudioProcessor::PinkTromboneAudioProcessor()
     tongueYMod = new ModulatedAudioParameter(tongueY);
     constrictionXMod = new ModulatedAudioParameter(constrictionX);
     constrictionYMod = new ModulatedAudioParameter(constrictionY);
+    pitchMod = new ModulatedAudioParameter(parameters.getParameter(PinkTromboneAudioProcessor::pitchAdjust));
     
     // ADSR Modulation
     tongueXMod->appendModulationStage(&adsr, parameters.getParameter(PinkTromboneAudioProcessor::envModTongueX));
     tongueYMod->appendModulationStage(&adsr, parameters.getParameter(PinkTromboneAudioProcessor::envModTongueY));
     constrictionXMod->appendModulationStage(&adsr, parameters.getParameter(PinkTromboneAudioProcessor::envModConstrictionX));
     constrictionYMod->appendModulationStage(&adsr, parameters.getParameter(PinkTromboneAudioProcessor::envModConstrictionY));
+    pitchMod->appendModulationStage(&adsr, parameters.getParameter(PinkTromboneAudioProcessor::envModPitch));
 
     // LFO Modulation
     tongueXMod->appendModulationStage(&_modLFO, parameters.getParameter(PinkTromboneAudioProcessor::lfoModTongueX));
     tongueYMod->appendModulationStage(&_modLFO, parameters.getParameter(PinkTromboneAudioProcessor::lfoModTongueY));
     constrictionXMod->appendModulationStage(&_modLFO, parameters.getParameter(PinkTromboneAudioProcessor::lfoModConstrictionX));
     constrictionYMod->appendModulationStage(&_modLFO, parameters.getParameter(PinkTromboneAudioProcessor::lfoModConstrictionY));
+    pitchMod->appendModulationStage(&_modLFO, parameters.getParameter(PinkTromboneAudioProcessor::lfoModPitch));
 	
 	initializeTractProps(&this->tractProps, 44);
 	
@@ -333,6 +339,10 @@ PinkTromboneAudioProcessor::~PinkTromboneAudioProcessor()
     delete tongueYMod;
     delete constrictionXMod;
     delete constrictionYMod;
+
+    for (int i = 0; i < NUM_VOICES; i++) {
+        delete glottisParams[i].glottis;
+    }
 }
 
 //==============================================================================
@@ -413,9 +423,9 @@ void PinkTromboneAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
     _modLFO.setSampleRate(sampleRate);
     restartConstrictionSampleMax = RESTART_CONSTRICTION_TIME_SEC * sampleRate;
 	
-	for (int i=0; i<this->numVoices+1; i++)
+	for (int i=0; i<this->numVoices; i++)
 	{
-		this->glottises[i] = new Glottis(sampleRate);
+        this->glottisParams[i].glottis = new Glottis(sampleRate);
 	}
 	
 	this->tract = new Tract(sampleRate, samplesPerBlock, &this->tractProps);
@@ -501,12 +511,22 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 	{
 		this->voicingCounter = 0;
 		this->noteOff = false;
-		for (int i=0; i<this->numVoices+1; i++)
+		for (int i=0; i<this->numVoices; i++)
 		{
-			glottises[i]->setVoicing(false);
-			glottises[i]->setActive(false);
+            glottisParams->glottis->setVoicing(false);
+            glottisParams->glottis->setActive(false);
 		}
 	}
+
+    // Apply pitch bend to all the glottises
+    float bend = pitchMod->value();
+    for (int i = 0; i < NUM_VOICES; i++) {
+        GlottisParams p = glottisParams[i];
+        if (p.glottis->isActive) {
+            float frequency = _mtofLookupTable.processSample(bend + p.rootMIDIPitch);
+            p.glottis->setFrequency(frequency);
+        }
+    }
 
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
@@ -533,10 +553,10 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 		double lambda2 = ((double) j + 0.5) / (double) N;
 		
 		double glotSum = 0;
-        double glotModulator = glottises[0]->getNoiseModulator();
-		for (int i=0; i<this->numVoices+1; i++)
+        double glotModulator = glottisParams[0].glottis->getNoiseModulator();
+		for (int i=0; i<this->numVoices; i++)
 		{
-			double glot = glottises[i]->runStep(lambda1, asp);
+			double glot = glottisParams[i].glottis->runStep(lambda1, asp);
 			glotSum += glot;
 		}
         
@@ -604,9 +624,9 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
         this->tract->setConstriction(constrictionIndex, constrictionDiameter, this->fricativeIntensity);
     }
     restartConstrictionSampleCount += N;
-	for (int i=0; i<this->numVoices+1; i++)
+	for (int i=0; i<this->numVoices; i++)
 	{
-		glottises[i]->finishBlock();
+        glottisParams[i].glottis->finishBlock();
 	}
 	
 	this->tract->finishBlock();
@@ -623,7 +643,6 @@ void PinkTromboneAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
 
 void PinkTromboneAudioProcessor::noteAdded(MPENote newNote)
 {
-	double midiNoteInHz = newNote.getFrequencyInHertz();
 	bool firstNote;
 	this->noteOn = true;
     if(this->glottisMap.empty()) {
@@ -634,13 +653,18 @@ void PinkTromboneAudioProcessor::noteAdded(MPENote newNote)
         restartConstrictionSampleCount = 0;
     }
 	
-	for (int i = 0; i < this->numVoices + 1; i++)
+	for (int i = 0; i < this->numVoices; i++)
 	{
-		if(!this->glottises[i]->isActive)
+		if( !this->glottisParams[i].glottis->isActive)
 		{
-			this->glottisMap.emplace(newNote.noteID, glottises[i]);
-			glottises[i]->setFrequency(midiNoteInHz);
-			glottises[i]->setActive(true);
+			this->glottisMap.emplace(newNote.noteID, &glottisParams[i]);
+            glottisParams[i].rootMIDIPitch = newNote.initialNote;
+
+            float bend = pitchMod->value();
+            float frequency = _mtofLookupTable.processSample(newNote.initialNote + (bend * 2.0f - 1.0f));
+
+			glottisParams[i].glottis->setFrequency(frequency);
+			glottisParams[i].glottis->setActive(true);
 			if (firstNote) {
 				this->voicingCounter = 0;
 			}
@@ -652,11 +676,12 @@ void PinkTromboneAudioProcessor::noteAdded(MPENote newNote)
 
 void PinkTromboneAudioProcessor::noteReleased(MPENote finishedNote)
 {
-	std::map<uint16, Glottis*>::iterator glotOff = this->glottisMap.find(finishedNote.noteID);
+	std::map<uint16, GlottisParams*>::iterator glotOff = this->glottisMap.find(finishedNote.noteID);
 
-	if (this->glottisMap.size() > 1) {
-        glotOff->second->setActive(false);
-        glotOff->second->setVoicing(false);
+    if (glotOff != glottisMap.end()) {
+        Glottis *g = glotOff->second->glottis;
+        g->setActive(false);
+        g->setVoicing(false);
     }
 
 	this->glottisMap.erase(finishedNote.noteID);
@@ -672,10 +697,10 @@ void PinkTromboneAudioProcessor::applyVoicing()
 {
 	if (this->voicingCounter == 0)
 	{
-		std::map<uint16, Glottis*>::iterator it = glottisMap.begin();
+		std::map<uint16, GlottisParams*>::iterator it = glottisMap.begin();
 		for (; it != glottisMap.end(); it++)
 		{
-			it->second->setVoicing(true);
+			it->second->glottis->setVoicing(true);
 		}
 		this->voicingCounter = 0;
 	}
@@ -709,9 +734,9 @@ void PinkTromboneAudioProcessor::setExtraNose(bool extraNose)
 void PinkTromboneAudioProcessor::updateBreathFactor(double breathFactor)
 {
 	
-	for (int i=0; i<this->numVoices+1; i++)
+	for (int i=0; i<this->numVoices; i++)
 	{
-		glottises[i]->setBreathFactor(breathFactor);
+        glottisParams[i].glottis->setBreathFactor(breathFactor);
 	}
 }
 
@@ -721,9 +746,9 @@ void PinkTromboneAudioProcessor::updateSize(double sizeFactor)
 	double sizeOffset = 0.15 - sizeFactor/10;
 	
 	this->tract->updateTractLength(tractLength);
-	for (int i=0; i<this->numVoices+1; i++)
+	for (int i=0; i<this->numVoices; i++)
 	{
-		glottises[i]->setSizeOffset(sizeOffset);
+        glottisParams[i].glottis->setSizeOffset(sizeOffset);
 	}
 }
 
