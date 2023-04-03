@@ -32,6 +32,7 @@ juce::String PinkTromboneAudioProcessor::lfoModConstrictionY    ("lfoModConstric
 juce::String PinkTromboneAudioProcessor::lfoModTongueX          ("lfoModTongueX");
 juce::String PinkTromboneAudioProcessor::lfoModTongueY          ("lfoModTongueY");
 juce::String PinkTromboneAudioProcessor::lfoModPitch            ("lfoModPitch");
+juce::String PinkTromboneAudioProcessor::pitchAdjust            ("pitchAdjust");
 
 
 static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
@@ -239,6 +240,25 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
             std::move(pitchLFOMod)
         );
         params.push_back (std::move (group));
+    }
+
+    // Vocal
+    {
+        auto pitchAdjust = std::make_unique<juce::AudioParameterFloat> (PinkTromboneAudioProcessor::pitchAdjust,
+            TRANS ("Pitch Adjust"),
+            juce::NormalisableRange<float> (-1.0f, 1.0f, 0.01f),
+            0.0f,
+            TRANS ("Pitch Adjust"),
+            juce::AudioProcessorParameter::genericParameter,
+            nullptr,
+            nullptr
+        );
+
+        auto group = std::make_unique<juce::AudioProcessorParameterGroup> ("vocal",
+            TRANS ("Vocal"),
+            "|",
+            std::move(pitchAdjust)
+        );
     }
     
     return { params.begin(), params.end() };
@@ -633,8 +653,12 @@ void PinkTromboneAudioProcessor::noteAdded(MPENote newNote)
 void PinkTromboneAudioProcessor::noteReleased(MPENote finishedNote)
 {
 	std::map<uint16, Glottis*>::iterator glotOff = this->glottisMap.find(finishedNote.noteID);
-	glotOff->second->setActive(false);
-	if (this->glottisMap.size() > 1) glotOff->second->setVoicing(false);
+
+	if (this->glottisMap.size() > 1) {
+        glotOff->second->setActive(false);
+        glotOff->second->setVoicing(false);
+    }
+
 	this->glottisMap.erase(finishedNote.noteID);
 	
 	if(this->glottisMap.empty()) {

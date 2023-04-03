@@ -62,6 +62,9 @@ public:
     static juce::String lfoModTongueY;
     static juce::String lfoModPitch;
 
+    // Vocal
+    static juce::String pitchAdjust;
+
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
